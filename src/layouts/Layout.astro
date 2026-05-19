@@ -6,9 +6,21 @@ import MobileNavbar from "../components/layout/mobile-navbar.astro";
 <html lang="id">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function () {
+        try {
+          const theme = localStorage.getItem('astro-theme');
+          const isDark = theme ? theme === 'dark' : window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+          if (isDark) document.documentElement.classList.add('dark');
+          else document.documentElement.classList.remove('dark');
+        } catch (e) {
+          // ignore
+        }
+      })();
+    </script>
   </head>
-  <body class="bg-zinc-950 text-white font-sans">
-    <div class="flex min-h-screen">
+  <body class="font-sans">
+    <div class="flex min-h-screen bg-[hsl(var(--background))] text-[hsl(var(--foreground))]">
       <SidebarMain />
 
       <main class="flex-1 w-full p-6 pb-28 md:p-10 md:pb-10">

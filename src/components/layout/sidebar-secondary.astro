@@ -9,7 +9,7 @@ import SidebarTheming from "./sidebar-theming.astro";
   {publicDashboardMenu.map((section) => (
     <div class="space-y-3">
       {section.groupLabel ? (
-        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500">
+        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-[hsl(var(--foreground)/0.65)]">
           {section.groupLabel}
         </p>
       ) : null}
@@ -18,7 +18,7 @@ import SidebarTheming from "./sidebar-theming.astro";
         {section.menus.map((item) => (
           <a
             href={item.href}
-            class="block rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm font-medium text-white hover:bg-zinc-800 transition-colors"
+            class="block rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] px-4 py-3 text-sm font-medium text-[hsl(var(--foreground))] hover:bg-[hsl(var(--background))] transition-colors"
           >
             {item.label}
           </a>
