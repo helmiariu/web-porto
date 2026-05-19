@@ -1,14 +1,14 @@
 ---
 ---
-<div class="rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-4">
-  <p class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500 mb-3">
+<div class="rounded-[2rem] border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-5 shadow-sm">
+  <p class="text-xs font-semibold uppercase tracking-[0.3em] text-[hsl(var(--foreground)/0.65)] mb-4">
     Theming
   </p>
   <button
     id="theme-toggle-button"
     type="button"
     aria-pressed="false"
-    class="flex w-full items-center justify-between rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 py-3 text-sm font-medium text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] transition-colors"
+    class="flex w-full items-center justify-between rounded-[1.75rem] border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 py-3 text-sm font-medium text-[hsl(var(--foreground))] transition-colors duration-200 hover:bg-[hsl(var(--secondary)/0.92)] hover:border-[hsl(var(--border))]"
   >
     <span>Dark Mode</span>
     <span id="theme-toggle-track" class="inline-flex h-8 min-w-[3.5rem] items-center rounded-full border px-1.5 text-[11px] transition-colors duration-200 border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))]">
@@ -30,8 +30,6 @@
     if (button) button.setAttribute('aria-pressed', dark ? 'true' : 'false');
     if (stateText) {
       stateText.textContent = dark ? 'On' : 'Off';
-      stateText.classList.toggle('text-white', dark);
-      stateText.classList.toggle('text-zinc-700', !dark);
     }
     if (track) {
       track.classList.toggle('bg-emerald-600', dark);
