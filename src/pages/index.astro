@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import CardProject from '../components/CardProject.astro';
 import CardBlog from '../components/CardBlog.astro';
+import MobileProfile from '../components/layout/mobile-profile.astro';
 import { getCollection } from 'astro:content';
 
 const allProjects = await getCollection('projects');
@@ -17,6 +18,7 @@ const latestPosts = allPosts
 ---
 
 <Layout>
+  <MobileProfile />
   <div class="space-y-16">
     <section class="space-y-4">
       <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-[hsl(var(--foreground))]">
