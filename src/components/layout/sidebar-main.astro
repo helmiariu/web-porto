@@ -1,20 +1,43 @@
 ---
 // sidebar-main.astro
 ---
-<aside class="hidden md:flex flex-col w-64 h-screen sticky top-0 border-r border-border py-6 px-4">
-  <div class="mb-6">
-    <div class="w-20 h-20 rounded-full overflow-hidden mb-3 border">
-      <div class="w-full h-full bg-secondary"></div>
+<aside class="hidden md:flex max-h-screen flex-col lg:w-64 md:w-52 md:ml-6 top-0 sticky pt-16 pb-6 overflow-y-auto border-r border-zinc-800 bg-zinc-950/95 backdrop-blur-xl shadow-[0_0_60px_rgba(0,0,0,0.25)]">
+  <div class="mb-6 px-4">
+    <div class="relative">
+      <div class="w-24 h-24 rounded-full overflow-hidden mb-4 border border-zinc-700 bg-zinc-900">
+        <div class="w-full h-full bg-zinc-700"></div>
+      </div>
     </div>
-    <h4 class="font-bold text-lg">Helmi Arimbawa</h4>
-    <div class="flex items-center gap-2 mt-1 text-xs text-green-500">
-      <span class="w-2 h-2 rounded-full bg-green-500"></span>
-      Online
+
+    <div class="space-y-2">
+      <div>
+        <p class="text-base font-semibold text-white">Helmi Arimbawa</p>
+        <p class="text-xs text-zinc-400">@helmi</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="relative flex h-3 w-3">
+          <span class="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 animate-ping"></span>
+          <span class="relative inline-flex h-3 w-3 rounded-full bg-emerald-500"></span>
+        </span>
+        <span class="text-xs text-emerald-400">Online</span>
+      </div>
     </div>
   </div>
-  
-  <nav class="flex flex-col gap-1">
-    <a href="/" class="px-4 py-2 rounded-lg hover:bg-secondary text-sm">Home</a>
-    <a href="/projects" class="px-4 py-2 rounded-lg hover:bg-secondary text-sm">Projects</a>
+
+  <div class="border-t border-zinc-800/70"></div>
+
+  <nav class="space-y-4 px-4 pt-4">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500 mb-2">Navigation</p>
+      <a href="/" class="group flex items-center justify-between w-full rounded-2xl px-4 py-3 text-sm font-medium text-white hover:bg-zinc-800 transition-colors">Home</a>
+      <a href="/projects" class="group flex items-center justify-between w-full rounded-2xl px-4 py-3 text-sm font-medium text-white hover:bg-zinc-800 transition-colors">Projects</a>
+      <a href="/about" class="group flex items-center justify-between w-full rounded-2xl px-4 py-3 text-sm font-medium text-white hover:bg-zinc-800 transition-colors">About</a>
+    </div>
+
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500 mb-2">Resources</p>
+      <a href="/contact" class="group flex items-center justify-between w-full rounded-2xl px-4 py-3 text-sm font-medium text-white hover:bg-zinc-800 transition-colors">Contact</a>
+      <a href="/experience" class="group flex items-center justify-between w-full rounded-2xl px-4 py-3 text-sm font-medium text-white hover:bg-zinc-800 transition-colors">Experience</a>
+    </div>
   </nav>
 </aside>
