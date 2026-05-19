@@ -29,7 +29,6 @@ const iconMap = {
         </span>
         <div>
           <p class="text-sm font-semibold text-[hsl(var(--foreground))]">Helmi Arimbawa</p>
-          <p class="text-xs text-[hsl(var(--foreground)/0.6)]">Frontend Developer</p>
         </div>
       </div>
     </div>
@@ -72,26 +71,46 @@ const iconMap = {
     </div>
 
     <!-- New Dark Mode Toggle -->
-    <div class="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))/0.3] p-4">
-      <p class="text-[0.63rem] font-semibold uppercase tracking-[0.3em] text-[hsl(var(--foreground)/0.5)] mb-3">
+    <!-- New Dark Mode Toggle -->
+    <div class="space-y-3">
+      <p class="text-[0.63rem] font-semibold uppercase tracking-[0.3em] text-[hsl(var(--foreground)/0.5)] pl-1">
         THEMING
       </p>
-      <button
-        id="mobile-theme-toggle"
-        type="button"
-        class="flex w-full items-center justify-between rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 py-2.5 text-sm font-medium text-[hsl(var(--foreground))] shadow-sm hover:bg-[hsl(var(--secondary))]"
-      >
-        <span class="flex items-center gap-3">
-          <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-[hsl(var(--secondary))] border border-[hsl(var(--border))] text-[hsl(var(--foreground))]" id="mobile-theme-icon-container">
-            <span class="h-4.5 w-4.5 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full [&>svg]:block" id="mobile-theme-icon"></span>
+      <div class="space-y-2">
+        <label
+          for="mobile-theme-switch"
+          class="flex items-center justify-between rounded-xl border border-transparent bg-transparent px-3 py-3 text-sm font-medium text-[hsl(var(--foreground)/0.6)] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))] transition-all duration-200 cursor-pointer select-none"
+        >
+          <span class="flex items-center gap-3">
+            <span class="flex items-center justify-center h-5 w-5 shrink-0 animate-fade-in [&>svg]:w-full [&>svg]:h-full [&>svg]:block" id="mobile-theme-icon"></span>
+            <span>Dark Mode</span>
           </span>
-          <span>Dark Mode</span>
-        </span>
-        <span id="mobile-theme-track" class="inline-flex h-7 min-w-[3.25rem] items-center rounded-full border px-1 transition-colors duration-200 border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))]">
-          <span id="mobile-theme-state" class="text-[9px] font-semibold pl-1.5 uppercase text-[hsl(var(--foreground)/0.6)]">Off</span>
-          <span id="mobile-theme-handle" class="ml-auto inline-block h-4.5 w-4.5 rounded-full bg-[hsl(var(--background))] shadow-sm transition-transform duration-200 border border-[hsl(var(--border))]"></span>
-        </span>
-      </button>
+          <div class="relative inline-block w-11 h-5 shrink-0 pointer-events-none mr-1">
+            <input 
+              id="mobile-theme-switch" 
+              type="checkbox" 
+              class="peer appearance-none w-11 h-5 bg-slate-200 dark:bg-zinc-800 rounded-full checked:bg-slate-800 dark:checked:bg-emerald-500 cursor-pointer transition-colors duration-300" 
+            />
+            <span 
+              class="absolute top-0 left-0 w-5 h-5 bg-white rounded-full border border-slate-300 dark:border-zinc-700 shadow-sm transition-transform duration-300 peer-checked:translate-x-6 peer-checked:border-slate-800 dark:peer-checked:border-emerald-500 cursor-pointer"
+            >
+            </span>
+            <script is:inline>
+              (function () {
+                try {
+                  const theme = localStorage.getItem('astro-theme');
+                  const isDark = theme ? theme === 'dark' : window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+                  if (isDark) {
+                    document.getElementById('mobile-theme-switch').checked = true;
+                  }
+                } catch (e) {
+                  // ignore
+                }
+              })();
+            </script>
+          </div>
+        </label>
+      </div>
     </div>
 
   </div>
@@ -101,31 +120,14 @@ const iconMap = {
   const storageKey = 'astro-theme';
   const html = document.documentElement;
   
-  const mButton = document.getElementById('mobile-theme-toggle');
-  const mHandle = document.getElementById('mobile-theme-handle');
-  const mStateText = document.getElementById('mobile-theme-state');
-  const mTrack = document.getElementById('mobile-theme-track');
+  const mCheckbox = document.getElementById('mobile-theme-switch') as HTMLInputElement;
   const mIcon = document.getElementById('mobile-theme-icon');
 
   const SunIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
   const MoonIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
 
   const setMobileTheme = (dark: boolean) => {
-    if (mButton) mButton.setAttribute('aria-pressed', dark ? 'true' : 'false');
-    if (mStateText) {
-      mStateText.textContent = dark ? 'On' : 'Off';
-    }
-    if (mTrack) {
-      mTrack.classList.toggle('bg-emerald-600', dark);
-      mTrack.classList.toggle('border-emerald-600', dark);
-      mTrack.classList.toggle('bg-[hsl(var(--secondary))]', !dark);
-      mTrack.classList.toggle('border-[hsl(var(--border))]', !dark);
-    }
-    if (mHandle) {
-      mHandle.style.transform = dark ? 'translateX(0.85rem)' : 'translateX(0)';
-      mHandle.classList.toggle('bg-zinc-950', dark);
-      mHandle.classList.toggle('bg-white', !dark);
-    }
+    if (mCheckbox) mCheckbox.checked = dark;
     if (mIcon) {
       mIcon.innerHTML = dark ? MoonIcon : SunIcon;
     }
@@ -149,8 +151,8 @@ const iconMap = {
   });
   observer.observe(html, { attributes: true });
 
-  mButton?.addEventListener('click', () => {
-    const nextTheme = !html.classList.contains('dark');
+  mCheckbox?.addEventListener('change', () => {
+    const nextTheme = mCheckbox.checked;
     try {
       localStorage.setItem(storageKey, nextTheme ? 'dark' : 'light');
     } catch {

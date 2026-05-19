@@ -1,47 +1,67 @@
 ---
+// sidebar-theming.astro
 ---
-<div class="rounded-[2rem] border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-5 shadow-sm">
-  <p class="text-xs font-semibold uppercase tracking-[0.3em] text-[hsl(var(--foreground)/0.65)] mb-4">
+<div class="space-y-2">
+  <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-[hsl(var(--foreground)/0.65)] pl-1">
     Theming
   </p>
-  <button
-    id="theme-toggle-button"
-    type="button"
-    aria-pressed="false"
-    class="flex w-full items-center justify-between rounded-[1.75rem] border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 py-3 text-sm font-medium text-[hsl(var(--foreground))] transition-colors duration-200 hover:bg-[hsl(var(--secondary)/0.92)] hover:border-[hsl(var(--border))]"
-  >
-    <span>Dark Mode</span>
-    <span id="theme-toggle-track" class="inline-flex h-8 min-w-[3.5rem] items-center rounded-full border px-1.5 text-[11px] transition-colors duration-200 border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))]">
-      <span id="theme-toggle-state" class="text-[hsl(var(--foreground))]">Off</span>
-      <span id="theme-toggle-handle" class="ml-auto inline-block h-5 w-5 rounded-full bg-[hsl(var(--background))] shadow-sm transition-transform duration-200"></span>
-    </span>
-  </button>
+  <div class="space-y-1.5">
+    <label
+      for="theme-switch"
+      class="flex items-center justify-between rounded-xl border border-transparent bg-transparent px-3 py-2 text-sm font-medium text-[hsl(var(--foreground)/0.6)] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))] transition-all duration-200 cursor-pointer select-none"
+    >
+      <span class="flex items-center gap-2.5">
+        <span 
+          id="desktop-theme-icon"
+          class="flex h-8 w-8 shrink-0 items-center justify-center transition-all duration-200 [&>svg]:w-4 [&>svg]:h-4 [&>svg]:block"
+        >
+        </span>
+        <span>Dark Mode</span>
+      </span>
+      <div class="relative inline-block w-11 h-5 shrink-0 pointer-events-none mr-1">
+        <input 
+          id="theme-switch" 
+          type="checkbox" 
+          class="peer appearance-none w-11 h-5 bg-slate-200 dark:bg-zinc-800 rounded-full checked:bg-slate-800 dark:checked:bg-emerald-500 cursor-pointer transition-colors duration-300" 
+        />
+        <span 
+          class="absolute top-0 left-0 w-5 h-5 bg-white rounded-full border border-slate-300 dark:border-zinc-700 shadow-sm transition-transform duration-300 peer-checked:translate-x-6 peer-checked:border-slate-800 dark:peer-checked:border-emerald-500 cursor-pointer"
+        >
+        </span>
+        <script is:inline>
+          (function () {
+            try {
+              const theme = localStorage.getItem('astro-theme');
+              const isDark = theme ? theme === 'dark' : window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+              if (isDark) {
+                document.getElementById('theme-switch').checked = true;
+              }
+            } catch (e) {
+              // ignore
+            }
+          })();
+        </script>
+      </div>
+    </label>
+  </div>
 </div>
+
 <script>
   const storageKey = 'astro-theme';
   const html = document.documentElement;
-  const button = document.getElementById('theme-toggle-button');
-  const handle = document.getElementById('theme-toggle-handle');
-  const stateText = document.getElementById('theme-toggle-state');
-  const track = document.getElementById('theme-toggle-track');
+  const checkbox = document.getElementById('theme-switch') as HTMLInputElement;
+  const desktopIcon = document.getElementById('desktop-theme-icon');
+
+  const SunIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
+  const MoonIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
 
   const setTheme = (dark: boolean) => {
     html.classList.toggle('dark', dark);
-    if (button) button.setAttribute('aria-pressed', dark ? 'true' : 'false');
-    if (stateText) {
-      stateText.textContent = dark ? 'On' : 'Off';
+    if (checkbox) {
+      checkbox.checked = dark;
     }
-    if (track) {
-      track.classList.toggle('bg-emerald-600', dark);
-      track.classList.toggle('border-emerald-600', dark);
-      track.classList.toggle('bg-[hsl(var(--secondary))]', !dark);
-      track.classList.toggle('border-[hsl(var(--border))]', !dark);
-      track.classList.toggle('border-zinc-800', dark);
-    }
-    if (handle) {
-      handle.style.transform = dark ? 'translateX(1rem)' : 'translateX(0)';
-      handle.classList.toggle('bg-zinc-950', dark);
-      handle.classList.toggle('bg-white', !dark);
+    if (desktopIcon) {
+      desktopIcon.innerHTML = dark ? MoonIcon : SunIcon;
     }
   };
 
@@ -56,10 +76,13 @@
   const getPreferredTheme = () => window.matchMedia?.('(prefers-color-scheme: dark)').matches;
   const savedTheme = getSavedTheme();
   const isDark = savedTheme ? savedTheme === 'dark' : getPreferredTheme();
+  
+  // Set initial theme
   setTheme(isDark);
 
-  button?.addEventListener('click', () => {
-    const nextTheme = !html.classList.contains('dark');
+  // Listen to toggle change
+  checkbox?.addEventListener('change', () => {
+    const nextTheme = checkbox.checked;
     try {
       localStorage.setItem(storageKey, nextTheme ? 'dark' : 'light');
     } catch {
@@ -67,4 +90,15 @@
     }
     setTheme(nextTheme);
   });
+
+  // Watch for html class changes (to sync if toggled elsewhere)
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.attributeName === 'class') {
+        const isCurrentlyDark = html.classList.contains('dark');
+        setTheme(isCurrentlyDark);
+      }
+    });
+  });
+  observer.observe(html, { attributes: true });
 </script>
