@@ -1,0 +1,21 @@
+---
+import "../styles/global.css";
+import SidebarMain from "../components/layout/sidebar-main.astro";
+import MobileNavbar from "../components/layout/mobile-navbar.astro";
+---
+<html lang="id">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body class="bg-zinc-950 text-white font-sans">
+    <div class="flex min-h-screen">
+      <SidebarMain />
+
+      <main class="flex-1 w-full p-6 md:p-10">
+        <slot />
+      </main>
+
+      <MobileNavbar />
+    </div>
+  </body>
+</html>
