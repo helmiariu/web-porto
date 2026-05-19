@@ -1,0 +1,31 @@
+---
+import { publicDashboardMenu } from "../../commons/constants/navigation-menu.ts";
+import ProfileSideCard from "./profile-side-card.astro";
+import SidebarTheming from "./sidebar-theming.astro";
+---
+<nav class="space-y-5 px-4 pb-6">
+  <ProfileSideCard />
+
+  {publicDashboardMenu.map((section) => (
+    <div class="space-y-3">
+      {section.groupLabel ? (
+        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500">
+          {section.groupLabel}
+        </p>
+      ) : null}
+
+      <div class="space-y-2">
+        {section.menus.map((item) => (
+          <a
+            href={item.href}
+            class="block rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm font-medium text-white hover:bg-zinc-800 transition-colors"
+          >
+            {item.label}
+          </a>
+        ))}
+      </div>
+    </div>
+  ))}
+
+  <SidebarTheming />
+</nav>
