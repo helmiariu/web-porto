@@ -3,6 +3,7 @@
 import { mainNavData } from "../../commons/constants/navigation-menu.ts";
 import { Home, Briefcase, FileText, Brain, MessageCircle, Wrench, MapPin, User, Menu } from "lucide-static";
 
+const currentPath = Astro.url.pathname;
 const navItems = mainNavData(false);
 const iconMap = {
   "/": Home,
@@ -20,25 +21,30 @@ const iconMap = {
 <nav class="md:hidden fixed bottom-6 inset-x-4 z-[60] rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--secondary))/0.95] px-3 py-3 shadow-2xl backdrop-blur-xl">
   <div class="flex items-center gap-2">
     {navItems.map((item) => {
+      const isActive = item.href === "/" ? currentPath === "/" : currentPath.startsWith(item.href);
       const iconMarkup = iconMap[item.href] ?? Menu;
       return (
         <a
           href={item.href}
           aria-label={item.label}
-          class="flex-1 flex h-11 items-center justify-center rounded-2xl bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] transition-colors"
+          class={`flex-1 flex h-11 items-center justify-center rounded-full transition-all duration-200 border ${
+            isActive
+              ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary)/0.08)] text-[hsl(var(--foreground))] shadow-[0_4px_12px_rgba(0,0,0,0.1)]'
+              : 'border-transparent bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]'
+          }`}
         >
-          <span class="h-5 w-5" set:html={iconMarkup}></span>
+          <span class="flex items-center justify-center h-5 w-5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block" set:html={iconMarkup}></span>
         </a>
       );
     })}
 
     <button
       id="mobile-menu-trigger"
-      class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] transition-colors ring-1 ring-[hsl(var(--border))] shadow-sm ml-auto"
+      class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] transition-colors ring-1 ring-[hsl(var(--border))] shadow-sm ml-auto"
       aria-label="Open menu"
       aria-expanded="false"
     >
-      <span class="h-5 w-5" set:html={Menu}></span>
+      <span class="flex items-center justify-center h-5 w-5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block" set:html={Menu}></span>
     </button>
   </div>
 </nav>

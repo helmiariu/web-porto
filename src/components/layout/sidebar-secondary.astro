@@ -28,7 +28,7 @@ const icons = {
 
       <div class="space-y-3">
         {section.menus.map((item) => {
-          const isActive = currentPath === item.href;
+          const isActive = item.href === "/" ? currentPath === "/" : currentPath.startsWith(item.href);
           const iconMarkup = icons[item.href] ?? Home;
           return (
             <a
@@ -41,11 +41,11 @@ const icons = {
               }`}
             >
               <span class="flex items-center gap-3">
-                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--background))] text-[hsl(var(--foreground))]" set:html={iconMarkup}></span>
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--background))] text-[hsl(var(--foreground))] [&>svg]:w-5 [&>svg]:h-5 [&>svg]:block" set:html={iconMarkup}></span>
                 <span>{item.label}</span>
               </span>
               {isActive ? (
-                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-[hsl(var(--primary)/0.16)] text-[hsl(var(--primary))]" set:html={ArrowRight}></span>
+                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-[hsl(var(--primary)/0.16)] text-[hsl(var(--primary))] [&>svg]:w-4 [&>svg]:h-4 [&>svg]:block" set:html={ArrowRight}></span>
               ) : null}
             </a>
           );

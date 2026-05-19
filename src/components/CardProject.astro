@@ -1,0 +1,36 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  tags: string[];
+  slug: string;
+  featured?: boolean;
+}
+
+const { title, description, image, tags, slug, featured } = Astro.props;
+---
+
+<a href={`/project/${slug}`} class="group relative flex flex-col gap-4 overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-4 hover:border-[hsl(var(--foreground)/0.2)] transition-colors">
+  <div class="relative aspect-video w-full overflow-hidden rounded-xl bg-muted">
+    {image ? (
+      <img src={image} alt={title} class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+    ) : (
+      <img src="/no-image.jpg" alt="No image" class="h-full w-full object-cover" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWltYWdlIj48cmVjdCB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHg9IjMiIHk9IjMiIHJ4PSIyIiByeT0iMiIvPjxjaXJjbGUgY3g9IjkiIGN5PSI5IiByPSIyIi8+PHBhdGggZD0ibTIxIDE1LTMuMDgtMy4wOGEyIDIgMCAwIDAtMi44MyAwbC0zLjQ2IDMuNDYiLz48cGF0aCBkPSJtMTYgMTItMi4wOC0yLjA4YTIgMiAwIDAgMC0yLjgzIDBsLTMuNDYgMy40NiIvPjwvc3ZnPg=='" />
+    )}
+  </div>
+  
+  <div class="flex flex-col gap-2">
+    <div class="flex items-center justify-between">
+      <h3 class="font-bold text-lg text-[hsl(var(--foreground))]">{title}</h3>
+      {featured && <span class="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-500">Featured</span>}
+    </div>
+    <p class="text-sm text-[hsl(var(--foreground)/0.7)] line-clamp-2">{description}</p>
+    
+    <div class="mt-2 flex flex-wrap gap-2">
+      {tags.map(tag => (
+        <span class="rounded-md bg-[hsl(var(--background))] px-2 py-1 text-xs text-[hsl(var(--foreground)/0.8)] border border-[hsl(var(--border))]">{tag}</span>
+      ))}
+    </div>
+  </div>
+</a>

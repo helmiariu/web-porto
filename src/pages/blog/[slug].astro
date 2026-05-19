@@ -1,0 +1,51 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection, render } from 'astro:content';
+import pkg from 'lucide-static';
+const { ArrowLeft } = pkg;
+
+export async function getStaticPaths() {
+  const blogEntries = await getCollection('blog');
+  return blogEntries.map(entry => ({
+    params: { slug: entry.id }, props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<Layout>
+  <article class="space-y-8">
+    <a href="/blog" class="inline-flex items-center gap-2 text-sm font-medium text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] transition-colors">
+      <span class="h-4 w-4" set:html={ArrowLeft}></span>
+      Kembali ke Blog
+    </a>
+
+    <div class="space-y-4">
+      <div class="text-sm text-[hsl(var(--foreground)/0.6)]">
+        <time datetime={entry.data.pubDate.toISOString()}>
+          {entry.data.pubDate.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
+        </time>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold text-[hsl(var(--foreground))]">{entry.data.title}</h1>
+      <p class="text-lg text-[hsl(var(--foreground)/0.7)]">{entry.data.description}</p>
+      
+      <div class="flex flex-wrap gap-2 pt-2">
+        {entry.data.tags.map((tag: string) => (
+          <span class="rounded-md bg-[hsl(var(--secondary))] px-2 py-1 text-xs text-[hsl(var(--foreground)/0.8)] border border-[hsl(var(--border))]">{tag}</span>
+        ))}
+      </div>
+    </div>
+
+    {entry.data.image && (
+      <div class="aspect-video w-full overflow-hidden rounded-xl border border-[hsl(var(--border))] bg-muted">
+        <img src={entry.data.image} alt={entry.data.title} class="h-full w-full object-cover" />
+      </div>
+    )}
+
+    <div class="prose prose-invert max-w-none prose-headings:text-[hsl(var(--foreground))] prose-p:text-[hsl(var(--foreground)/0.8)] prose-a:text-emerald-500 prose-img:rounded-xl">
+      <Content />
+    </div>
+  </article>
+</Layout>

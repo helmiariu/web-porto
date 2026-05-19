@@ -1,0 +1,61 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection, render } from 'astro:content';
+import pkg from 'lucide-static';
+const { ArrowLeft, Github, ExternalLink } = pkg;
+
+export async function getStaticPaths() {
+  const projectEntries = await getCollection('projects');
+  return projectEntries.map(entry => ({
+    params: { slug: entry.id }, props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<Layout>
+  <article class="space-y-8">
+    <a href="/project" class="inline-flex items-center gap-2 text-sm font-medium text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] transition-colors">
+      <span class="h-4 w-4" set:html={ArrowLeft}></span>
+      Kembali ke Proyek
+    </a>
+
+    <div class="space-y-4">
+      <h1 class="text-3xl md:text-4xl font-bold text-[hsl(var(--foreground))]">{entry.data.title}</h1>
+      <p class="text-lg text-[hsl(var(--foreground)/0.7)]">{entry.data.description}</p>
+      
+      <div class="flex flex-wrap gap-2 pt-2">
+        {entry.data.tags.map((tag: string) => (
+          <span class="rounded-md bg-[hsl(var(--secondary))] px-2 py-1 text-xs text-[hsl(var(--foreground)/0.8)] border border-[hsl(var(--border))]">{tag}</span>
+        ))}
+      </div>
+
+      <div class="flex items-center gap-4 pt-4">
+        {entry.data.github && (
+          <a href={entry.data.github} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-lg bg-[hsl(var(--secondary))] px-4 py-2 text-sm font-medium text-[hsl(var(--foreground))] hover:bg-[hsl(var(--border))] transition-colors">
+            <span class="h-4 w-4" set:html={Github}></span>
+            Source Code
+          </a>
+        )}
+        {entry.data.link && (
+          <a href={entry.data.link} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-4 py-2 text-sm font-medium text-[hsl(var(--background))] hover:opacity-90 transition-opacity">
+            <span class="h-4 w-4" set:html={ExternalLink}></span>
+            Live Demo
+          </a>
+        )}
+      </div>
+    </div>
+
+    {entry.data.image && (
+      <div class="aspect-video w-full overflow-hidden rounded-xl border border-[hsl(var(--border))] bg-muted">
+        <img src={entry.data.image} alt={entry.data.title} class="h-full w-full object-cover" />
+      </div>
+    )}
+
+    <div class="prose prose-invert max-w-none prose-headings:text-[hsl(var(--foreground))] prose-p:text-[hsl(var(--foreground)/0.8)] prose-a:text-emerald-500">
+      <Content />
+    </div>
+  </article>
+</Layout>

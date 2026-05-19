@@ -2,21 +2,23 @@
 // sidebar-main.astro
 import SidebarSecondary from "./sidebar-secondary.astro";
 ---
-<aside class="hidden md:flex max-h-screen flex-col lg:w-64 md:w-52 md:ml-6 top-0 sticky pt-16 pb-6 overflow-y-auto border-r border-[hsl(var(--border))] bg-[hsl(var(--secondary))/0.95] dark:bg-[hsl(var(--secondary))/0.95] backdrop-blur-xl shadow-[0_0_60px_rgba(15,23,42,0.12)]">
-  <div class="mb-6 px-4">
+<aside class="hidden md:flex flex-col w-full md:w-64 shrink-0 md:sticky md:top-12 h-fit pb-6 border-r border-[hsl(var(--border))] md:border-none">
+  <div class="mb-6 px-4 pt-4 md:pt-0">
     <div class="relative">
-      <div class="w-24 h-24 rounded-full overflow-hidden mb-4 border border-[hsl(var(--border))] bg-[hsl(var(--secondary))]"></div>
+      <div class="w-24 h-24 rounded-full overflow-hidden mb-4 border border-[hsl(var(--border))] bg-[hsl(var(--secondary))]">
+        <img src="/images/avatar.jpg" alt="Profile" class="w-full h-full object-cover" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXIiPjxwYXRoIGQ9Ik0xOSAyMXYtMmE0IDQgMCAwIDAtNC00SDlhNCA0IDAgMCAwLTQgNHYyIi8+PGNpcmNsZSBjeD0iMTIiIGN5PSI3IiByPSI0Ii8+PC9zdmc+'" />
+      </div>
     </div>
 
-    <div class="space-y-2">
-      <p class="text-base font-semibold text-[hsl(var(--foreground))]">Helmi Arimbawa</p>
-      <p class="text-xs text-[hsl(var(--foreground)/0.65)]">@helmi</p>
-      <div class="flex items-center gap-2 mt-2">
-        <span class="relative flex h-3 w-3">
+    <div class="space-y-1">
+      <h1 class="text-xl font-bold tracking-tight text-[hsl(var(--foreground))]">Helmi Arimbawa</h1>
+      <p class="text-sm font-medium text-[hsl(var(--foreground)/0.65)]">Frontend Developer</p>
+      <div class="flex items-center gap-2 pt-2">
+        <span class="relative flex h-2.5 w-2.5">
           <span class="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 animate-ping"></span>
-          <span class="relative inline-flex h-3 w-3 rounded-full bg-emerald-500"></span>
+          <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
         </span>
-        <span class="text-xs text-emerald-400">Online</span>
+        <span class="text-xs font-medium text-[hsl(var(--foreground)/0.65)]">Available for work</span>
       </div>
     </div>
   </div>

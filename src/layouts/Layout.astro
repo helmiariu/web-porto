@@ -20,16 +20,16 @@ import MobileDropdownPanel from "../components/layout/mobile-dropdown-panel.astr
       })();
     </script>
   </head>
-  <body class="font-sans">
-    <div class="flex min-h-screen bg-[hsl(var(--background))] text-[hsl(var(--foreground))]">
+  <body class="font-sans antialiased bg-[hsl(var(--background))] text-[hsl(var(--foreground))] min-h-screen overflow-x-hidden">
+    <div class="mx-auto max-w-5xl px-4 md:px-8 py-8 md:py-12 flex flex-col md:flex-row gap-8 items-start">
       <SidebarMain />
 
-      <main class="flex-1 w-full p-6 pb-28 md:p-10 md:pb-10">
+      <main class="flex-1 min-w-0 pb-28 md:pb-0 w-full">
         <slot />
       </main>
-
-      <MobileNavbarIcons />
-      <MobileDropdownPanel />
     </div>
+
+    <MobileNavbarIcons />
+    <MobileDropdownPanel />
   </body>
 </html>
