@@ -1,7 +1,8 @@
 ---
 import "../styles/global.css";
 import SidebarMain from "../components/layout/sidebar-main.astro";
-import MobileNavbar from "../components/layout/mobile-navbar.astro";
+import MobileNavbarIcons from "../components/layout/mobile-navbar-icons.astro";
+import MobileDropdownPanel from "../components/layout/mobile-dropdown-panel.astro";
 ---
 <html lang="id">
   <head>
@@ -27,7 +28,8 @@ import MobileNavbar from "../components/layout/mobile-navbar.astro";
         <slot />
       </main>
 
-      <MobileNavbar />
+      <MobileNavbarIcons />
+      <MobileDropdownPanel />
     </div>
   </body>
 </html>
