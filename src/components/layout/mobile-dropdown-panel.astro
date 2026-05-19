@@ -19,17 +19,17 @@ const iconMap = {
 
 <div
   id="mobile-dropdown"
-  class="md:hidden fixed inset-x-0 bottom-0 z-40 overflow-y-auto rounded-t-[2rem] bg-[hsl(var(--secondary))/0.98] p-4 shadow-2xl backdrop-blur-xl max-h-[70vh] opacity-0 pointer-events-none translate-y-4 transition-all duration-300"
+  class="md:hidden fixed inset-x-0 bottom-0 z-40 overflow-y-auto rounded-t-[2rem] border-t border-[hsl(var(--border))] bg-[hsl(var(--background))] p-5 shadow-2xl max-h-[75vh] opacity-0 pointer-events-none translate-y-4 transition-all duration-300"
 >
-  <div class="space-y-4 pb-24">
-    <div class="rounded-3xl border-x border-t-0 border-b-0 border-[hsl(var(--border))] bg-[hsl(var(--background))] p-4">
+  <div class="space-y-4 pb-28">
+    <div class="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))/0.3] p-4">
       <div class="flex items-center gap-3">
-        <span class="grid h-14 w-14 place-items-center rounded-3xl bg-[hsl(var(--primary))]/15 text-[hsl(var(--primary))]">
-          <span class="flex items-center justify-center h-6 w-6 [&>svg]:w-full [&>svg]:h-full [&>svg]:block" set:html={User}></span>
+        <span class="grid h-12 w-12 place-items-center rounded-2xl bg-[hsl(var(--primary))]/10 text-[hsl(var(--foreground))]">
+          <span class="flex items-center justify-center h-5 w-5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block" set:html={User}></span>
         </span>
         <div>
           <p class="text-sm font-semibold text-[hsl(var(--foreground))]">Helmi Arimbawa</p>
-          <p class="text-xs text-[hsl(var(--foreground)/0.65)]">Frontend Developer</p>
+          <p class="text-xs text-[hsl(var(--foreground)/0.6)]">Frontend Developer</p>
         </div>
       </div>
     </div>
@@ -38,7 +38,7 @@ const iconMap = {
       {publicDashboardMenu.map((section) => (
         <div class="space-y-3">
           {section.groupLabel ? (
-            <p class="text-[0.63rem] font-semibold uppercase tracking-[0.3em] text-[hsl(var(--foreground)/0.65)]">
+            <p class="text-[0.63rem] font-semibold uppercase tracking-[0.3em] text-[hsl(var(--foreground)/0.5)]">
               {section.groupLabel}
             </p>
           ) : null}
@@ -50,10 +50,10 @@ const iconMap = {
                 <a
                   href={item.href}
                   aria-current={isActive ? 'page' : undefined}
-                  class={`flex items-center justify-between rounded-2xl border px-3 py-3 text-sm font-medium transition-all duration-200 ${
+                  class={`flex items-center justify-between rounded-xl border px-3 py-3 text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary)/0.08)] text-[hsl(var(--foreground))] shadow-[0_10px_30px_-15px_rgba(15,23,42,0.25)]'
-                      : 'border-[hsl(var(--border))] bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary)/0.92)]'
+                      ? 'border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] shadow-sm'
+                      : 'border-transparent bg-transparent text-[hsl(var(--foreground)/0.6)] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))]'
                   }`}
                 >
                   <span class="flex items-center gap-3">
@@ -61,7 +61,7 @@ const iconMap = {
                     <span>{item.label}</span>
                   </span>
                   {isActive ? (
-                    <span class="flex h-5 w-5 items-center justify-center rounded-full bg-[hsl(var(--primary)/0.16)] text-[hsl(var(--primary))] [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:block" set:html={ArrowRight}></span>
+                    <span class="flex h-5 w-5 items-center justify-center rounded-full bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--foreground))] [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:block" set:html={ArrowRight}></span>
                   ) : null}
                 </a>
               );
@@ -70,5 +70,93 @@ const iconMap = {
         </div>
       ))}
     </div>
+
+    <!-- New Dark Mode Toggle -->
+    <div class="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))/0.3] p-4">
+      <p class="text-[0.63rem] font-semibold uppercase tracking-[0.3em] text-[hsl(var(--foreground)/0.5)] mb-3">
+        THEMING
+      </p>
+      <button
+        id="mobile-theme-toggle"
+        type="button"
+        class="flex w-full items-center justify-between rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 py-2.5 text-sm font-medium text-[hsl(var(--foreground))] shadow-sm hover:bg-[hsl(var(--secondary))]"
+      >
+        <span class="flex items-center gap-3">
+          <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-[hsl(var(--secondary))] border border-[hsl(var(--border))] text-[hsl(var(--foreground))]" id="mobile-theme-icon-container">
+            <span class="h-4.5 w-4.5 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full [&>svg]:block" id="mobile-theme-icon"></span>
+          </span>
+          <span>Dark Mode</span>
+        </span>
+        <span id="mobile-theme-track" class="inline-flex h-7 min-w-[3.25rem] items-center rounded-full border px-1 transition-colors duration-200 border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))]">
+          <span id="mobile-theme-state" class="text-[9px] font-semibold pl-1.5 uppercase text-[hsl(var(--foreground)/0.6)]">Off</span>
+          <span id="mobile-theme-handle" class="ml-auto inline-block h-4.5 w-4.5 rounded-full bg-[hsl(var(--background))] shadow-sm transition-transform duration-200 border border-[hsl(var(--border))]"></span>
+        </span>
+      </button>
+    </div>
+
   </div>
 </div>
+
+<script>
+  const storageKey = 'astro-theme';
+  const html = document.documentElement;
+  
+  const mButton = document.getElementById('mobile-theme-toggle');
+  const mHandle = document.getElementById('mobile-theme-handle');
+  const mStateText = document.getElementById('mobile-theme-state');
+  const mTrack = document.getElementById('mobile-theme-track');
+  const mIcon = document.getElementById('mobile-theme-icon');
+
+  const SunIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
+  const MoonIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
+
+  const setMobileTheme = (dark: boolean) => {
+    if (mButton) mButton.setAttribute('aria-pressed', dark ? 'true' : 'false');
+    if (mStateText) {
+      mStateText.textContent = dark ? 'On' : 'Off';
+    }
+    if (mTrack) {
+      mTrack.classList.toggle('bg-emerald-600', dark);
+      mTrack.classList.toggle('border-emerald-600', dark);
+      mTrack.classList.toggle('bg-[hsl(var(--secondary))]', !dark);
+      mTrack.classList.toggle('border-[hsl(var(--border))]', !dark);
+    }
+    if (mHandle) {
+      mHandle.style.transform = dark ? 'translateX(0.85rem)' : 'translateX(0)';
+      mHandle.classList.toggle('bg-zinc-950', dark);
+      mHandle.classList.toggle('bg-white', !dark);
+    }
+    if (mIcon) {
+      mIcon.innerHTML = dark ? MoonIcon : SunIcon;
+    }
+  };
+
+  const syncTheme = () => {
+    const isDark = html.classList.contains('dark');
+    setMobileTheme(isDark);
+  };
+
+  // Initial Sync
+  syncTheme();
+
+  // Watch for html class changes (sync with desktop theme changes)
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.attributeName === 'class') {
+        syncTheme();
+      }
+    });
+  });
+  observer.observe(html, { attributes: true });
+
+  mButton?.addEventListener('click', () => {
+    const nextTheme = !html.classList.contains('dark');
+    try {
+      localStorage.setItem(storageKey, nextTheme ? 'dark' : 'light');
+    } catch {
+      // ignore
+    }
+    html.classList.toggle('dark', nextTheme);
+    setMobileTheme(nextTheme);
+  });
+</script>

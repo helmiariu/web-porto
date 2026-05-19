@@ -18,7 +18,7 @@ const iconMap = {
 };
 ---
 
-<nav class="md:hidden fixed bottom-6 inset-x-4 z-[60] rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--secondary))/0.95] px-3 py-3 shadow-2xl backdrop-blur-xl">
+<nav class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-xs z-[60] rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-3 py-2.5 shadow-lg">
   <div class="flex items-center gap-2">
     {navItems.map((item) => {
       const isActive = item.href === "/" ? currentPath === "/" : currentPath.startsWith(item.href);
@@ -27,10 +27,10 @@ const iconMap = {
         <a
           href={item.href}
           aria-label={item.label}
-          class={`flex-1 flex h-11 items-center justify-center rounded-full transition-all duration-200 border ${
+          class={`flex-1 flex h-11 items-center justify-center rounded-2xl transition-all duration-200 border ${
             isActive
-              ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary)/0.08)] text-[hsl(var(--foreground))] shadow-[0_4px_12px_rgba(0,0,0,0.1)]'
-              : 'border-transparent bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]'
+              ? 'border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] shadow-sm'
+              : 'border-transparent bg-transparent text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]'
           }`}
         >
           <span class="flex items-center justify-center h-5 w-5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block" set:html={iconMarkup}></span>
@@ -40,7 +40,7 @@ const iconMap = {
 
     <button
       id="mobile-menu-trigger"
-      class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] transition-colors ring-1 ring-[hsl(var(--border))] shadow-sm ml-auto"
+      class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] transition-colors shadow-sm ml-auto"
       aria-label="Open menu"
       aria-expanded="false"
     >
