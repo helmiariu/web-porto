@@ -6,9 +6,10 @@ import SocialLinks from "./social-links.astro";
 
 <aside
   id="main-sidebar"
-  class="hidden md:flex flex-col sticky top-8 w-72 lg:w-80 max-h-screen md:pt-3 pb-6 px-3 md:border-none select-none"
+  class="hidden md:flex flex-col  sticky top-0 w-72 lg:w-80 max-h-screen overflow-y-auto md:pt-14 pb-6 px-3 md:border-none select-none"
 >
-  <div class="mb-6 px-4">
+<!-- bg-red-500 -->
+  <div class="mb-6 px-4 ">
     <div class="relative">
       <div
         class="w-24 h-24 rounded-full overflow-hidden mb-4 border border-[hsl(var(--border))]"
@@ -52,20 +53,3 @@ import SocialLinks from "./social-links.astro";
   <SidebarSecondary />
 </aside>
 
-<script>
-  const sidebar = document.getElementById("main-sidebar");
-
-  if (sidebar) {
-    // Sidebar tidak punya scroll sendiri.
-    // Teruskan semua wheel event ke halaman utama agar
-    // hanya konten yang bergerak saat scroll di area sidebar.
-    sidebar.addEventListener(
-      "wheel",
-      (e) => {
-        e.preventDefault();
-        window.scrollBy({ top: e.deltaY, left: e.deltaX });
-      },
-      { passive: false }
-    );
-  }
-</script>

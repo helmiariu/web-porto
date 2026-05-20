@@ -34,11 +34,12 @@ import MobileDropdownPanel from "../components/layout/mobile-dropdown-panel.astr
     class="font-sans antialiased bg-[hsl(var(--background))] text-[hsl(var(--foreground))] min-h-screen overflow-x-hidden"
   >
     <div
-      class="mx-auto max-w-[1400px] w-full px-6 pt-8 pb-20 md:pt-12 md:pb-24 flex flex-col md:flex-row gap-0 items-start min-h-screen"
+      class="mx-auto max-w-[1400px] w-full px-6 pt-8 pb-20 md:pt-0 md:pb-24 flex flex-col md:flex-row gap-0 items-stretch min-h-screen"
     >
       <SidebarMain />
 
-      <main class="flex-1 min-w-0 pb-28 md:pb-0 w-full">
+      <!-- <main class="flex-1 min-w-0 pb-28 md:pb-0 w-full"> -->
+       <main class="flex-1 min-w-0 pt-8 md:pt-12 pb-28 md:pb-0 w-full md:h-full md:overflow-y-auto">
         <slot />
       </main>
     </div>
