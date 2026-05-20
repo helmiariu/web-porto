@@ -1,5 +1,5 @@
 @import "tailwindcss";
-
+@import "./sidebar.css";
 /* Tambahkan ini di bagian bawah file global.css */
 @config "../../tailwind.config.mjs";
 

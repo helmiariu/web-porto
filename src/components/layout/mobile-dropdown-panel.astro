@@ -41,7 +41,7 @@ const iconMap = {
               {section.groupLabel}
             </p>
           ) : null}
-          <div class="space-y-2">
+          <div class="flex flex-col">
             {section.menus.map((item) => {
               const isActive = item.href === "/" ? currentPath === "/" : currentPath.startsWith(item.href);
               const iconMarkup = iconMap[item.href] ?? Menu;
@@ -49,19 +49,13 @@ const iconMap = {
                 <a
                   href={item.href}
                   aria-current={isActive ? 'page' : undefined}
-                  class={`flex items-center justify-between rounded-xl border px-3 py-3 text-sm font-medium transition-all duration-200 ${
-                    isActive
-                      ? 'border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] shadow-sm'
-                      : 'border-transparent bg-transparent text-[hsl(var(--foreground)/0.6)] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))]'
-                  }`}
+                  class={`sidebar-menu-item ${isActive ? 'active' : ''}`}
                 >
-                  <span class="flex items-center gap-3">
-                    <span class="flex items-center justify-center h-5 w-5 shrink-0 [&>svg]:w-full [&>svg]:h-full [&>svg]:block" set:html={iconMarkup}></span>
-                    <span>{item.label}</span>
+                  <span class="sidebar-menu-content">
+                    <span class="sidebar-menu-icon" set:html={iconMarkup}></span>
+                    <span class="sidebar-menu-text">{item.label}</span>
                   </span>
-                  {isActive ? (
-                    <span class="flex h-5 w-5 items-center justify-center rounded-full bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--foreground))] [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:block" set:html={ArrowRight}></span>
-                  ) : null}
+                  <span class="sidebar-menu-arrow" set:html={ArrowRight}></span>
                 </a>
               );
             })}
