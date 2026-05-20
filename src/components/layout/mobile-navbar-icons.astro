@@ -1,7 +1,17 @@
 ---
 // mobile-navbar-icons.astro
 import { mainNavData } from "../../commons/constants/navigation-menu.ts";
-import { Home, Briefcase, FileText, Brain, MessageCircle, Wrench, MapPin, User, Menu } from "lucide-static";
+import {
+  Home,
+  Briefcase,
+  FileText,
+  Brain,
+  MessageCircle,
+  Wrench,
+  MapPin,
+  User,
+  Menu,
+} from "lucide-static";
 
 const currentPath = Astro.url.pathname;
 const navItems = mainNavData(false);
@@ -18,25 +28,35 @@ const iconMap = {
 };
 ---
 
-<nav class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-xs z-[60] rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-3 py-2.5 shadow-lg">
+<nav
+  class="md:hidden fixed bottom-3 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-xs z-[60] rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-3 py-2.5 shadow-lg"
+>
   <div class="flex items-center gap-2">
-    {navItems.map((item) => {
-      const isActive = item.href === "/" ? currentPath === "/" : currentPath.startsWith(item.href);
-      const iconMarkup = iconMap[item.href] ?? Menu;
-      return (
-        <a
-          href={item.href}
-          aria-label={item.label}
-          class={`flex-1 flex h-11 items-center justify-center rounded-2xl transition-all duration-200 border ${
-            isActive
-              ? 'border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] shadow-sm'
-              : 'border-transparent bg-transparent text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]'
-          }`}
-        >
-          <span class="flex items-center justify-center h-5 w-5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block" set:html={iconMarkup}></span>
-        </a>
-      );
-    })}
+    {
+      navItems.map((item) => {
+        const isActive =
+          item.href === "/"
+            ? currentPath === "/"
+            : currentPath.startsWith(item.href);
+        const iconMarkup = iconMap[item.href] ?? Menu;
+        return (
+          <a
+            href={item.href}
+            aria-label={item.label}
+            class={`flex-1 flex h-11 items-center justify-center rounded-2xl transition-all duration-200 border ${
+              isActive
+                ? "border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] shadow-sm"
+                : "border-transparent bg-transparent text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]"
+            }`}
+          >
+            <span
+              class="flex items-center justify-center h-5 w-5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block"
+              set:html={iconMarkup}
+            />
+          </a>
+        );
+      })
+    }
 
     <button
       id="mobile-menu-trigger"
@@ -44,7 +64,9 @@ const iconMap = {
       aria-label="Open menu"
       aria-expanded="false"
     >
-      <span class="flex items-center justify-center h-5 w-5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block" set:html={Menu}></span>
+      <span
+        class="flex items-center justify-center h-5 w-5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block"
+        set:html={Menu}></span>
     </button>
   </div>
 </nav>
@@ -56,14 +78,30 @@ const iconMap = {
   if (trigger && dropdown) {
     trigger.addEventListener("click", () => {
       const isOpen = dropdown.classList.contains("opacity-100");
-      
+
       if (isOpen) {
-        dropdown.classList.add("opacity-0", "pointer-events-none", "translate-y-4");
-        dropdown.classList.remove("opacity-100", "pointer-events-auto", "translate-y-0");
+        dropdown.classList.add(
+          "opacity-0",
+          "pointer-events-none",
+          "translate-y-4"
+        );
+        dropdown.classList.remove(
+          "opacity-100",
+          "pointer-events-auto",
+          "translate-y-0"
+        );
         trigger.setAttribute("aria-expanded", "false");
       } else {
-        dropdown.classList.remove("opacity-0", "pointer-events-none", "translate-y-4");
-        dropdown.classList.add("opacity-100", "pointer-events-auto", "translate-y-0");
+        dropdown.classList.remove(
+          "opacity-0",
+          "pointer-events-none",
+          "translate-y-4"
+        );
+        dropdown.classList.add(
+          "opacity-100",
+          "pointer-events-auto",
+          "translate-y-0"
+        );
         trigger.setAttribute("aria-expanded", "true");
       }
     });

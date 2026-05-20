@@ -30,17 +30,19 @@ import SocialLinks from "./social-links.astro";
       >
         Helmi Arimbawa
       </h1>
-      <div class="flex items-center gap-2 pt-2">
+      <div class="flex items-center gap-2 pt-0">
         <span class="relative flex h-2.5 w-2.5">
+          <!-- Ping layer (diperterang jadi emerald-400 saat dark mode) -->
           <span
-            class="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 animate-ping"
+            class="absolute inline-flex h-full w-full rounded-full bg-emerald-500 dark:bg-emerald-400 opacity-75 animate-ping"
           ></span>
+          <!-- Dot utama -->
           <span
-            class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"
+            class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500 dark:bg-emerald-400"
           ></span>
         </span>
         <span class="text-xs font-medium text-[hsl(var(--foreground)/0.65)]"
-          >Available for work</span
+          >Online</span
         >
       </div>
 
