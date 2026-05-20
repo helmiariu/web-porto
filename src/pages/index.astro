@@ -1,17 +1,17 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import CardProject from '../components/CardProject.astro';
-import CardBlog from '../components/CardBlog.astro';
-import MobileProfile from '../components/layout/mobile-profile.astro';
-import { getCollection } from 'astro:content';
+import Layout from "../layouts/Layout.astro";
+import CardProject from "../components/CardProject.astro";
+import CardBlog from "../components/CardBlog.astro";
+import MobileProfile from "../components/layout/mobile-profile.astro";
+import { getCollection } from "astro:content";
 
-const allProjects = await getCollection('projects');
+const allProjects = await getCollection("projects");
 const featuredProjects = allProjects
-  .filter(project => project.data.featured)
+  .filter((project) => project.data.featured)
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
   .slice(0, 4);
 
-const allPosts = await getCollection('blog');
+const allPosts = await getCollection("blog");
 const latestPosts = allPosts
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
   .slice(0, 3);
@@ -21,47 +21,74 @@ const latestPosts = allPosts
   <MobileProfile />
   <div class="space-y-16">
     <section class="space-y-4">
-      <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-[hsl(var(--foreground))]">
+      <h1
+        class="text-4xl md:text-5xl font-extrabold tracking-tight text-[hsl(var(--foreground))]"
+      >
         Halo, saya Helmi 👋
       </h1>
-      <p class="text-lg text-[hsl(var(--foreground)/0.7)] max-w-2xl leading-relaxed">
-        Seorang pengembang frontend yang berfokus pada pembuatan antarmuka pengguna yang indah, interaktif, dan berkinerja tinggi menggunakan teknologi web modern.
+      <p
+        class="text-lg text-[hsl(var(--foreground)/0.7)] max-w-2xl leading-relaxed"
+      >
+        Seorang pengembang frontend yang berfokus pada pembuatan antarmuka
+        pengguna yang indah, interaktif, dan berkinerja tinggi menggunakan
+        teknologi web modern.
       </p>
     </section>
 
-    <section class="space-y-6">
+    <section class="space-y-600">
+      <!-- default 6 -->
       <div class="flex items-center justify-between">
-        <h2 class="text-2xl font-bold tracking-tight text-[hsl(var(--foreground))]">Proyek Pilihan</h2>
-        <a href="/project" class="text-sm font-medium text-emerald-500 hover:underline">Lihat semua &rarr;</a>
+        <h2
+          class="text-2xl font-bold tracking-tight text-[hsl(var(--foreground))]"
+        >
+          Proyek Pilihan
+        </h2>
+        <a
+          href="/project"
+          class="text-sm font-medium text-emerald-500 hover:underline"
+          >Lihat semua &rarr;</a
+        >
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {featuredProjects.map(project => (
-          <CardProject 
-            title={project.data.title}
-            description={project.data.description}
-            image={project.data.image}
-            tags={project.data.tags}
-            slug={project.id}
-            featured={project.data.featured}
-          />
-        ))}
+        {
+          featuredProjects.map((project) => (
+            <CardProject
+              title={project.data.title}
+              description={project.data.description}
+              image={project.data.image}
+              tags={project.data.tags}
+              slug={project.id}
+              featured={project.data.featured}
+            />
+          ))
+        }
       </div>
     </section>
 
     <section class="space-y-6">
       <div class="flex items-center justify-between">
-        <h2 class="text-2xl font-bold tracking-tight text-[hsl(var(--foreground))]">Artikel Terbaru</h2>
-        <a href="/blog" class="text-sm font-medium text-emerald-500 hover:underline">Baca semua &rarr;</a>
+        <h2
+          class="text-2xl font-bold tracking-tight text-[hsl(var(--foreground))]"
+        >
+          Artikel Terbaru
+        </h2>
+        <a
+          href="/blog"
+          class="text-sm font-medium text-emerald-500 hover:underline"
+          >Baca semua &rarr;</a
+        >
       </div>
       <div class="flex flex-col gap-4">
-        {latestPosts.map(post => (
-          <CardBlog 
-            title={post.data.title}
-            description={post.data.description}
-            pubDate={post.data.pubDate}
-            slug={post.id}
-          />
-        ))}
+        {
+          latestPosts.map((post) => (
+            <CardBlog
+              title={post.data.title}
+              description={post.data.description}
+              pubDate={post.data.pubDate}
+              slug={post.id}
+            />
+          ))
+        }
       </div>
     </section>
   </div>

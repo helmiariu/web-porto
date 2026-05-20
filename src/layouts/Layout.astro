@@ -4,28 +4,38 @@ import SidebarMain from "../components/layout/sidebar-main.astro";
 import MobileNavbarIcons from "../components/layout/mobile-navbar-icons.astro";
 import MobileDropdownPanel from "../components/layout/mobile-dropdown-panel.astro";
 ---
+
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
     <script is:inline>
       (function () {
         try {
-          const theme = localStorage.getItem('astro-theme');
-          const isDark = theme ? theme === 'dark' : window.matchMedia?.('(prefers-color-scheme: dark)').matches;
-          if (isDark) document.documentElement.classList.add('dark');
-          else document.documentElement.classList.remove('dark');
+          const theme = localStorage.getItem("astro-theme");
+          const isDark = theme
+            ? theme === "dark"
+            : window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+          if (isDark) document.documentElement.classList.add("dark");
+          else document.documentElement.classList.remove("dark");
         } catch (e) {
           // ignore
         }
       })();
     </script>
   </head>
-  <body class="font-sans antialiased bg-[hsl(var(--background))] text-[hsl(var(--foreground))] min-h-screen overflow-x-hidden">
-    <div class="mx-auto max-w-[1400px] w-full px-6 pt-8 pb-20 md:pt-12 md:pb-24 flex flex-col md:flex-row gap-12 items-start min-h-screen">
+  <body
+    class="font-sans antialiased bg-[hsl(var(--background))] text-[hsl(var(--foreground))] min-h-screen overflow-x-hidden"
+  >
+    <div
+      class="mx-auto max-w-[1400px] w-full px-6 pt-8 pb-20 md:pt-12 md:pb-24 flex flex-col md:flex-row gap-0 items-start min-h-screen"
+    >
       <SidebarMain />
 
       <main class="flex-1 min-w-0 pb-28 md:pb-0 w-full">

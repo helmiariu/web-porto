@@ -3,32 +3,45 @@
 import SidebarSecondary from "./sidebar-secondary.astro";
 import SocialLinks from "./social-links.astro";
 ---
-<aside 
-  id="main-sidebar" 
-  class="hidden md:flex flex-col w-full md:w-72 lg:w-80 shrink-0 md:sticky md:top-0 h-fit md:max-h-screen overflow-y-auto md:pt-3 pb-6 px-3 md:border-none select-none"
+
+<aside
+  id="main-sidebar"
+  class="hidden md:flex flex-col sticky top-8 w-72 lg:w-80 max-h-screen md:pt-3 pb-6 px-3 md:border-none select-none"
 >
   <div class="mb-6 px-4">
     <div class="relative">
-      <div class="w-24 h-24 rounded-full overflow-hidden mb-4 border border-[hsl(var(--border))]">
-        <img 
-          src="/avatar.jpg" 
-          alt="Profile" 
-          class="w-full h-full object-cover" 
+      <div
+        class="w-24 h-24 rounded-full overflow-hidden mb-4 border border-[hsl(var(--border))]"
+      >
+        <img
+          src="/avatar.jpg"
+          alt="Profile"
+          class="w-full h-full object-cover"
           loading="eager"
           decoding="sync"
-          onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXIiPjxwYXRoIGQ9Ik0xOSAyMXYtMmE0IDQgMCAwIDAtNC00SDlhNCA0IDAgMCAwLTQgNHYyIi8+PGNpcmNsZSBjeD0iMTIiIGN5PSI3IiByPSI0Ii8+PC9zdmc+'" 
+          onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXIiPjxwYXRoIGQ9Ik0xOSAyMXYtMmE0IDQgMCAwIDAtNC00SDlhNCA0IDAgMCAwLTQgNHYyIi8+PGNpcmNsZSBjeD0iMTIiIGN5PSI3IiByPSI0Ii8+PC9zdmc+'"
         />
       </div>
     </div>
 
     <div class="space-y-1">
-      <h1 class="text-xl font-bold tracking-tight text-[hsl(var(--foreground))]">Helmi Arimbawa</h1>
+      <h1
+        class="text-xl font-bold tracking-tight text-[hsl(var(--foreground))]"
+      >
+        Helmi Arimbawa
+      </h1>
       <div class="flex items-center gap-2 pt-2">
         <span class="relative flex h-2.5 w-2.5">
-          <span class="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 animate-ping"></span>
-          <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+          <span
+            class="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 animate-ping"
+          ></span>
+          <span
+            class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"
+          ></span>
         </span>
-        <span class="text-xs font-medium text-[hsl(var(--foreground)/0.65)]">Available for work</span>
+        <span class="text-xs font-medium text-[hsl(var(--foreground)/0.65)]"
+          >Available for work</span
+        >
       </div>
 
       <!-- Social Media Icons directly under Available for Work -->
@@ -39,31 +52,20 @@ import SocialLinks from "./social-links.astro";
   <SidebarSecondary />
 </aside>
 
-<style>
-  /* Sembunyikan scrollbar pada sidebar agar tetap minimalis dan bersih */
-  #main-sidebar {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE/Edge */
-  }
-  #main-sidebar::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
-  }
-</style>
-
 <script>
-  const sidebar = document.getElementById('main-sidebar');
-  const scrollKey = 'sidebar-scroll-position';
+  const sidebar = document.getElementById("main-sidebar");
 
   if (sidebar) {
-    // 1. Pulihkan posisi scroll sidebar sesegera mungkin setelah halaman dimuat
-    const savedPosition = sessionStorage.getItem(scrollKey);
-    if (savedPosition) {
-      sidebar.scrollTop = parseInt(savedPosition, 10);
-    }
-
-    // 2. Simpan posisi scroll sidebar secara real-time ke sessionStorage
-    sidebar.addEventListener('scroll', () => {
-      sessionStorage.setItem(scrollKey, sidebar.scrollTop.toString());
-    });
+    // Sidebar tidak punya scroll sendiri.
+    // Teruskan semua wheel event ke halaman utama agar
+    // hanya konten yang bergerak saat scroll di area sidebar.
+    sidebar.addEventListener(
+      "wheel",
+      (e) => {
+        e.preventDefault();
+        window.scrollBy({ top: e.deltaY, left: e.deltaX });
+      },
+      { passive: false }
+    );
   }
 </script>
