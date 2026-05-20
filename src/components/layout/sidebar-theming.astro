@@ -1,8 +1,11 @@
 ---
 // sidebar-theming.astro
 ---
+
 <div class="space-y-2">
-  <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-[hsl(var(--foreground)/0.65)] pl-1">
+  <p
+    class="text-[10px] font-semibold uppercase tracking-[0.3em] text-[hsl(var(--foreground)/0.65)] pl-3"
+  >
     Theming
   </p>
   <div class="space-y-1.5">
@@ -11,30 +14,34 @@
       class="flex items-center justify-between rounded-xl border border-transparent bg-transparent px-3 py-2 text-sm font-medium text-[hsl(var(--foreground)/0.6)] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))] transition-all duration-200 cursor-pointer select-none"
     >
       <span class="flex items-center gap-2.5">
-        <span 
+        <span
           id="desktop-theme-icon"
           class="flex h-8 w-8 shrink-0 items-center justify-center transition-all duration-200 [&>svg]:w-4 [&>svg]:h-4 [&>svg]:block"
         >
         </span>
         <span>Dark Mode</span>
       </span>
-      <div class="relative inline-block w-11 h-5 shrink-0 pointer-events-none mr-1">
-        <input 
-          id="theme-switch" 
-          type="checkbox" 
-          class="peer appearance-none w-11 h-5 bg-slate-200 dark:bg-zinc-800 rounded-full checked:bg-slate-800 dark:checked:bg-emerald-500 cursor-pointer transition-colors duration-300" 
+      <div
+        class="relative inline-block w-11 h-5 shrink-0 pointer-events-none mr-1"
+      >
+        <input
+          id="theme-switch"
+          type="checkbox"
+          class="peer appearance-none w-11 h-5 bg-slate-200 dark:bg-zinc-800 rounded-full checked:bg-slate-800 dark:checked:bg-emerald-500 cursor-pointer transition-colors duration-300"
         />
-        <span 
+        <span
           class="absolute top-0 left-0 w-5 h-5 bg-white rounded-full border border-slate-300 dark:border-zinc-700 shadow-sm transition-transform duration-300 peer-checked:translate-x-6 peer-checked:border-slate-800 dark:peer-checked:border-emerald-500 cursor-pointer"
         >
         </span>
         <script is:inline>
           (function () {
             try {
-              const theme = localStorage.getItem('astro-theme');
-              const isDark = theme ? theme === 'dark' : window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+              const theme = localStorage.getItem("astro-theme");
+              const isDark = theme
+                ? theme === "dark"
+                : window.matchMedia?.("(prefers-color-scheme: dark)").matches;
               if (isDark) {
-                document.getElementById('theme-switch').checked = true;
+                document.getElementById("theme-switch").checked = true;
               }
             } catch (e) {
               // ignore
@@ -47,16 +54,16 @@
 </div>
 
 <script>
-  const storageKey = 'astro-theme';
+  const storageKey = "astro-theme";
   const html = document.documentElement;
-  const checkbox = document.getElementById('theme-switch') as HTMLInputElement;
-  const desktopIcon = document.getElementById('desktop-theme-icon');
+  const checkbox = document.getElementById("theme-switch") as HTMLInputElement;
+  const desktopIcon = document.getElementById("desktop-theme-icon");
 
   const SunIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
   const MoonIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
 
   const setTheme = (dark: boolean) => {
-    html.classList.toggle('dark', dark);
+    html.classList.toggle("dark", dark);
     if (checkbox) {
       checkbox.checked = dark;
     }
@@ -73,18 +80,19 @@
     }
   };
 
-  const getPreferredTheme = () => window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+  const getPreferredTheme = () =>
+    window.matchMedia?.("(prefers-color-scheme: dark)").matches;
   const savedTheme = getSavedTheme();
-  const isDark = savedTheme ? savedTheme === 'dark' : getPreferredTheme();
-  
+  const isDark = savedTheme ? savedTheme === "dark" : getPreferredTheme();
+
   // Set initial theme
   setTheme(isDark);
 
   // Listen to toggle change
-  checkbox?.addEventListener('change', () => {
+  checkbox?.addEventListener("change", () => {
     const nextTheme = checkbox.checked;
     try {
-      localStorage.setItem(storageKey, nextTheme ? 'dark' : 'light');
+      localStorage.setItem(storageKey, nextTheme ? "dark" : "light");
     } catch {
       // ignore
     }
@@ -94,8 +102,8 @@
   // Watch for html class changes (to sync if toggled elsewhere)
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
-      if (mutation.attributeName === 'class') {
-        const isCurrentlyDark = html.classList.contains('dark');
+      if (mutation.attributeName === "class") {
+        const isCurrentlyDark = html.classList.contains("dark");
         setTheme(isCurrentlyDark);
       }
     });

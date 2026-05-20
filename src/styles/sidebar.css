@@ -1,4 +1,5 @@
 @layer base {
+
   /* ========================================================
      CUSTOM SIDEBAR PENGATURAN (SILAHKAN UBAH ANGKA DI BAWAH INI)
      Anda hanya perlu merubah angka (px) untuk mengatur ukuran
@@ -6,12 +7,15 @@
   ======================================================== */
   :root {
     /* --- PENGATURAN SKALA UKURAN MENU (UBAH 1 ANGKA INI SAJA) --- */
-    --sidebar-base-size: 14px;
+    --sidebar-base-size: 13px;
 
     /* --- PENGATURAN SPASI & KOTAK MENU --- */
-    --sidebar-menu-padding-y: 6px; /* Tinggi menu (spasi atas-bawah di dalam menu) default 10px */
-    --sidebar-menu-padding-x: 12px; /* Lebar menu (spasi kiri-kanan di dalam menu) default 12px */
-    --sidebar-menu-gap: 6px; /* Jarak spasi antar menu default 6px */
+    --sidebar-menu-padding-y: 6px;
+    /* Tinggi menu (spasi atas-bawah di dalam menu) default 10px */
+    --sidebar-menu-padding-x: 12px;
+    /* Lebar menu (spasi kiri-kanan di dalam menu) default 12px */
+    --sidebar-menu-gap: 6px;
+    /* Jarak spasi antar menu default 6px */
 
     /* ========================================================
        Variabel di bawah ini akan otomatis menyesuaikan diri
@@ -35,6 +39,7 @@
 }
 
 @layer components {
+
   /* Container utama untuk setiap item menu sidebar */
   .sidebar-menu-item {
     @apply flex items-center justify-between rounded-xl border transition-all duration-200 cursor-pointer relative;
@@ -42,6 +47,7 @@
     /* State Inactive (Tidak Aktif) - Warna */
     @apply border-transparent bg-transparent text-[hsl(var(--foreground)/0.6)] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))];
   }
+
   .sidebar-menu-item:not(:last-child) {
     margin-bottom: var(--sidebar-menu-gap);
   }
@@ -66,6 +72,7 @@
     width: var(--inactive-icon-box-size);
     height: var(--inactive-icon-box-size);
   }
+
   .sidebar-menu-icon svg {
     display: block;
     width: var(--inactive-icon-size);
@@ -83,6 +90,7 @@
     width: var(--active-icon-box-size);
     height: var(--active-icon-box-size);
   }
+
   .sidebar-menu-item.active .sidebar-menu-icon svg {
     width: var(--active-icon-size);
     height: var(--active-icon-size);
@@ -94,6 +102,7 @@
     /* Ukuran dari variabel Inactive */
     font-size: var(--inactive-text-size);
   }
+
   .sidebar-menu-item.active .sidebar-menu-text {
     /* Ukuran dari variabel Active */
     font-size: var(--active-text-size);
@@ -102,17 +111,18 @@
   /* --- PENGATURAN TANDA PANAH (ARROW) --- */
   .sidebar-menu-arrow {
     @apply flex items-center justify-center transition-all duration-200 absolute;
-    
+
     /* Secara default (inactive) panah disembunyikan total */
     display: none;
-    
+
     /* Posisikan panah secara absolut di sebelah kanan */
     right: var(--sidebar-menu-padding-x);
-    
+
     /* Menggunakan box tidak terlihat untuk panah */
     width: var(--active-arrow-box-size);
     height: var(--active-arrow-box-size);
   }
+
   .sidebar-menu-arrow svg {
     display: block;
     width: var(--active-arrow-size);
