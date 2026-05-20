@@ -28,6 +28,13 @@ const iconMap = {
 };
 ---
 
+<!-- Backdrop Overlay -->
+<div
+  id="mobile-dropdown-backdrop"
+  class="md:hidden fixed inset-0 z-30 bg-zinc-900/40 dark:bg-black/50 backdrop-blur-[3px] opacity-0 pointer-events-none transition-opacity duration-300"
+>
+</div>
+
 <div
   id="mobile-dropdown"
   class="md:hidden fixed inset-x-0 bottom-0 z-40 overflow-y-auto rounded-t-[2rem] border-t border-[hsl(var(--border))] bg-[hsl(var(--background))] p-5 shadow-2xl max-h-[75vh] opacity-0 pointer-events-none translate-y-4 transition-all duration-300"

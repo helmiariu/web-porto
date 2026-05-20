@@ -74,36 +74,58 @@ const iconMap = {
 <script>
   const trigger = document.getElementById("mobile-menu-trigger");
   const dropdown = document.getElementById("mobile-dropdown");
+  const backdrop = document.getElementById("mobile-dropdown-backdrop");
 
-  if (trigger && dropdown) {
+  const closeDropdown = () => {
+    if (dropdown && trigger && backdrop) {
+      dropdown.classList.add(
+        "opacity-0",
+        "pointer-events-none",
+        "translate-y-4"
+      );
+      dropdown.classList.remove(
+        "opacity-100",
+        "pointer-events-auto",
+        "translate-y-0"
+      );
+      backdrop.classList.add("opacity-0", "pointer-events-none");
+      backdrop.classList.remove("opacity-100", "pointer-events-auto");
+      document.body.classList.remove("overflow-hidden");
+      trigger.setAttribute("aria-expanded", "false");
+    }
+  };
+
+  const openDropdown = () => {
+    if (dropdown && trigger && backdrop) {
+      dropdown.classList.remove(
+        "opacity-0",
+        "pointer-events-none",
+        "translate-y-4"
+      );
+      dropdown.classList.add(
+        "opacity-100",
+        "pointer-events-auto",
+        "translate-y-0"
+      );
+      backdrop.classList.remove("opacity-0", "pointer-events-none");
+      backdrop.classList.add("opacity-100", "pointer-events-auto");
+      document.body.classList.add("overflow-hidden");
+      trigger.setAttribute("aria-expanded", "true");
+    }
+  };
+
+  if (trigger && dropdown && backdrop) {
     trigger.addEventListener("click", () => {
       const isOpen = dropdown.classList.contains("opacity-100");
-
       if (isOpen) {
-        dropdown.classList.add(
-          "opacity-0",
-          "pointer-events-none",
-          "translate-y-4"
-        );
-        dropdown.classList.remove(
-          "opacity-100",
-          "pointer-events-auto",
-          "translate-y-0"
-        );
-        trigger.setAttribute("aria-expanded", "false");
+        closeDropdown();
       } else {
-        dropdown.classList.remove(
-          "opacity-0",
-          "pointer-events-none",
-          "translate-y-4"
-        );
-        dropdown.classList.add(
-          "opacity-100",
-          "pointer-events-auto",
-          "translate-y-0"
-        );
-        trigger.setAttribute("aria-expanded", "true");
+        openDropdown();
       }
+    });
+
+    backdrop.addEventListener("click", () => {
+      closeDropdown();
     });
   }
 </script>
