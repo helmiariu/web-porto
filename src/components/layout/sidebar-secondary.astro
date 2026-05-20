@@ -39,7 +39,7 @@ const icons = {
           </p>
         ) : null}
 
-        <div class="flex flex-col">
+        <div class="flex flex-col gap-[6px]">
           {section.menus.map((item) => {
             const isActive =
               item.href === "/"
@@ -50,13 +50,29 @@ const icons = {
               <a
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
-                class={`sidebar-menu-item ${isActive ? "active" : ""}`}
+                class={`flex items-center justify-between rounded-xl border transition-all duration-200 cursor-pointer relative py-[6px] px-[12px] group ${
+                  isActive
+                    ? "border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] shadow-sm"
+                    : "border-transparent bg-transparent text-[hsl(var(--foreground)/0.6)] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))]"
+                }`}
               >
-                <span class="sidebar-menu-content">
-                  <span class="sidebar-menu-icon" set:html={iconMarkup} />
-                  <span class="sidebar-menu-text">{item.label}</span>
+                <span class="flex items-center gap-3">
+                  <span
+                    class={`flex shrink-0 items-center justify-center transition-all duration-200 w-[26px] h-[26px] [&>svg]:block [&>svg]:w-[15px] [&>svg]:h-[15px] ${
+                      isActive
+                        ? "text-[hsl(var(--foreground))]"
+                        : "text-[hsl(var(--foreground)/0.6)] group-hover:text-[hsl(var(--foreground))]"
+                    }`}
+                    set:html={iconMarkup}
+                  />
+                  <span class="font-medium text-[13px]">{item.label}</span>
                 </span>
-                <span class="sidebar-menu-arrow" set:html={ArrowRight} />
+                <span
+                  class={`items-center justify-center transition-all duration-200 absolute right-[12px] w-[19px] h-[19px] text-[hsl(var(--foreground))] [&>svg]:block [&>svg]:w-[13px] [&>svg]:h-[13px] ${
+                    isActive ? "flex" : "hidden"
+                  }`}
+                  set:html={ArrowRight}
+                />
               </a>
             );
           })}
