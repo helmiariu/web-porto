@@ -30,5 +30,6 @@
 
   html {
     scrollbar-gutter: stable;
+    overflow-y: scroll;
   }
 }
