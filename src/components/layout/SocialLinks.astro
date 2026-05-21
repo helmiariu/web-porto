@@ -4,33 +4,27 @@
 
 <div class="w-full pt-4">
   <p
-    class="text-[10px] font-semibold uppercase tracking-[0.3em] text-[hsl(var(--foreground)/0.65)] pl-0 mb-2 text-center md:text-left"
+    class="text-[10px] font-semibold uppercase tracking-[0.3em] text-[hsl(var(--foreground)/0.65)] mb-3 text-center md:text-left"
   >
     Find me on
   </p>
 
-  <!-- CUKUP UBAH DI SINI: Ukuran otomatis membesar saat layar medium (md) -->
-  <!-- Mengikuti lebar sidebar dengan padding yang pas -->
-  <!-- Ukuran akan otomatis menyusut (shrink) mengikuti lebar sidebar tanpa wrap ke bawah -->
-  <!-- Di HP icon akan kumpul di tengah, di md (sidebar) akan menyesuaikan lebar otomatis -->
+  {
+    /* Diubah: Menggunakan grid/flex yang ukurannya valid dengan standar Tailwind */
+  }
   <div
-    class="flex items-center justify-center md:justify-start flex-nowrap gap-2 w-full [&_a]:flex-shrink-0 [&_a]:w-11 [&_a]:h-11 [&_a]:rounded-xl md:[&_a]:flex-1 md:[&_a]:shrink md:[&_a]:w-auto md:[&_a]:h-auto md:[&_a]:aspect-square md:[&_a]:max-w-[44px] md:[&_a]:min-w-[36px] [&_svg]:w-5 [&_svg]:h-5 md:[&_svg]:w-1/2 md:[&_svg]:h-1/2"
+    class="flex items-center justify-center md:justify-start flex-nowrap w-full gap-2 md:gap-1 lg:gap-2"
   >
-    <!-- <div class="flex items-center justify-center md:justify-start flex-nowrap gap-2 w-full overflow-x-auto no-scrollbar
-            [&_a]:flex-shrink-0 [&_a]:w-11 [&_a]:h-11 [&_a]:rounded-xl [&_svg]:w-5.5 [&_svg]:h-5.5
-            md:[&_a]:w-9.5 md:[&_a]:h-9.5 md:[&_svg]:w-5 md:[&_svg]:h-5"> -->
-
-    <!-- GitHub -->
+    {/* GitHub */}
     <a
       href="https://github.com"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="GitHub"
-      class="flex items-center justify-center border border-[hsl(var(--border))] bg-[hsl(var(--secondary))/0.3] text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] hover:border-[hsl(var(--border))] transition-all duration-200 shadow-sm [&>svg]:block"
+      class="flex items-center justify-center w-11 h-11 rounded-xl md:w-8 md:h-8 md:rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))/0.3] text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] transition-all duration-200 shadow-sm shrink-0"
     >
       <svg
-        width="15"
-        height="15"
+        class="w-5 h-5 md:w-4 md:h-4"
         viewBox="0 0 15 15"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -43,17 +37,16 @@
       </svg>
     </a>
 
-    <!-- LinkedIn -->
+    {/* LinkedIn */}
     <a
       href="https://linkedin.com"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="LinkedIn"
-      class="flex items-center justify-center border border-[hsl(var(--border))] bg-[hsl(var(--secondary))/0.3] text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] hover:border-[hsl(var(--border))] transition-all duration-200 shadow-sm [&>svg]:block"
+      class="flex items-center justify-center w-11 h-11 rounded-xl md:w-8 md:h-8 md:rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))/0.3] text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] transition-all duration-200 shadow-sm shrink-0"
     >
       <svg
-        width="15"
-        height="15"
+        class="w-5 h-5 md:w-4 md:h-4"
         viewBox="0 0 15 15"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -66,17 +59,16 @@
       </svg>
     </a>
 
-    <!-- Instagram -->
+    {/* Instagram */}
     <a
       href="https://instagram.com"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Instagram"
-      class="flex items-center justify-center border border-[hsl(var(--border))] bg-[hsl(var(--secondary))/0.3] text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] hover:border-[hsl(var(--border))] transition-all duration-200 shadow-sm [&>svg]:block"
+      class="flex items-center justify-center w-11 h-11 rounded-xl md:w-8 md:h-8 md:rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))/0.3] text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] transition-all duration-200 shadow-sm shrink-0"
     >
       <svg
-        width="15"
-        height="15"
+        class="w-5 h-5 md:w-4 md:h-4"
         viewBox="0 0 15 15"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -89,17 +81,16 @@
       </svg>
     </a>
 
-    <!-- Figma -->
+    {/* Figma */}
     <a
       href="https://figma.com"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Figma"
-      class="flex items-center justify-center border border-[hsl(var(--border))] bg-[hsl(var(--secondary))/0.3] text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] hover:border-[hsl(var(--border))] transition-all duration-200 shadow-sm [&>svg]:block"
+      class="flex items-center justify-center w-11 h-11 rounded-xl md:w-8 md:h-8 md:rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))/0.3] text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] transition-all duration-200 shadow-sm shrink-0"
     >
       <svg
-        width="15"
-        height="15"
+        class="w-5 h-5 md:w-4 md:h-4"
         viewBox="0 0 15 15"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -112,17 +103,16 @@
       </svg>
     </a>
 
-    <!-- Email -->
+    {/* Email */}
     <a
       href="mailto:your-email@example.com"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Email"
-      class="flex items-center justify-center border border-[hsl(var(--border))] bg-[hsl(var(--secondary))/0.3] text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] hover:border-[hsl(var(--border))] transition-all duration-200 shadow-sm [&>svg]:block"
+      class="flex items-center justify-center w-11 h-11 rounded-xl md:w-8 md:h-8 md:rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))/0.3] text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] transition-all duration-200 shadow-sm shrink-0"
     >
       <svg
-        width="15"
-        height="15"
+        class="w-5 h-5 md:w-4 md:h-4"
         viewBox="0 0 15 15"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
