@@ -1,0 +1,14 @@
+---
+// Sidebar.astro
+import ProfileCard from "./ProfileCard.astro";
+import SidebarNav from "./SidebarNav.astro";
+---
+
+<aside
+  id="main-sidebar"
+  class="hidden md:flex flex-col w-full md:w-72 lg:w-80 shrink-0 md:sticky md:top-0 md:h-screen md:max-h-screen overflow-y-auto md:pt-13 pb-0 md:pb-0 px-3 md:border-none select-none"
+>
+  <ProfileCard variant="sidebar" />
+  <SidebarNav />
+</aside>
+
