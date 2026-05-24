@@ -18,7 +18,7 @@ export const publicDashboardMenu: SidebarMenu[] = [
   {
     groupLabel: "Application",
     menus: [
-      { href: "/ai", label: "Etan AI" },
+      { href: "/ai", label: "3D Modelling" },
       { href: "/chat", label: "Chat" },
     ],
   },

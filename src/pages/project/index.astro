@@ -1,7 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import CardProject from '../../components/CardProject.astro';
-import GaugeDashboard from '../../components/layout/GaugeDashboard.astro';
 import { getCollection } from 'astro:content';
 
 const allProjects = await getCollection('projects');
@@ -14,7 +13,7 @@ const sortedProjects = allProjects.sort((a, b) => b.data.pubDate.valueOf() - a.d
       <h1 class="text-3xl font-bold tracking-tight text-[hsl(var(--foreground))]">Semua Proyek</h1>
       <p class="text-[hsl(var(--foreground)/0.7)]">Daftar lengkap proyek yang pernah saya kerjakan.</p>
     </div>
-  <GaugeDashboard />
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       {sortedProjects.map(project => (
         <CardProject 
