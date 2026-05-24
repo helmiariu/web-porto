@@ -1,0 +1,180 @@
+---
+// CARA PANGGIL DI INDEX.ASTRO
+// import GaugeDashboard from "../components/layout/GaugeDashboard.astro";
+
+
+// --- PROPS YANG DIKIRIM DARI INDEX.ASTRO ---
+// const serverMetrics = [
+//   { id: 'cpu', label: 'CPU USAGE', unit: '%', initialValue: 0, maxLimit: 100 },
+//   { id: 'ram', label: 'RAM USAGE', unit: '%', initialValue: 0, maxLimit: 100 },
+//   { id: 'temp', label: 'CORE TEMP', unit: '°C', initialValue: 35.0, maxLimit: 105, precision: 1 },
+//   { id: 'net', label: 'NET SPEED', unit: 'Mbps', initialValue: 0, maxLimit: 1000 },
+//   { id: 'runtime', label: 'RUNTIME', unit: 's', initialValue: 0, maxLimit: 3600 }
+// ];
+
+
+
+// src/components/MetricDashboard.astro
+interface MetricConfig {
+  id: string;          // e.g., 'cpu', 'ram', 'temp', 'net'
+  label: string;       // Judul yang tampil (e.g., 'CPU USAGE')
+  unit: string;        // Satuan nilai (e.g., '%', '°C', 'Mbps')
+  initialValue: number;// Nilai awal saat SSR
+  maxLimit: number;    // Batas maksimal indikator
+  precision?: number;  // Jumlah angka di belakang koma (default: 0)
+}
+
+interface Props {
+  metrics: MetricConfig[];
+}
+
+const { metrics } = Astro.props;
+---
+
+<div class="flex flex-wrap gap-8 p-6 bg-[#121416] rounded-xl justify-center items-center">
+  
+  {metrics.map((metric) => {
+    // Hitung persentase awal di sisi server
+    const initialPct = Math.min(Math.max((metric.initialValue / metric.maxLimit) * 100, 0), 100);
+    const precision = metric.precision ?? 0;
+
+    return (
+      <div 
+        class="relative w-[220px] h-[220px] gauge-container" 
+        data-type={metric.id} 
+        data-max={metric.maxLimit} 
+        data-precision={precision}
+        data-target-percentage={initialPct}
+      >
+        <div class="relative w-full h-full">
+          <!-- Busur Lingkaran -->
+          <svg class="w-full h-full" viewBox="0 0 200 200">
+            <path class="fill-none stroke-[#4a4d50] stroke-[4] stroke-linecap-round" d="M 40 160 A 75 75 0 1 1 160 160" />
+            <line class="tick-start stroke-[#4a4d50] stroke-[2] stroke-linecap-round" x1="40.7" y1="158.3" x2="46.0" y2="153.0" style="transform: rotate(7deg); transform-origin: 40.7px 158.3px;" />
+            <line class="tick-end stroke-[#4a4d50] stroke-[2] stroke-linecap-round" x1="159.3" y1="158.3" x2="154.0" y2="153.0" style="transform: rotate(-7deg); transform-origin: 159.3px 158.3px;" />
+            <path class="progress-path fill-none stroke-white stroke-[4] stroke-linecap-round [filter:drop-shadow(0px_0px_4px_rgba(255,255,255,0.6))]" d="M 40 160 A 75 75 0 1 1 160 160" />
+          </svg>
+          
+          <!-- Informasi Teks -->
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[45%] text-center w-full font-mono">
+            <div class="text-xs font-bold tracking-[2px] text-[#8a8d90] mb-[2px]">{metric.label}</div>
+            <div class="text-[38px] font-bold text-white leading-none tracking-tight value-text">
+              {metric.initialValue.toFixed(precision)}
+            </div>
+            <div class="text-xs font-bold tracking-wider text-[#8a8d90] mt-1">{metric.unit}</div>
+          </div>
+        </div>
+      </div>
+    );
+  })}
+
+</div>
+
+<script>
+  // ... Class GaugeController tetap menggunakan logika yang sama dari kode sebelumnya ...
+  // (Ia membaca data-max dan data-precision secara dinamis saat inisialisasi)
+  
+  class GaugeController {
+    private path: SVGPathElement;
+    private tickStart: SVGLineElement;
+    private tickEnd: SVGLineElement;
+    private valueText: HTMLElement;
+    
+    private totalLength: number;
+    private currentPercentage: number = 0;
+    private targetPercentage: number = 0;
+    private defaultColor: string = '#4a4d50';
+    private animationId: number | null = null;
+    
+    public maxLimit: number; 
+    public precision: number;
+
+    constructor(container: HTMLElement) {
+      this.path = container.querySelector('.progress-path') as SVGPathElement;
+      this.tickStart = container.querySelector('.tick-start') as SVGLineElement;
+      this.tickEnd = container.querySelector('.tick-end') as SVGLineElement;
+      this.valueText = container.querySelector('.value-text') as HTMLElement;
+
+      this.totalLength = this.path.getTotalLength();
+      this.path.style.strokeDasharray = String(this.totalLength);
+      this.path.style.strokeDashoffset = String(this.totalLength);
+
+      this.maxLimit = parseFloat(container.getAttribute('data-max') || '100');
+      this.precision = parseInt(container.getAttribute('data-precision') || '0', 10);
+
+      const initialPct = parseFloat(container.getAttribute('data-target-percentage') || '0');
+      this.update(initialPct, this.valueText.innerText);
+    }
+
+    public update(percentage: number, rawValue: string) {
+      this.targetPercentage = Math.min(Math.max(percentage, 0), 100);
+      this.valueText.innerText = rawValue;
+
+      if (!this.animationId) {
+        this.animationId = requestAnimationFrame(this.animate);
+      }
+    }
+
+    private animate = () => {
+      const ease = 0.15; 
+      const diff = this.targetPercentage - this.currentPercentage;
+
+      if (Math.abs(diff) < 0.1) {
+        this.currentPercentage = this.targetPercentage;
+        this.animationId = null;
+      } else {
+        this.currentPercentage += diff * ease;
+        this.animationId = requestAnimationFrame(this.animate);
+      }
+
+      const offset = this.totalLength - (this.currentPercentage / 100) * this.totalLength;
+      this.path.style.strokeDashoffset = String(offset);
+
+      if (this.currentPercentage >= 0.5) {
+        this.tickStart.style.stroke = '#ffffff';
+        this.tickStart.style.filter = 'drop-shadow(0px 0px 2px rgba(255,255,255,0.6))';
+      } else {
+        this.tickStart.style.stroke = this.defaultColor;
+        this.tickStart.style.filter = 'none';
+      }
+
+      if (this.currentPercentage >= 99.5) {
+        this.tickEnd.style.stroke = '#ffffff';
+        this.tickEnd.style.filter = 'drop-shadow(0px 0px 2px rgba(255,255,255,0.6))';
+      } else {
+        this.tickEnd.style.stroke = this.defaultColor;
+        this.tickEnd.style.filter = 'none';
+      }
+    };
+  }
+
+  // Mendaftarkan semua gauge yang dirender oleh loop Astro
+  const gauges: Record<string, GaugeController> = {};
+  document.querySelectorAll('.gauge-container').forEach((el) => {
+    const htmlEl = el as HTMLElement;
+    const type = htmlEl.getAttribute('data-type') || '';
+    gauges[type] = new GaugeController(htmlEl);
+  });
+
+  // --- Handler SSE yang Otomatis Memetakan Objek JSON ---
+  const eventSource = new EventSource('/api/server-status');
+
+  eventSource.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data); 
+      // Contoh struktur JSON dari SSE: { cpu: 45, ram: 72.5, temp: 58, net: 850 }
+
+      // Loop setiap key yang dikirim oleh server, jika ada gauge-nya langsung kita update!
+      Object.keys(data).forEach((key) => {
+        const gauge = gauges[key];
+        if (gauge) {
+          const rawValue = data[key];
+          const pct = (rawValue / gauge.maxLimit) * 100;
+          gauge.update(pct, rawValue.toFixed(gauge.precision));
+        }
+      });
+    } catch (error) {
+      console.error('Gagal memproses data SSE:', error);
+    }
+  };
+</script>

@@ -5,6 +5,8 @@ import CardBlog from "../components/CardBlog.astro";
 import MobileProfile from "../components/layout/MobileProfile.astro";
 import { getCollection } from "astro:content";
 
+
+
 const allProjects = await getCollection("projects");
 const featuredProjects = allProjects
   .filter((project) => project.data.featured)
@@ -19,7 +21,9 @@ const latestPosts = allPosts
 
 <Layout>
   <MobileProfile />
+  
   <div class="space-y-16">
+  
     <section class="space-y-4">
       <h1
         class="text-3xl md:text-4xl font-extrabold tracking-tight text-[hsl(var(--foreground))]"
@@ -34,7 +38,7 @@ const latestPosts = allPosts
         teknologi web modern.
       </p>
     </section>
-
+  
     <section class="space-y-600">
       <!-- default 6 -->
       <div class="flex items-center justify-between">
