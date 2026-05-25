@@ -1,6 +1,6 @@
 ---
 import { publicDashboardMenu } from "../../lib/constants/navigation-menu.ts";
-import ThemeToggle from "./ThemeToggle.astro";
+import ThemeToggle from "@components/ui/ThemeToggle.astro";
 import pkg from "lucide-static";
 const {
   Home,
@@ -11,10 +11,6 @@ const {
   Wrench,
   MapPin,
   ArrowRight,
-  Github,
-  Linkedin,
-  Instagram,
-  Twitter,
 } = pkg;
 
 const currentPath = Astro.url.pathname;

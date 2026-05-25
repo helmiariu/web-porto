@@ -1,8 +1,8 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import CardProject from "../components/CardProject.astro";
-import CardBlog from "../components/CardBlog.astro";
-import MobileProfile from "../components/layout/MobileProfile.astro";
+import CardProject from "@components/ui/CardProject.astro";
+import CardBlog from "@components/ui/CardBlog.astro";
+import MobileProfile from "@components/ui/MobileProfile.astro";
 import { getCollection } from "astro:content";
 
 
@@ -13,7 +13,7 @@ const featuredProjects = allProjects
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
   .slice(0, 4);
 
-const allPosts = await getCollection("blog");
+const allPosts = await getCollection("blogs");
 const latestPosts = allPosts
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
   .slice(0, 3);
