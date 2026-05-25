@@ -66,3 +66,35 @@ import { ClientRouter } from 'astro:transitions';
     <MobileMenuDrawer />
   </body>
 </html>
+
+<script>
+  // Fungsi utama untuk merekam dan mengembalikan posisi scroll
+  const handleSidebarScroll = () => {
+    // Mencari elemen sidebar. Kita gunakan querySelector untuk mencari tag <aside> atau elemen sidebar kamu
+    const sidebar = document.querySelector("aside") || document.querySelector("#sidebar-container");
+    
+    if (sidebar) {
+      // 1. Kembalikan posisi scroll jika sebelumnya pernah disimpan di memori sesi browser
+      const savedScrollTop = sessionStorage.getItem("sidebar-scroll-position");
+      if (savedScrollTop) {
+        sidebar.scrollTop = parseInt(savedScrollTop, 10);
+      }
+
+      // 2. Simpan posisi scroll terbaru setiap kali user melakukan scroll di area sidebar
+      sidebar.addEventListener("scroll", () => {
+        sessionStorage.setItem("sidebar-scroll-position", sidebar.scrollTop.toString());
+      });
+    }
+  };
+
+  // Jalankan ketika halaman selesai dimuat ulang (baik hard refresh maupun via ClientRouter)
+  document.addEventListener("astro:page-load", handleSidebarScroll);
+
+  // Cadangan darurat: Simpan posisi scroll tepat sedetik sebelum halaman ditukar
+  document.addEventListener("astro:before-swap", () => {
+    const sidebar = document.querySelector("aside") || document.querySelector("#sidebar-container");
+    if (sidebar) {
+      sessionStorage.setItem("sidebar-scroll-position", sidebar.scrollTop.toString());
+    }
+  });
+</script>
