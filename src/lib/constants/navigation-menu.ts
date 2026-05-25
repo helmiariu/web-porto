@@ -1,4 +1,13 @@
-import { Home, Briefcase, FileText, MessageCircle, Wrench, Rotate3d, Gauge, Menu } from "@lucide/astro";
+import {
+  Home,
+  Briefcase,
+  FileText,
+  MessageCircle,
+  Wrench,
+  Rotate3d,
+  Gauge,
+  Menu,
+} from "@lucide/astro";
 
 export type SidebarMenu = {
   groupLabel: string;
@@ -30,7 +39,7 @@ export const publicDashboardMenu: SidebarMenu[] = [
   {
     groupLabel: "Playground",
     menus: [
-      { href: "/tools", label: "Tools" },
+      { href: "/tools", label: "Tools", icon: Wrench },
       // { href: "/roadmap", label: "Roadmap" },
     ],
   },
