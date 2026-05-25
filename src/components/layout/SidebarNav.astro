@@ -2,7 +2,6 @@
 import { publicDashboardMenu } from "../../lib/constants/navigation-menu.ts";
 import ThemeToggle from "@components/ui/ThemeToggle.astro";
 import { Menu, ArrowRight } from "@lucide/astro";
-const currentPath = Astro.url.pathname;
 ---
 
 <nav class="space-y-4 px-0 pb-0">
@@ -17,44 +16,26 @@ const currentPath = Astro.url.pathname;
 
         <div class="flex flex-col gap-[6px]">
           {section.menus.map((item) => {
-            const isActive =
-              item.href === "/"
-                ? currentPath === "/"
-                : currentPath.startsWith(item.href);
-
-            // Simpan komponen ke dalam variabel berawalan Huruf Kapital agar Astro tahu ini Komponen
             const IconComponent = item.icon ?? Menu;
 
             return (
               <a
                 href={item.href}
-                aria-current={isActive ? "page" : undefined}
-                class={`flex items-center justify-between rounded-xl border transition-all duration-200 cursor-pointer relative py-[6px] px-[12px] group ${
-                  isActive
-                    ? "border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] shadow-sm"
-                    : "border-transparent bg-transparent text-[hsl(var(--foreground)/0.6)] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))]"
-                }`}
+                data-sidebar-link
+                class="flex items-center justify-between rounded-xl border transition-all duration-200 cursor-pointer relative py-[6px] px-[12px] group border-transparent bg-transparent text-[hsl(var(--foreground)/0.6)] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))]"
               >
                 <span class="flex items-center gap-3">
                   <span
-                    class={`flex shrink-0 items-center justify-center transition-all duration-200 w-[26px] h-[26px] [&>svg]:block [&>svg]:w-[15px] [&>svg]:h-[15px] ${
-                      isActive
-                        ? "text-[hsl(var(--foreground))]"
-                        : "text-[hsl(var(--foreground)/0.6)] group-hover:text-[hsl(var(--foreground))]"
-                    }`}
+                    class="sidebar-icon-span flex shrink-0 items-center justify-center transition-all duration-200 w-[26px] h-[26px] [&>svg]:block [&>svg]:w-[15px] [&>svg]:h-[15px] text-[hsl(var(--foreground)/0.6)] group-hover:text-[hsl(var(--foreground))]"
                   >
-                    {/* Render langsung sebagai komponen Astro biasa */}
                     <IconComponent />
                   </span>
                   <span class="font-medium text-[13px]">{item.label}</span>
                 </span>
 
                 <span
-                  class={`items-center justify-center transition-all duration-200 absolute right-[12px] w-[19px] h-[19px] text-[hsl(var(--foreground))] [&>svg]:block [&>svg]:w-[13px] [&>svg]:h-[13px] ${
-                    isActive ? "flex" : "hidden"
-                  }`}
+                  class="sidebar-arrow-span items-center justify-center transition-all duration-200 absolute right-[12px] w-[19px] h-[19px] text-[hsl(var(--foreground))] [&>svg]:block [&>svg]:w-[13px] [&>svg]:h-[13px] hidden"
                 >
-                  {/* Render langsung sebagai komponen Astro biasa */}
                   <ArrowRight />
                 </span>
               </a>
@@ -67,3 +48,32 @@ const currentPath = Astro.url.pathname;
 
   <ThemeToggle />
 </nav>
+
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const currentPath = window.location.pathname;
+    const sidebarLinks = document.querySelectorAll("[data-sidebar-link]");
+
+    sidebarLinks.forEach((link) => {
+      const href = link.getAttribute("href");
+      const isActive = href === "/" 
+        ? currentPath === "/" 
+        : currentPath.startsWith(href || "");
+
+      const iconSpan = link.querySelector(".sidebar-icon-span");
+      const arrowSpan = link.querySelector(".sidebar-arrow-span");
+
+      if (isActive) {
+        link.setAttribute("aria-current", "page");
+        link.className = "flex items-center justify-between rounded-xl border transition-all duration-200 cursor-pointer relative py-[6px] px-[12px] group border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] shadow-sm";
+        if (iconSpan) iconSpan.className = "sidebar-icon-span flex shrink-0 items-center justify-center transition-all duration-200 w-[26px] h-[26px] [&>svg]:block [&>svg]:w-[15px] [&>svg]:h-[15px] text-[hsl(var(--foreground))]";
+        if (arrowSpan) arrowSpan.className = "sidebar-arrow-span items-center justify-center transition-all duration-200 absolute right-[12px] w-[19px] h-[19px] text-[hsl(var(--foreground))] [&>svg]:block [&>svg]:w-[13px] [&>svg]:h-[13px] flex";
+      } else {
+        link.removeAttribute("aria-current");
+        link.className = "flex items-center justify-between rounded-xl border transition-all duration-200 cursor-pointer relative py-[6px] px-[12px] group border-transparent bg-transparent text-[hsl(var(--foreground)/0.6)] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))]";
+        if (iconSpan) iconSpan.className = "sidebar-icon-span flex shrink-0 items-center justify-center transition-all duration-200 w-[26px] h-[26px] [&>svg]:block [&>svg]:w-[15px] [&>svg]:h-[15px] text-[hsl(var(--foreground)/0.6)] group-hover:text-[hsl(var(--foreground))]";
+        if (arrowSpan) arrowSpan.className = "sidebar-arrow-span items-center justify-center transition-all duration-200 absolute right-[12px] w-[19px] h-[19px] text-[hsl(var(--foreground))] [&>svg]:block [&>svg]:w-[13px] [&>svg]:h-[13px] hidden";
+      }
+    });
+  });
+</script>
