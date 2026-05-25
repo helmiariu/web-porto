@@ -1,5 +1,7 @@
 ---
-// sidebar-theming.astro
+// ThemeToggle.astro
+// Membuat ID unik untuk setiap instance komponen agar label tidak salah target
+const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
 ---
 
 <div class="space-y-2">
@@ -10,12 +12,11 @@
   </p>
   <div class="space-y-1.5">
     <label
-      for="theme-switch"
+      for={uniqueId}
       class="flex items-center justify-between rounded-xl border border-transparent bg-transparent transition-all duration-200 cursor-pointer relative py-[6px] px-[12px] group text-[hsl(var(--foreground)/0.6)] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))] select-none"
     >
       <span class="flex items-center gap-3">
         <span
-          id="desktop-theme-icon"
           class="theme-icon-container flex shrink-0 items-center justify-center transition-all duration-200 w-[26px] h-[26px] [&>svg]:block [&>svg]:w-[15px] [&>svg]:h-[15px] text-[hsl(var(--foreground)/0.6)] group-hover:text-[hsl(var(--foreground))]"
         >
         </span>
@@ -25,7 +26,7 @@
         class="relative inline-block w-11 h-5 shrink-0 pointer-events-none"
       >
         <input
-          id="theme-switch"
+          id={uniqueId}
           type="checkbox"
           class="theme-switch-input peer appearance-none w-11 h-5 bg-slate-200 dark:bg-zinc-800 rounded-full checked:bg-slate-800 dark:checked:bg-emerald-500 cursor-pointer transition-colors duration-300"
         />
@@ -42,7 +43,6 @@
                 ? theme === "dark"
                 : window.matchMedia?.("(prefers-color-scheme: dark)").matches;
               
-              // Menyelaraskan seluruh checkbox tema yang ada di halaman
               document.querySelectorAll(".theme-switch-input").forEach(el => {
                 el.checked = isDark;
               });
@@ -61,25 +61,25 @@
     const storageKey = "astro-theme";
     const html = document.documentElement;
     
-    // Ambil SEMUA elemen tombol/checkbox tema (baik di desktop maupun mobile)
     const checkboxes = document.querySelectorAll(".theme-switch-input") as NodeListOf<HTMLInputElement>;
     const icons = document.querySelectorAll(".theme-icon-container");
 
     const SunIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
     const MoonIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
 
-    const setTheme = (dark: boolean) => {
-      html.classList.toggle("dark", dark);
-      
-      // Update semua checkbox
+    // Dipisah: Fungsi khusus untuk update tampilan tombol & ikon saja
+    const updateUI = (dark: boolean) => {
       checkboxes.forEach((checkbox) => {
         checkbox.checked = dark;
       });
-      
-      // Update semua ikon pendukung
       icons.forEach((icon) => {
         icon.innerHTML = dark ? MoonIcon : SunIcon;
       });
+    };
+
+    const setTheme = (dark: boolean) => {
+      html.classList.toggle("dark", dark);
+      updateUI(dark);
     };
 
     const getSavedTheme = () => {
@@ -95,10 +95,10 @@
     const savedTheme = getSavedTheme();
     const isDark = savedTheme ? savedTheme === "dark" : getPreferredTheme();
 
-    // Set initial state saat halaman baru dimuat oleh ClientRouter
+    // Set kondisi awal saat ganti halaman
     setTheme(isDark);
 
-    // Tempelkan event listener klik ke semua tombol switch tema (Desktop & Dropdown Mobile)
+    // Event listener untuk klik tombol switch tema
     checkboxes.forEach((checkbox) => {
       checkbox.addEventListener("change", () => {
         const nextTheme = checkbox.checked;
@@ -107,18 +107,18 @@
         } catch {
           // ignore
         }
-        setTheme(nextTheme);
+        // Langsung ubah class html, biarkan MutationObserver yang memperbarui UI
+        html.classList.toggle("dark", nextTheme);
       });
     });
 
-    // Sinkronisasi class html jika berubah
+    // Mengamati perubahan class global secara real-time
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.attributeName === "class") {
           const isCurrentlyDark = html.classList.contains("dark");
-          if (checkboxes[0] && checkboxes[0].checked !== isCurrentlyDark) {
-            setTheme(isCurrentlyDark);
-          }
+          // Perbarui UI semua tombol secara serentak
+          updateUI(isCurrentlyDark);
         }
       });
     });
