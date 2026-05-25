@@ -21,23 +21,31 @@ import { ClientRouter } from 'astro:transitions';
     <title>Helmi Arimbawa - Portfolio</title>
     <meta name="description" content="Portofolio Helmi Arimbawa, Full-Stack Developer & Designer..." />
     
-    <!-- 2. Memasang ClientRouter di dalam <head> untuk mengaktifkan SPA mode -->
     <ClientRouter />
 
-    <!-- 3. Ditambahkan data-astro-rerun agar script dark-mode ini selalu dieksekusi ulang di setiap halaman baru -->
-    <script is:inline data-astro-rerun>
-      (function () {
+    <script is:inline>
+      const applyTheme = () => {
         try {
           const theme = localStorage.getItem("astro-theme");
           const isDark = theme
             ? theme === "dark"
             : window.matchMedia?.("(prefers-color-scheme: dark)").matches;
-          if (isDark) document.documentElement.classList.add("dark");
-          else document.documentElement.classList.remove("dark");
+          
+          if (isDark) {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
         } catch (e) {
           // ignore
         }
-      })();
+      };
+
+      // Jalankan langsung saat website pertama kali dibuka (Hard Refresh)
+      applyTheme();
+
+      // Jalankan tepat saat konten halaman ditukar oleh ClientRouter, SEBELUM digambar di layar
+      document.addEventListener("astro:after-swap", applyTheme);
     </script>
   </head>
 
