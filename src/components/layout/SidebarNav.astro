@@ -1,35 +1,8 @@
 ---
 import { publicDashboardMenu } from "../../lib/constants/navigation-menu.ts";
 import ThemeToggle from "@components/ui/ThemeToggle.astro";
-import {
-  Home,
-  Briefcase,
-  FileText,
-  Brain,
-  MessageCircle,
-  Wrench,
-  MapPin,
-  User,
-  Menu,
-  ArrowRight,
-  Rotate3d, 
-  Gauge,    
-} from "@lucide/astro"; 
-
+import { Menu, ArrowRight } from "@lucide/astro";
 const currentPath = Astro.url.pathname;
-const iconMap = {
-  "/": Home,
-  "/project": Briefcase,
-  "/3Dgallery": Rotate3d,  
-  "/monitoring": Gauge,    
-  "/blog": FileText,
-  // "/auth": User,
-  // "/profile": User,
-  // "/ai": Brain,
-  "/chat": MessageCircle,
-  "/tools": Wrench,
-  // "/roadmap": MapPin,
-};
 ---
 
 <nav class="space-y-4 px-0 pb-0">
@@ -48,10 +21,10 @@ const iconMap = {
               item.href === "/"
                 ? currentPath === "/"
                 : currentPath.startsWith(item.href);
-            
+
             // Simpan komponen ke dalam variabel berawalan Huruf Kapital agar Astro tahu ini Komponen
-            const IconComponent = iconMap[item.href] ?? Home;
-            
+            const IconComponent = item.icon ?? Menu;
+
             return (
               <a
                 href={item.href}
@@ -75,7 +48,7 @@ const iconMap = {
                   </span>
                   <span class="font-medium text-[13px]">{item.label}</span>
                 </span>
-                
+
                 <span
                   class={`items-center justify-center transition-all duration-200 absolute right-[12px] w-[19px] h-[19px] text-[hsl(var(--foreground))] [&>svg]:block [&>svg]:w-[13px] [&>svg]:h-[13px] ${
                     isActive ? "flex" : "hidden"

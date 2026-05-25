@@ -1,36 +1,9 @@
 ---
 // mobile-navbar-icons.astro
 import { mainNavData } from "@lib/constants/navigation-menu.ts";
-import {
-  Home,
-  Briefcase,
-  FileText,
-  Brain,
-  MessageCircle,
-  Wrench,
-  MapPin,
-  User,
-  Menu,
-  Rotate3d, 
-  Gauge,    
-} from "@lucide/astro"; 
-
+import { Menu } from "@lucide/astro";
 const currentPath = Astro.url.pathname;
 const navItems = mainNavData(false);
-
-const iconMap = {
-  "/": Home,
-  "/project": Briefcase,
-  "/3Dgallery": Rotate3d,  
-  "/monitoring": Gauge,    
-  "/blog": FileText,
-  // "/auth": User,
-  // "/profile": User,
-  // "/ai": Brain,
-  "/chat": MessageCircle,
-  "/tools": Wrench,
-  // "/roadmap": MapPin,
-};
 ---
 
 <nav
@@ -45,7 +18,7 @@ const iconMap = {
             : currentPath.startsWith(item.href);
         
         // Ubah nama variabel agar menggunakan PascalCase (Huruf Kapital di awal)
-        const IconComponent = iconMap[item.href] ?? Menu;
+        const IconComponent = item.icon ?? Menu;
         
         return (
           <a

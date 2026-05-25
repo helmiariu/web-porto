@@ -1,7 +1,7 @@
 ---
-title: "test post"
+title: "Dummy 2"
 description: "docker adalah sdfsdfsdfsdfsdf"
-pubDate: 2026-05-26
+pubDate: 2026-05-25
 tags: ["Astro", "WebDev", "Performance"]
 ---
 
