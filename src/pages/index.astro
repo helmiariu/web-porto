@@ -4,6 +4,7 @@ import CardProject from "@components/ui/CardProject.astro";
 import CardBlog from "@components/ui/CardBlog.astro";
 import MobileProfile from "@components/ui/MobileProfile.astro";
 import Hero from "@components/home/Hero.astro";
+import Skill from "@components/home/Skill.astro";
 import { getCollection } from "astro:content";
 
 
@@ -23,6 +24,7 @@ const latestPosts = allPosts
 <Layout>
   <MobileProfile />
   <Hero />
+  <Skill />
   <div class="space-y-16">
   
     <section class="space-y-16">
