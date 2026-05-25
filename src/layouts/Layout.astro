@@ -3,6 +3,9 @@ import "@styles/global.css";
 import Sidebar from "@components/layout/Sidebar.astro";
 import MobileBottomNav from "@components/layout/MobileBottomNav.astro";
 import MobileMenuDrawer from "@components/layout/MobileMenuDrawer.astro";
+
+// 1. Mengimpor ClientRouter dari modul transitions Astro
+import { ClientRouter } from 'astro:transitions';
 ---
 
 <html lang="id">
@@ -17,7 +20,12 @@ import MobileMenuDrawer from "@components/layout/MobileMenuDrawer.astro";
     />
     <title>Helmi Arimbawa - Portfolio</title>
     <meta name="description" content="Portofolio Helmi Arimbawa, Full-Stack Developer & Designer..." />
-    <script is:inline>
+    
+    <!-- 2. Memasang ClientRouter di dalam <head> untuk mengaktifkan SPA mode -->
+    <ClientRouter />
+
+    <!-- 3. Ditambahkan data-astro-rerun agar script dark-mode ini selalu dieksekusi ulang di setiap halaman baru -->
+    <script is:inline data-astro-rerun>
       (function () {
         try {
           const theme = localStorage.getItem("astro-theme");

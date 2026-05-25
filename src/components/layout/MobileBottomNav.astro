@@ -2,7 +2,6 @@
 // mobile-navbar-icons.astro
 import { mainNavData } from "@lib/constants/navigation-menu.ts";
 import { Menu } from "@lucide/astro";
-const currentPath = Astro.url.pathname;
 const navItems = mainNavData(false);
 ---
 
@@ -12,26 +11,16 @@ const navItems = mainNavData(false);
   <div class="flex items-center gap-2">
     {
       navItems.map((item) => {
-        const isActive =
-          item.href === "/"
-            ? currentPath === "/"
-            : currentPath.startsWith(item.href);
-        
-        // Ubah nama variabel agar menggunakan PascalCase (Huruf Kapital di awal)
         const IconComponent = item.icon ?? Menu;
         
         return (
           <a
             href={item.href}
+            data-nav-link
             aria-label={item.label}
-            class={`flex-1 flex h-11 items-center justify-center rounded-2xl transition-all duration-200 border ${
-              isActive
-                ? "border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] shadow-sm"
-                : "border-transparent bg-transparent text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]"
-            }`}
+            class="flex-1 flex h-11 items-center justify-center rounded-2xl transition-all duration-200 border text-[hsl(var(--foreground)/0.6)] border-transparent bg-transparent hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]"
           >
             <span class="flex items-center justify-center h-5 w-5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block">
-              {/* Render komponen ikon secara dinamis */}
               <IconComponent />
             </span>
           </a>
@@ -46,7 +35,6 @@ const navItems = mainNavData(false);
       aria-expanded="false"
     >
       <span class="flex items-center justify-center h-5 w-5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block">
-        {/* Render komponen Menu secara langsung */}
         <Menu />
       </span>
     </button>
@@ -54,60 +42,72 @@ const navItems = mainNavData(false);
 </nav>
 
 <script>
-  const trigger = document.getElementById("mobile-menu-trigger");
-  const dropdown = document.getElementById("mobile-dropdown");
-  const backdrop = document.getElementById("mobile-dropdown-backdrop");
+  document.addEventListener("astro:page-load", () => {
+    // --- 1. LOGIKA UPDATE LINK NAVIGASI AKTIF SECARA DINAMIS ---
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll("[data-nav-link]");
 
-  const closeDropdown = () => {
-    if (dropdown && trigger && backdrop) {
-      dropdown.classList.add(
-        "opacity-0",
-        "pointer-events-none",
-        "translate-y-4"
-      );
-      dropdown.classList.remove(
-        "opacity-100",
-        "pointer-events-auto",
-        "translate-y-0"
-      );
-      backdrop.classList.add("opacity-0", "pointer-events-none");
-      backdrop.classList.remove("opacity-100", "pointer-events-auto");
-      document.body.classList.remove("overflow-hidden");
-      trigger.setAttribute("aria-expanded", "false");
-    }
-  };
+    navLinks.forEach((link) => {
+      const href = link.getAttribute("href");
+      // Cek kesesuaian path (root atau sub-halaman)
+      const isActive = href === "/" 
+        ? currentPath === "/" 
+        : currentPath.startsWith(href || "");
 
-  const openDropdown = () => {
-    if (dropdown && trigger && backdrop) {
-      dropdown.classList.remove(
-        "opacity-0",
-        "pointer-events-none",
-        "translate-y-4"
-      );
-      dropdown.classList.add(
-        "opacity-100",
-        "pointer-events-auto",
-        "translate-y-0"
-      );
-      backdrop.classList.remove("opacity-0", "pointer-events-none");
-      backdrop.classList.add("opacity-100", "pointer-events-auto");
-      document.body.classList.add("overflow-hidden");
-      trigger.setAttribute("aria-expanded", "true");
-    }
-  };
-
-  if (trigger && dropdown && backdrop) {
-    trigger.addEventListener("click", () => {
-      const isOpen = dropdown.classList.contains("opacity-100");
-      if (isOpen) {
-        closeDropdown();
+      if (isActive) {
+        link.className = "flex-1 flex h-11 items-center justify-center rounded-2xl transition-all duration-200 border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] shadow-sm";
       } else {
-        openDropdown();
+        link.className = "flex-1 flex h-11 items-center justify-center rounded-2xl transition-all duration-200 border border-transparent bg-transparent text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]";
       }
     });
 
-    backdrop.addEventListener("click", () => {
-      closeDropdown();
-    });
-  }
+    // --- 2. LOGIKA DRAWER MENU MOBILE ---
+    const trigger = document.getElementById("mobile-menu-trigger");
+    const dropdown = document.getElementById("mobile-dropdown");
+    const backdrop = document.getElementById("mobile-dropdown-backdrop");
+
+    const closeDropdown = () => {
+      if (dropdown && trigger && backdrop) {
+        dropdown.classList.add("opacity-0", "pointer-events-none", "translate-y-4");
+        dropdown.classList.remove("opacity-100", "pointer-events-auto", "translate-y-0");
+        backdrop.classList.add("opacity-0", "pointer-events-none");
+        backdrop.classList.remove("opacity-100", "pointer-events-auto");
+        document.body.classList.remove("overflow-hidden");
+        trigger.setAttribute("aria-expanded", "false");
+      }
+    };
+
+    const openDropdown = () => {
+      if (dropdown && trigger && backdrop) {
+        dropdown.classList.remove("opacity-0", "pointer-events-none", "translate-y-4");
+        dropdown.classList.add("opacity-100", "pointer-events-auto", "translate-y-0");
+        backdrop.classList.remove("opacity-0", "pointer-events-none");
+        backdrop.classList.add("opacity-100", "pointer-events-auto");
+        document.body.classList.add("overflow-hidden");
+        trigger.setAttribute("aria-expanded", "true");
+      }
+    };
+
+    if (trigger && dropdown && backdrop) {
+      trigger.addEventListener("click", () => {
+        const isOpen = dropdown.classList.contains("opacity-100");
+        if (isOpen) {
+          closeDropdown();
+        } else {
+          openDropdown();
+        }
+      });
+
+      backdrop.addEventListener("click", () => {
+        closeDropdown();
+      });
+
+      // OTOMATIS TUTUP MENU JIKA LINK DI DALAM DRAWER DIKLIK (Pindah halaman)
+      dropdown.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", () => {
+          closeDropdown();
+        });
+      });
+    }
+  });
 </script>

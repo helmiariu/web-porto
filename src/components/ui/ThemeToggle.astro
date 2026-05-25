@@ -16,7 +16,7 @@
       <span class="flex items-center gap-3">
         <span
           id="desktop-theme-icon"
-          class="flex shrink-0 items-center justify-center transition-all duration-200 w-[26px] h-[26px] [&>svg]:block [&>svg]:w-[15px] [&>svg]:h-[15px] text-[hsl(var(--foreground)/0.6)] group-hover:text-[hsl(var(--foreground))]"
+          class="theme-icon-container flex shrink-0 items-center justify-center transition-all duration-200 w-[26px] h-[26px] [&>svg]:block [&>svg]:w-[15px] [&>svg]:h-[15px] text-[hsl(var(--foreground)/0.6)] group-hover:text-[hsl(var(--foreground))]"
         >
         </span>
         <span class="font-medium text-[13px]">Dark Mode</span>
@@ -27,22 +27,25 @@
         <input
           id="theme-switch"
           type="checkbox"
-          class="peer appearance-none w-11 h-5 bg-slate-200 dark:bg-zinc-800 rounded-full checked:bg-slate-800 dark:checked:bg-emerald-500 cursor-pointer transition-colors duration-300"
+          class="theme-switch-input peer appearance-none w-11 h-5 bg-slate-200 dark:bg-zinc-800 rounded-full checked:bg-slate-800 dark:checked:bg-emerald-500 cursor-pointer transition-colors duration-300"
         />
         <span
           class="absolute top-0 left-0 w-5 h-5 bg-white rounded-full border border-slate-300 dark:border-zinc-700 shadow-sm transition-transform duration-300 peer-checked:translate-x-6 peer-checked:border-slate-800 dark:peer-checked:border-emerald-500 cursor-pointer"
         >
         </span>
-        <script is:inline>
+        
+        <script is:inline data-astro-rerun>
           (function () {
             try {
               const theme = localStorage.getItem("astro-theme");
               const isDark = theme
                 ? theme === "dark"
                 : window.matchMedia?.("(prefers-color-scheme: dark)").matches;
-              if (isDark) {
-                document.getElementById("theme-switch").checked = true;
-              }
+              
+              // Menyelaraskan seluruh checkbox tema yang ada di halaman
+              document.querySelectorAll(".theme-switch-input").forEach(el => {
+                el.checked = isDark;
+              });
             } catch (e) {
               // ignore
             }
@@ -54,59 +57,71 @@
 </div>
 
 <script>
-  const storageKey = "astro-theme";
-  const html = document.documentElement;
-  const checkbox = document.getElementById("theme-switch") as HTMLInputElement;
-  const desktopIcon = document.getElementById("desktop-theme-icon");
+  document.addEventListener("astro:page-load", () => {
+    const storageKey = "astro-theme";
+    const html = document.documentElement;
+    
+    // Ambil SEMUA elemen tombol/checkbox tema (baik di desktop maupun mobile)
+    const checkboxes = document.querySelectorAll(".theme-switch-input") as NodeListOf<HTMLInputElement>;
+    const icons = document.querySelectorAll(".theme-icon-container");
 
-  const SunIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
-  const MoonIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
+    const SunIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
+    const MoonIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
 
-  const setTheme = (dark: boolean) => {
-    html.classList.toggle("dark", dark);
-    if (checkbox) {
-      checkbox.checked = dark;
-    }
-    if (desktopIcon) {
-      desktopIcon.innerHTML = dark ? MoonIcon : SunIcon;
-    }
-  };
+    const setTheme = (dark: boolean) => {
+      html.classList.toggle("dark", dark);
+      
+      // Update semua checkbox
+      checkboxes.forEach((checkbox) => {
+        checkbox.checked = dark;
+      });
+      
+      // Update semua ikon pendukung
+      icons.forEach((icon) => {
+        icon.innerHTML = dark ? MoonIcon : SunIcon;
+      });
+    };
 
-  const getSavedTheme = () => {
-    try {
-      return localStorage.getItem(storageKey);
-    } catch {
-      return null;
-    }
-  };
-
-  const getPreferredTheme = () =>
-    window.matchMedia?.("(prefers-color-scheme: dark)").matches;
-  const savedTheme = getSavedTheme();
-  const isDark = savedTheme ? savedTheme === "dark" : getPreferredTheme();
-
-  // Set initial theme
-  setTheme(isDark);
-
-  // Listen to toggle change
-  checkbox?.addEventListener("change", () => {
-    const nextTheme = checkbox.checked;
-    try {
-      localStorage.setItem(storageKey, nextTheme ? "dark" : "light");
-    } catch {
-      // ignore
-    }
-    setTheme(nextTheme);
-  });
-
-  // Watch for html class changes (to sync if toggled elsewhere)
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.attributeName === "class") {
-        const isCurrentlyDark = html.classList.contains("dark");
-        setTheme(isCurrentlyDark);
+    const getSavedTheme = () => {
+      try {
+        return localStorage.getItem(storageKey);
+      } catch {
+        return null;
       }
+    };
+
+    const getPreferredTheme = () =>
+      window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+    const savedTheme = getSavedTheme();
+    const isDark = savedTheme ? savedTheme === "dark" : getPreferredTheme();
+
+    // Set initial state saat halaman baru dimuat oleh ClientRouter
+    setTheme(isDark);
+
+    // Tempelkan event listener klik ke semua tombol switch tema (Desktop & Dropdown Mobile)
+    checkboxes.forEach((checkbox) => {
+      checkbox.addEventListener("change", () => {
+        const nextTheme = checkbox.checked;
+        try {
+          localStorage.setItem(storageKey, nextTheme ? "dark" : "light");
+        } catch {
+          // ignore
+        }
+        setTheme(nextTheme);
+      });
     });
+
+    // Sinkronisasi class html jika berubah
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === "class") {
+          const isCurrentlyDark = html.classList.contains("dark");
+          if (checkboxes[0] && checkboxes[0].checked !== isCurrentlyDark) {
+            setTheme(isCurrentlyDark);
+          }
+        }
+      });
+    });
+    observer.observe(html, { attributes: true });
   });
-  observer.observe(html, { attributes: true });
 </script>
