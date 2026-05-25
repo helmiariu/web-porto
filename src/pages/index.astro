@@ -3,6 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import CardProject from "@components/ui/CardProject.astro";
 import CardBlog from "@components/ui/CardBlog.astro";
 import MobileProfile from "@components/ui/MobileProfile.astro";
+import Hero from "@components/home/Hero.astro";
 import { getCollection } from "astro:content";
 
 
@@ -21,23 +22,8 @@ const latestPosts = allPosts
 
 <Layout>
   <MobileProfile />
-  
+  <Hero />
   <div class="space-y-16">
-  
-    <section class="space-y-4">
-      <h1
-        class="text-3xl md:text-4xl font-extrabold tracking-tight text-[hsl(var(--foreground))]"
-      >
-        Halo, saya Helmi 👋
-      </h1>
-      <p
-        class="text-lg md:text-base text-[hsl(var(--foreground)/0.7)] max-w-2xl leading-relaxed"
-      >
-        Seorang pengembang frontend yang berfokus pada pembuatan antarmuka
-        pengguna yang indah, interaktif, dan berkinerja tinggi menggunakan
-        teknologi web modern.
-      </p>
-    </section>
   
     <section class="space-y-600">
       <!-- default 6 -->

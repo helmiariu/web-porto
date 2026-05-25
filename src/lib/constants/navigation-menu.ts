@@ -12,13 +12,15 @@ export const publicDashboardMenu: SidebarMenu[] = [
     menus: [
       { href: "/", label: "Home" },
       { href: "/project", label: "Project" },
+      { href: "/3Dgallery", label: "3D Gallery" },
+      { href: "/monitoring", label: "Monitoring" },
       { href: "/blog", label: "Blog" },
     ],
   },
   {
     groupLabel: "Application",
     menus: [
-      { href: "/ai", label: "3D Modelling" },
+      // { href: "/ai", label: "AI" },
       { href: "/chat", label: "Chat" },
     ],
   },
@@ -26,7 +28,7 @@ export const publicDashboardMenu: SidebarMenu[] = [
     groupLabel: "Playground",
     menus: [
       { href: "/tools", label: "Tools" },
-      { href: "/roadmap", label: "Roadmap" },
+      // { href: "/roadmap", label: "Roadmap" },
     ],
   },
 ];
