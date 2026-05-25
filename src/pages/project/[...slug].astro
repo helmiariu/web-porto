@@ -2,9 +2,7 @@
 import Layout from '@layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
 
-// 1. Cukup import ikon yang tidak bermasalah saja dari lucide-static
-import pkg from 'lucide-static';
-const { ArrowLeft, ExternalLink } = pkg;
+import { ArrowLeft, ExternalLink } from "@lucide/astro";
 
 export async function getStaticPaths() {
   const projectEntries = await getCollection('projects');
@@ -20,7 +18,7 @@ const { Content } = await render(entry);
 <Layout>
   <article class="space-y-8">
     <a href="/project" class="inline-flex items-center gap-2 text-sm font-medium text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] transition-colors">
-      <span class="h-4 w-4" set:html={ArrowLeft}></span>
+      <ArrowLeft class="h-4 w-4" />
       Kembali ke Proyek
     </a>
 
@@ -56,7 +54,7 @@ const { Content } = await render(entry);
         )}
         {entry.data.link && (
           <a href={entry.data.link} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-4 py-2 text-sm font-medium text-[hsl(var(--background))] hover:opacity-90 transition-opacity">
-            <span class="h-4 w-4" set:html={ExternalLink}></span>
+            <ExternalLink class="h-4 w-4" />
             Live Demo
           </a>
         )}

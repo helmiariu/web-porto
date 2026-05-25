@@ -1,8 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
-import pkg from 'lucide-static';
-const { ArrowLeft } = pkg;
 
 export async function getStaticPaths() {
   const blogEntries = await getCollection('blogs');
@@ -10,6 +8,7 @@ export async function getStaticPaths() {
     params: { slug: entry.id }, props: { entry },
   }));
 }
+import { ArrowLeft, ExternalLink } from "@lucide/astro";
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
@@ -18,7 +17,7 @@ const { Content } = await render(entry);
 <Layout>
   <article class="space-y-8">
     <a href="/blog" class="inline-flex items-center gap-2 text-sm font-medium text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] transition-colors">
-      <span class="h-4 w-4" set:html={ArrowLeft}></span>
+      <ArrowLeft class="h-4 w-4" />
       Kembali ke Blog
     </a>
 
