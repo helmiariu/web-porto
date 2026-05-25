@@ -11,24 +11,27 @@ import {
   MapPin,
   User,
   Menu,
-  ArrowRight,
-} from "lucide-static";
+  ArrowRight, // Pastikan ArrowRight diimpor di sini
+  Rotate3d, 
+  Gauge,    
+} from "@lucide/astro";
 
 const currentPath = Astro.url.pathname;
 const iconMap = {
   "/": Home,
   "/project": Briefcase,
+  "/3Dgallery": Rotate3d,  
+  "/monitoring": Gauge,    
   "/blog": FileText,
-  "/auth": User,
-  "/profile": User,
-  "/ai": Brain,
+  // "/auth": User,
+  // "/profile": User,
+  // "/ai": Brain,
   "/chat": MessageCircle,
   "/tools": Wrench,
-  "/roadmap": MapPin,
+  // "/roadmap": MapPin,
 };
 ---
 
-<!-- Backdrop Overlay -->
 <div
   id="mobile-dropdown-backdrop"
   class="md:hidden fixed inset-0 z-30 bg-zinc-900/40 dark:bg-black/50 backdrop-blur-[3px] opacity-0 pointer-events-none transition-opacity duration-300"
@@ -47,9 +50,10 @@ const iconMap = {
         <span
           class="grid h-12 w-12 place-items-center rounded-2xl bg-[hsl(var(--primary))]/10 text-[hsl(var(--foreground))]"
         >
-          <span
-            class="flex items-center justify-center h-5 w-5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block"
-            set:html={User}></span>
+          <span class="flex items-center justify-center h-5 w-5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block">
+            {/* 1. Mengubah User set:html menjadi komponen langsung */}
+            <User />
+          </span>
         </span>
         <div>
           <p class="text-sm font-semibold text-[hsl(var(--foreground))]">
@@ -74,7 +78,10 @@ const iconMap = {
                   item.href === "/"
                     ? currentPath === "/"
                     : currentPath.startsWith(item.href);
-                const iconMarkup = iconMap[item.href] ?? Menu;
+                
+                // 2. Menyesuaikan variabel dengan huruf kapital awal agar dibaca sebagai komponen dinamis oleh Astro
+                const IconComponent = iconMap[item.href] ?? Menu;
+                
                 return (
                   <a
                     href={item.href}
@@ -92,16 +99,20 @@ const iconMap = {
                             ? "text-[hsl(var(--foreground))]"
                             : "text-[hsl(var(--foreground)/0.6)] group-hover:text-[hsl(var(--foreground))]"
                         }`}
-                        set:html={iconMarkup}
-                      />
+                      >
+                        {/* 3. Mengubah iconMarkup set:html menjadi komponen langsung */}
+                        <IconComponent />
+                      </span>
                       <span class="font-medium text-[13px]">{item.label}</span>
                     </span>
                     <span
                       class={`items-center justify-center transition-all duration-200 absolute right-[12px] w-[19px] h-[19px] text-[hsl(var(--foreground))] [&>svg]:block [&>svg]:w-[13px] [&>svg]:h-[13px] ${
                         isActive ? "flex" : "hidden"
                       }`}
-                      set:html={ArrowRight}
-                    />
+                    >
+                      {/* 4. Mengubah ArrowRight set:html menjadi komponen langsung */}
+                      <ArrowRight />
+                    </span>
                   </a>
                 );
               })}
@@ -111,8 +122,6 @@ const iconMap = {
       }
     </div>
 
-    <!-- New Dark Mode Toggle -->
-    <!-- New Dark Mode Toggle -->
     <div class="space-y-3">
       <p
         class="text-[0.63rem] font-semibold uppercase tracking-[0.3em] text-[hsl(var(--foreground)/0.5)] pl-3"

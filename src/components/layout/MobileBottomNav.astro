@@ -1,6 +1,6 @@
 ---
 // mobile-navbar-icons.astro
-import { mainNavData } from "../../lib/constants/navigation-menu.ts";
+import { mainNavData } from "@lib/constants/navigation-menu.ts";
 import {
   Home,
   Briefcase,
@@ -11,20 +11,25 @@ import {
   MapPin,
   User,
   Menu,
-} from "lucide-static";
+  Rotate3d, 
+  Gauge,    
+} from "@lucide/astro"; 
 
 const currentPath = Astro.url.pathname;
 const navItems = mainNavData(false);
+
 const iconMap = {
   "/": Home,
   "/project": Briefcase,
+  "/3Dgallery": Rotate3d,  
+  "/monitoring": Gauge,    
   "/blog": FileText,
-  "/auth": User,
-  "/profile": User,
-  "/ai": Brain,
+  // "/auth": User,
+  // "/profile": User,
+  // "/ai": Brain,
   "/chat": MessageCircle,
   "/tools": Wrench,
-  "/roadmap": MapPin,
+  // "/roadmap": MapPin,
 };
 ---
 
@@ -38,7 +43,10 @@ const iconMap = {
           item.href === "/"
             ? currentPath === "/"
             : currentPath.startsWith(item.href);
-        const iconMarkup = iconMap[item.href] ?? Menu;
+        
+        // Ubah nama variabel agar menggunakan PascalCase (Huruf Kapital di awal)
+        const IconComponent = iconMap[item.href] ?? Menu;
+        
         return (
           <a
             href={item.href}
@@ -49,10 +57,10 @@ const iconMap = {
                 : "border-transparent bg-transparent text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]"
             }`}
           >
-            <span
-              class="flex items-center justify-center h-5 w-5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block"
-              set:html={iconMarkup}
-            />
+            <span class="flex items-center justify-center h-5 w-5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block">
+              {/* Render komponen ikon secara dinamis */}
+              <IconComponent />
+            </span>
           </a>
         );
       })
@@ -64,9 +72,10 @@ const iconMap = {
       aria-label="Open menu"
       aria-expanded="false"
     >
-      <span
-        class="flex items-center justify-center h-5 w-5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block"
-        set:html={Menu}></span>
+      <span class="flex items-center justify-center h-5 w-5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block">
+        {/* Render komponen Menu secara langsung */}
+        <Menu />
+      </span>
     </button>
   </div>
 </nav>

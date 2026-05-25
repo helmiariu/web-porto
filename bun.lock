@@ -5,9 +5,9 @@
     "": {
       "name": "grateful-parallax",
       "dependencies": {
+        "@lucide/astro": "^1.16.0",
         "@tailwindcss/vite": "^4.3.0",
         "astro": "^6.3.5",
-        "lucide-static": "^1.16.0",
         "tailwindcss": "^4.3.0",
       },
       "devDependencies": {
@@ -153,6 +153,8 @@
     "@jridgewell/sourcemap-codec": ["@jridgewell/sourcemap-codec@1.5.5", "", {}, "sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og=="],
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
+
+    "@lucide/astro": ["@lucide/astro@1.16.0", "", { "peerDependencies": { "astro": "^4 || ^5 || ^6" } }, "sha512-RWT+9Y1UAMnz/oiJMssnQTSeBM0AbwzK1SsOeY2zQungN7PQxm4Pp4bNxIVp/Wu77TBXkpPoaIyxYqagZVjWGQ=="],
 
     "@oslojs/encoding": ["@oslojs/encoding@1.1.0", "", {}, "sha512-70wQhgYmndg4GCPxPPxPGevRKqTIJ2Nh4OkiMWmDAVYsTQ+Ta7Sq+rPevXyXGdzr30/qZBnyOalCszoMxlyldQ=="],
 
@@ -463,8 +465,6 @@
     "longest-streak": ["longest-streak@3.1.0", "", {}, "sha512-9Ri+o0JYgehTaVBBDoMqIl8GXtbWg711O3srftcHhZ0dqnETqLaoIK0x17fUw9rFSlK/0NlsKe0Ahhyl5pXE2g=="],
 
     "lru-cache": ["lru-cache@11.5.0", "", {}, "sha512-5YgH9UJd7wVb9hIouI2adWpgqrrICkt070Dnj8EUY1+B4B2P9eRLPAkAAo6NICA7CEhOIeBHl46u9zSNpNu7zA=="],
-
-    "lucide-static": ["lucide-static@1.16.0", "", {}, "sha512-/EH96rDLRLNKaxuhqHHbmUPx3+qHS/kQRzI1ZGZqnxmh6ljX9yX0xC2UZlQSfBE/n84eNIaxKsv9P8sMiOdCww=="],
 
     "magic-string": ["magic-string@0.30.21", "", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.5.5" } }, "sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ=="],
 

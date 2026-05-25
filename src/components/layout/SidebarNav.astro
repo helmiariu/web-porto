@@ -1,8 +1,7 @@
 ---
 import { publicDashboardMenu } from "../../lib/constants/navigation-menu.ts";
 import ThemeToggle from "@components/ui/ThemeToggle.astro";
-import pkg from "lucide-static";
-const {
+import {
   Home,
   Briefcase,
   FileText,
@@ -10,18 +9,26 @@ const {
   MessageCircle,
   Wrench,
   MapPin,
+  User,
+  Menu,
   ArrowRight,
-} = pkg;
+  Rotate3d, 
+  Gauge,    
+} from "@lucide/astro"; 
 
 const currentPath = Astro.url.pathname;
-const icons = {
+const iconMap = {
   "/": Home,
   "/project": Briefcase,
+  "/3Dgallery": Rotate3d,  
+  "/monitoring": Gauge,    
   "/blog": FileText,
-  "/ai": Brain,
+  // "/auth": User,
+  // "/profile": User,
+  // "/ai": Brain,
   "/chat": MessageCircle,
   "/tools": Wrench,
-  "/roadmap": MapPin,
+  // "/roadmap": MapPin,
 };
 ---
 
@@ -41,7 +48,10 @@ const icons = {
               item.href === "/"
                 ? currentPath === "/"
                 : currentPath.startsWith(item.href);
-            const iconMarkup = icons[item.href] ?? Home;
+            
+            // Simpan komponen ke dalam variabel berawalan Huruf Kapital agar Astro tahu ini Komponen
+            const IconComponent = iconMap[item.href] ?? Home;
+            
             return (
               <a
                 href={item.href}
@@ -59,16 +69,21 @@ const icons = {
                         ? "text-[hsl(var(--foreground))]"
                         : "text-[hsl(var(--foreground)/0.6)] group-hover:text-[hsl(var(--foreground))]"
                     }`}
-                    set:html={iconMarkup}
-                  />
+                  >
+                    {/* Render langsung sebagai komponen Astro biasa */}
+                    <IconComponent />
+                  </span>
                   <span class="font-medium text-[13px]">{item.label}</span>
                 </span>
+                
                 <span
                   class={`items-center justify-center transition-all duration-200 absolute right-[12px] w-[19px] h-[19px] text-[hsl(var(--foreground))] [&>svg]:block [&>svg]:w-[13px] [&>svg]:h-[13px] ${
                     isActive ? "flex" : "hidden"
                   }`}
-                  set:html={ArrowRight}
-                />
+                >
+                  {/* Render langsung sebagai komponen Astro biasa */}
+                  <ArrowRight />
+                </span>
               </a>
             );
           })}
@@ -79,4 +94,3 @@ const icons = {
 
   <ThemeToggle />
 </nav>
-

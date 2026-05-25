@@ -5,14 +5,12 @@ const role = "Full-Stack Developer & Designer";
 const bio = "Fokus membangun pengalaman web yang bersih, cepat, dan fungsional. Senang memecahkan masalah kompleks lewat baris kode yang minimalis dan terstruktur. Saya menggabungkan estetika desain dengan performa kode yang optimal untuk menciptakan produk digital yang berdampak.";
 ---
 
-<section class="md:pt-0 py-12 md:py-20 px-2 sm:px-4 md:px-0 bg-background text-foreground transition-colors duration-300">
-  <div class="space-y-6">
-
-    <div class="space-y-2">
-      <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-primary">
+<section class="md:pt-0 py-12 md:py-20 px-2 sm:px-4 md:px-0 bg-background text-foreground antialiased transition-colors duration-300">
+  <div class="space-y-6 max-w-2xl"> <div class="space-y-2">
+      <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
         {name}
       </h1>
-      <p class="text-lg md:text-xl font-semibold text-muted-foreground/90">
+      <p class="text-lg md:text-xl font-medium text-muted-foreground">
         {role}
       </p>
     </div>
@@ -24,13 +22,14 @@ const bio = "Fokus membangun pengalaman web yang bersih, cepat, dan fungsional. 
     <div class="flex flex-wrap items-center gap-3 pt-2">
       <a 
         href="#contact" 
-        class="px-4 py-2 text-sm font-medium bg-primary text-background hover:opacity-90 rounded-[var(--radius)] transition-all inline-flex items-center justify-center shadow-sm"
+        class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-55 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 shadow-sm"
       >
         Hubungi Saya
       </a>
+      
       <a 
         href="#projects" 
-        class="px-4 py-2 text-sm font-medium bg-secondary text-foreground border border-border hover:bg-muted rounded-[var(--radius)] transition-all inline-flex items-center justify-center"
+        class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-55 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
       >
         Lihat Karya
       </a>

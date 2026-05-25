@@ -36,9 +36,10 @@ export const publicDashboardMenu: SidebarMenu[] = [
 export const mainNavData = (isHaveToken: boolean) => [
   { href: "/", label: "Home" },
   { href: "/project", label: "Project" },
-  { href: "/blog", label: "Blog" },
-  {
-    href: isHaveToken ? "/profile" : "/auth",
-    label: isHaveToken ? "Profile" : "Login",
-  },
+  { href: "/3Dgallery", label: "3D Gallery" },
+  { href: "/monitoring", label: "Monitoring" },
+  // {
+  //   href: isHaveToken ? "/profile" : "/auth",
+  //   label: isHaveToken ? "Profile" : "Login",
+  // },
 ];
