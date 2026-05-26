@@ -14,11 +14,11 @@ const isMobile = variant === "mobile";
 {
   isMobile ? (
     // Mengubah flex-col menjadi flex-row, items-center, dan justify-between
-    <div class="md:hidden w-full mb-0 pr-4 pl-0 pb-4 border-[hsl(var(--border))] animate-fade-in flex flex-row items-center justify-between text-left">
+    <div class="md:hidden w-full mb-0 pr-3 sm:pr-10 pl-0 pb-4 pt-6 border-[hsl(var(--border))] animate-fade-in flex flex-row items-center justify-between text-left">
       
       {/* SEBELAH KIRI: Nama & Status */}
       <div class="flex flex-col gap-1">
-        <h2 class="text-[clamp(1.5rem,3.5vw,2rem)] font-bold tracking-tight text-foreground"> 
+        <h2 class="text-[clamp(1.3rem,6vw,1.6rem)] font-bold tracking-tight text-foreground"> 
           {/* text-[clamp(1.15rem,3vw,1.35rem)] font-bold tracking-tight text-foreground */}
           Helmi Arimbawa
         </h2>
