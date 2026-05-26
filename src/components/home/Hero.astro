@@ -1,35 +1,31 @@
 ---
-// Anda bisa menambahkan props jika ingin datanya dinamis
-const name = "Hi, I'm Helmi Arimbawa";
-const role = "Full-Stack Developer & Designer";
+const role = "About";
 const bio = "Fokus membangun pengalaman web yang bersih, cepat, dan fungsional. Senang memecahkan masalah kompleks lewat baris kode yang minimalis dan terstruktur. Saya menggabungkan estetika desain dengan performa kode yang optimal untuk menciptakan produk digital yang berdampak.";
 ---
 
-<section class="mb-13 md:pt-0 py-0 md:py-10 px-2 sm:px-4 md:px-0 bg-background text-foreground antialiased transition-colors duration-300">
-  <div class="space-y-6"> <div class="space-y-2">
-      <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
-        {name}
-      </h1>
-      <p class="text-lg md:text-xl font-medium text-muted-foreground">
-        {role}
-      </p>
-    </div>
+<section class="mb-10 md:mb-10 pt-4 md:pt-0 py-0 md:py-0 px-0 md:px-0 bg-background text-foreground antialiased transition-colors duration-300">
+  
+  <div class="w-full md:w-full md:max-w-full space-y-3"> 
 
-    <p class="text-base text-muted-foreground leading-relaxed">
+    <p class="text-[clamp(1.15rem,3vw,1.35rem)] font-bold tracking-tight text-foreground">
+      {role}
+    </p>
+
+    <p class="text-[clamp(0.875rem,1.5vw,1rem)] text-muted-foreground leading-relaxed">
       {bio}
     </p>
 
-    <div class="flex flex-wrap items-center gap-3 pt-2">
+    <div class="flex flex-wrap items-center gap-3 pt-1">
       <a 
         href="#contact" 
-        class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-55 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 shadow-sm"
+        class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-slate-900 text-slate-50 hover:bg-slate-900/90 h-10 px-4 py-2 shadow-sm active:scale-[0.98]"
       >
         Hubungi Saya
       </a>
       
       <a 
-        href="#projects" 
-        class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-55 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+        href="/blog" 
+        class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-slate-200 bg-white text-slate-900 hover:bg-slate-100 hover:text-slate-900 h-10 px-4 py-2 shadow-sm active:scale-[0.98]"
       >
         Lihat Karya
       </a>

@@ -1,6 +1,7 @@
 ---
 // ProfileCard.astro
 import SocialLinks from "@components/ui/SocialLinks.astro";
+import { Icon } from 'astro-icon/components';
 
 interface Props {
   variant?: "sidebar" | "mobile";
@@ -12,31 +13,53 @@ const isMobile = variant === "mobile";
 
 {
   isMobile ? (
-    <div class="md:hidden w-full mb-0 pb-6 border-b border-[hsl(var(--border))] animate-fade-in flex flex-col items-center text-center">
-<div class="relative w-28 h-28 mb-4">
-  <div class="w-full h-full rounded-full overflow-hidden border border-[hsl(var(--border))]">
-    <img
-      src="/avatar.jpg"
-      alt="Helmi Arimbawa"
-      class="w-full h-full object-cover"
-      loading="eager"
-      decoding="sync"
-      onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXIiPjxwYXRoIGQ9Ik0xOSAyMXYtMmE0IDQgMCAwIDAtNC00SDlhNCA0IDAgMCAwLTQgNHYyIi8+PGNpcmNsZSBjeD0iMTIiIGN5PSI3IiByPSI0Ii8+PC9zdmc+'"
-    />
-  </div>
+    // Mengubah flex-col menjadi flex-row, items-center, dan justify-between
+    <div class="md:hidden w-full mb-0 pr-4 pl-0 pb-4 border-[hsl(var(--border))] animate-fade-in flex flex-row items-center justify-between text-left">
+      
+      {/* SEBELAH KIRI: Nama & Status */}
+      <div class="flex flex-col gap-1">
+        <h2 class="text-[clamp(1.5rem,3.5vw,2rem)] font-bold tracking-tight text-foreground"> 
+          {/* text-[clamp(1.15rem,3vw,1.35rem)] font-bold tracking-tight text-foreground */}
+          Helmi Arimbawa
+        </h2>
+        <div class="flex items-center gap-2">
+          <span class="relative flex h-2 w-2">
+            <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
+          </span>
+          <span class="text-xs font-medium text-[hsl(var(--foreground)/0.65)]">
+            Online
+          </span>
+        </div>
+      </div>
 
-  <span class="absolute bottom-1 right-1 flex justify-center items-center h-6 w-6 translate-x-[5%] translate-y-[5%]">
-    <span class="relative inline-flex h-4 w-4 rounded-full bg-[hsl(var(--background))] shadow-sm ring-1 ring-black/5 dark:ring-white/10">
-      <span class="absolute inset-0.5 rounded-full bg-emerald-500 animate-pulse"></span>
-    </span>
-  </span>
-</div>
+      <div class="relative w-17 h-17 flex-shrink-0">
+        <div class="w-full h-full rounded-full overflow-hidden border border-[hsl(var(--border))]">
+          <img
+            src="/avatar.jpg"
+            alt="Helmi Arimbawa"
+            class="w-full h-full object-cover"
+            loading="eager"
+            decoding="sync"
+            onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXIiPjxwYXRoIGQ9Ik0xOSAyMXYtMmE0IDQgMCAwIDAtNC00SDlhNCA0IDAgMCAwLTQgNHYyIi8+PGNpcmNsZSBjeD0iMTIiIGN5PSI3IiByPSI0Ii8+PC9zdmc+'"
+          />
+        </div>
 
-{/* <div class="space-y-1 flex flex-col items-center">
-  <h2 class="text-2xl font-bold tracking-tight text-[hsl(var(--foreground))]">
-    Helmi Arimbawa
-  </h2>
-</div> */}
+        {/* Badge Centang Menggunakan SVG Pilihan Anda */}
+        <div class="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-white p-[1px] dark:bg-[hsl(var(--background))]">
+          <svg 
+            stroke="currentColor" 
+            fill="currentColor" 
+            stroke-width="0" 
+            viewBox="0 0 24 24" 
+            class="text-blue-400 w-full h-full" 
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path fill="none" d="M0 0h24v24H0z"></path>
+            <path d="m23 12-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82L8.6 22.5l3.4-1.47 3.4 1.46 1.89-3.19 3.61-.82-.34-3.69L23 12zm-12.91 4.72-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48-7.33 7.35z"></path>
+          </svg>
+        </div>
+      </div>
+
     </div>
   ) : (
     <div class="mb-5 pl-2 flex flex-col">
@@ -59,7 +82,6 @@ const isMobile = variant === "mobile";
         </h1>
         <div class="flex items-center gap-2 pt-0">
           <span class="relative flex h-2.5 w-2.5">
-            <!-- Titik tunggal yang berkedip smooth di tempat -->
             <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
           </span>
           <span class="text-xs font-medium text-[hsl(var(--foreground)/0.65)]">
@@ -72,5 +94,3 @@ const isMobile = variant === "mobile";
     </div>
   )
 }
-
-
