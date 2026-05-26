@@ -68,29 +68,49 @@ import { ClientRouter } from 'astro:transitions';
 </html>
 
 <script>
-  // Fungsi utama untuk merekam dan mengembalikan posisi scroll
+  // ==========================================
+  // 1. SINKRONISASI TEMA ANTAR-TAB
+  // ==========================================
+  const syncThemeAcrossTabs = () => {
+    window.addEventListener("storage", (event) => {
+      // Memastikan yang berubah adalah key tema kita
+      if (event.key === "astro-theme" && event.newValue) {
+        if (event.newValue === "dark") {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+      }
+    });
+  };
+
+  // ==========================================
+  // 2. MANAJEMEN SCROLL SIDEBAR
+  // ==========================================
   const handleSidebarScroll = () => {
-    // Mencari elemen sidebar. Kita gunakan querySelector untuk mencari tag <aside> atau elemen sidebar kamu
     const sidebar = document.querySelector("aside") || document.querySelector("#sidebar-container");
     
     if (sidebar) {
-      // 1. Kembalikan posisi scroll jika sebelumnya pernah disimpan di memori sesi browser
       const savedScrollTop = sessionStorage.getItem("sidebar-scroll-position");
       if (savedScrollTop) {
         sidebar.scrollTop = parseInt(savedScrollTop, 10);
       }
 
-      // 2. Simpan posisi scroll terbaru setiap kali user melakukan scroll di area sidebar
       sidebar.addEventListener("scroll", () => {
         sessionStorage.setItem("sidebar-scroll-position", sidebar.scrollTop.toString());
       });
     }
   };
 
-  // Jalankan ketika halaman selesai dimuat ulang (baik hard refresh maupun via ClientRouter)
-  document.addEventListener("astro:page-load", handleSidebarScroll);
+  // ==========================================
+  // INISIALISASI SAAT HALAMAN DI-LOAD
+  // ==========================================
+  document.addEventListener("astro:page-load", () => {
+    handleSidebarScroll();
+    syncThemeAcrossTabs(); // Jalankan listener sinkronisasi di sini
+  });
 
-  // Cadangan darurat: Simpan posisi scroll tepat sedetik sebelum halaman ditukar
+  // Cadangan darurat scroll sidebar sebelum halaman ditukar
   document.addEventListener("astro:before-swap", () => {
     const sidebar = document.querySelector("aside") || document.querySelector("#sidebar-container");
     if (sidebar) {
