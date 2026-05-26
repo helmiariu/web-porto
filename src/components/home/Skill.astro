@@ -8,19 +8,19 @@ const row1Skills = [
   { name: "JavaScript", icon: "logos:javascript" },
   { name: "TypeScript", icon: "logos:typescript-icon" },
   { name: "React", icon: "logos:react" },
-  { name: "Astro", icon: "simple-icons:astro" },
+  { name: "Astro", icon: "simple-icons:astro", color: "text-[#FF5D01]" }, // Custom warna Astro
   { name: "Tailwind CSS", icon: "logos:tailwindcss-icon" },
   { name: "Blender", icon: "logos:blender" },
-  { name: "3D Maya", icon: "simple-icons:autodeskmaya", },
-  { name: "AutoCAD", icon: "simple-icons:autocad" },
+  { name: "3D Maya", icon: "simple-icons:autodeskmaya", color: "text-[#37A5CC]" }, // Custom warna Maya
+  { name: "AutoCAD", icon: "simple-icons:autocad", color: "text-[#E2231A]" }, // Custom warna AutoCAD
 ];
 
 const row2Skills = [
   { name: "Node.js", icon: "logos:nodejs-icon" },
-  { name: "Express", icon: "simple-icons:express"}, 
+  { name: "Express", icon: "simple-icons:express" }, 
   { name: "PostgreSQL", icon: "logos:postgresql" },
   { name: "MongoDB", icon: "logos:mongodb-icon" },
-  { name: "Prisma", icon: "simple-icons:prisma"}, 
+  { name: "Prisma", icon: "simple-icons:prisma" }, 
   { name: "Git", icon: "logos:git-icon" },
   { name: "Docker", icon: "logos:docker-icon" },
   { name: "Figma", icon: "logos:figma" },
@@ -43,7 +43,7 @@ const row2Skills = [
       <div class="flex gap-4 pr-4 shrink-0 animate-marquee-left whitespace-nowrap group-hover:[animation-play-state:paused]">
         {row1Skills.map((skill) => (
           <div class="inline-flex items-center justify-center gap-3 px-6 py-3 rounded-[var(--radius)] border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm transition-all hover:bg-[hsl(var(--muted))] hover:scale-105">
-            <Icon name={skill.icon} class="w-5 h-5 object-contain" />
+            <Icon name={skill.icon} class={`w-5 h-5 object-contain ${skill.color || ''}`} />
             <span>{skill.name}</span>
           </div>
         ))}
@@ -51,7 +51,7 @@ const row2Skills = [
       <div class="flex gap-4 pr-4 shrink-0 animate-marquee-left whitespace-nowrap group-hover:[animation-play-state:paused]" aria-hidden="true">
         {row1Skills.map((skill) => (
           <div class="inline-flex items-center justify-center gap-3 px-6 py-3 rounded-[var(--radius)] border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm transition-all hover:bg-[hsl(var(--muted))] hover:scale-105">
-            <Icon name={skill.icon} class="w-5 h-5 object-contain" />
+            <Icon name={skill.icon} class={`w-5 h-5 object-contain ${skill.color || ''}`} />
             <span>{skill.name}</span>
           </div>
         ))}
@@ -62,7 +62,7 @@ const row2Skills = [
       <div class="flex gap-4 pr-4 shrink-0 animate-marquee-right whitespace-nowrap group-hover:[animation-play-state:paused]">
         {row2Skills.map((skill) => (
           <div class="inline-flex items-center justify-center gap-3 px-6 py-3 rounded-[var(--radius)] border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm transition-all hover:bg-[hsl(var(--muted))] hover:scale-105">
-            <Icon name={skill.icon} class="w-5 h-5 object-contain" />
+            <Icon name={skill.icon} class={`w-5 h-5 object-contain ${skill.color || ''}`} />
             <span>{skill.name}</span>
           </div>
         ))}
@@ -70,7 +70,7 @@ const row2Skills = [
       <div class="flex gap-4 pr-4 shrink-0 animate-marquee-right whitespace-nowrap group-hover:[animation-play-state:paused]" aria-hidden="true">
         {row2Skills.map((skill) => (
           <div class="inline-flex items-center justify-center gap-3 px-6 py-3 rounded-[var(--radius)] border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm transition-all hover:bg-[hsl(var(--muted))] hover:scale-105">
-            <Icon name={skill.icon} class="w-5 h-5 object-contain" />
+            <Icon name={skill.icon} class={`w-5 h-5 object-contain ${skill.color || ''}`} />
             <span>{skill.name}</span>
           </div>
         ))}
@@ -82,12 +82,12 @@ const row2Skills = [
 <style>
   /* Animasi Bergerak ke Kiri (Mulai dari 0% ke -100%) */
   .animate-marquee-left {
-    animation: marqueeLeft 15s linear infinite;
+    animation: marqueeLeft 25s linear infinite;
   }
 
   /* Animasi Bergerak ke Kanan (Mulai dari -100% ke 0%) */
   .animate-marquee-right {
-    animation: marqueeRight 15s linear infinite;
+    animation: marqueeRight 25s linear infinite;
   }
 
   @keyframes marqueeLeft {
