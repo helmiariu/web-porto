@@ -39,11 +39,12 @@ const row2Skills = [
     <div class="absolute inset-y-0 left-0 w-1/6 bg-gradient-to-r from-[hsl(var(--background))] to-transparent z-10 pointer-events-none"></div>
     <div class="absolute inset-y-0 right-0 w-1/6 bg-gradient-to-l from-[hsl(var(--background))] to-transparent z-10 pointer-events-none"></div>
 
+    {/* ROW 1 */}
     <div class="flex overflow-hidden select-none group w-full">
       <div class="flex gap-4 pr-4 shrink-0 animate-marquee-left whitespace-nowrap group-hover:[animation-play-state:paused]">
         {row1Skills.map((skill) => (
           <div class="inline-flex items-center justify-center gap-3 px-6 py-3 rounded-[var(--radius)] border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm transition-all hover:bg-[hsl(var(--muted))] hover:scale-105">
-            <Icon name={skill.icon} class={`w-5 h-5 object-contain ${skill.color || ''}`} />
+            <Icon name={skill.icon} class={`w-5 h-5 flex-shrink-0 transform-gpu antialiased object-contain ${skill.color || ''}`} />
             <span>{skill.name}</span>
           </div>
         ))}
@@ -51,18 +52,19 @@ const row2Skills = [
       <div class="flex gap-4 pr-4 shrink-0 animate-marquee-left whitespace-nowrap group-hover:[animation-play-state:paused]" aria-hidden="true">
         {row1Skills.map((skill) => (
           <div class="inline-flex items-center justify-center gap-3 px-6 py-3 rounded-[var(--radius)] border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm transition-all hover:bg-[hsl(var(--muted))] hover:scale-105">
-            <Icon name={skill.icon} class={`w-5 h-5 object-contain ${skill.color || ''}`} />
+            <Icon name={skill.icon} class={`w-5 h-5 flex-shrink-0 transform-gpu antialiased object-contain ${skill.color || ''}`} />
             <span>{skill.name}</span>
           </div>
         ))}
       </div>
     </div>
 
+    {/* ROW 2 */}
     <div class="flex overflow-hidden select-none group w-full">
       <div class="flex gap-4 pr-4 shrink-0 animate-marquee-right whitespace-nowrap group-hover:[animation-play-state:paused]">
         {row2Skills.map((skill) => (
           <div class="inline-flex items-center justify-center gap-3 px-6 py-3 rounded-[var(--radius)] border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm transition-all hover:bg-[hsl(var(--muted))] hover:scale-105">
-            <Icon name={skill.icon} class={`w-5 h-5 object-contain ${skill.color || ''}`} />
+            <Icon name={skill.icon} class={`w-5 h-5 flex-shrink-0 transform-gpu antialiased object-contain ${skill.color || ''}`} />
             <span>{skill.name}</span>
           </div>
         ))}
@@ -70,7 +72,7 @@ const row2Skills = [
       <div class="flex gap-4 pr-4 shrink-0 animate-marquee-right whitespace-nowrap group-hover:[animation-play-state:paused]" aria-hidden="true">
         {row2Skills.map((skill) => (
           <div class="inline-flex items-center justify-center gap-3 px-6 py-3 rounded-[var(--radius)] border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm transition-all hover:bg-[hsl(var(--muted))] hover:scale-105">
-            <Icon name={skill.icon} class={`w-5 h-5 object-contain ${skill.color || ''}`} />
+            <Icon name={skill.icon} class={`w-5 h-5 flex-shrink-0 transform-gpu antialiased object-contain ${skill.color || ''}`} />
             <span>{skill.name}</span>
           </div>
         ))}
@@ -80,14 +82,18 @@ const row2Skills = [
 </section>
 
 <style>
-  /* Animasi Bergerak ke Kiri (Mulai dari 0% ke -100%) */
+  /* Animasi Bergerak ke Kiri dengan optimasi hardware akselerasi */
   .animate-marquee-left {
-    animation: marqueeLeft 25s linear infinite;
+    animation: marqueeLeft 30s linear infinite;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 
-  /* Animasi Bergerak ke Kanan (Mulai dari -100% ke 0%) */
+  /* Animasi Bergerak ke Kanan dengan optimasi hardware akselerasi */
   .animate-marquee-right {
-    animation: marqueeRight 25s linear infinite;
+    animation: marqueeRight 30s linear infinite;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 
   @keyframes marqueeLeft {

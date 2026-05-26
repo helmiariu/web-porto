@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Montserrat", "sans-serif"],
+        sans: ["Montserrat", "Montserrat Fallback", "sans-serif"], // <-- Sudah diganti ke Manrope "Manrope", "sans-serif",
       },
     },
   },

@@ -3,6 +3,27 @@ import "@styles/global.css";
 import Sidebar from "@components/layout/Sidebar.astro";
 import MobileBottomNav from "@components/layout/MobileBottomNav.astro";
 import MobileMenuDrawer from "@components/layout/MobileMenuDrawer.astro";
+// Impor semua weight versi Normal (100 - 900)
+import "@fontsource/montserrat/100.css";
+import "@fontsource/montserrat/200.css";
+import "@fontsource/montserrat/300.css";
+import "@fontsource/montserrat/400.css";
+import "@fontsource/montserrat/500.css";
+import "@fontsource/montserrat/600.css";
+import "@fontsource/montserrat/700.css";
+import "@fontsource/montserrat/800.css";
+import "@fontsource/montserrat/900.css";
+
+// Impor semua weight versi Italic (100 - 900)
+import "@fontsource/montserrat/100-italic.css";
+import "@fontsource/montserrat/200-italic.css";
+import "@fontsource/montserrat/300-italic.css";
+import "@fontsource/montserrat/400-italic.css";
+import "@fontsource/montserrat/500-italic.css";
+import "@fontsource/montserrat/600-italic.css";
+import "@fontsource/montserrat/700-italic.css";
+import "@fontsource/montserrat/800-italic.css";
+import "@fontsource/montserrat/900-italic.css";
 
 // 1. Mengimpor ClientRouter dari modul transitions Astro
 import { ClientRouter } from 'astro:transitions';
@@ -12,12 +33,6 @@ import { ClientRouter } from 'astro:transitions';
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
-      rel="stylesheet"
-    />
     <title>Helmi Arimbawa - Portfolio</title>
     <meta name="description" content="Portofolio Helmi Arimbawa, Full-Stack Developer & Designer..." />
     
@@ -53,11 +68,11 @@ import { ClientRouter } from 'astro:transitions';
     class="font-sans antialiased bg-[hsl(var(--background))] text-[hsl(var(--foreground))] min-h-screen"
   >
     <div
-      class="mx-auto max-w-[1200px] w-full px-4 sm:px-6 md:pl-0 md:pr-8 lg:pr-12 pt-8 pb-0 md:pt-0 flex flex-col md:grid md:grid-cols-[auto_1fr] gap-6 md:gap-8 lg:gap-12 min-h-screen"
+      class="mx-auto max-w-[1200px] w-full px-4 sm:px-6 md:pl-0 md:pr-8 lg:pr-12 pt-18 pb-0 md:pt-0 flex flex-col md:grid md:grid-cols-[auto_1fr] gap-6 md:gap-8 lg:gap-12 min-h-screen"
     >
       <Sidebar />
 
-      <main class="flex-1 min-w-0 w-full pt-3 md:pt-20 pb-12 md:pb-20">
+      <main class="flex-1 min-w-0 w-full pt-3 md:pt-13 pb-12 md:pb-20">
         <slot />
       </main>
     </div>
