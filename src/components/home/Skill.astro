@@ -11,7 +11,7 @@ const row1Skills = [
   { name: "Astro", icon: "simple-icons:astro" },
   { name: "Tailwind CSS", icon: "logos:tailwindcss-icon" },
   { name: "Blender", icon: "logos:blender" },
-  { name: "3D Maya", icon: "simple-icons:autodeskmaya" },
+  { name: "3D Maya", icon: "simple-icons:autodeskmaya", },
   { name: "AutoCAD", icon: "simple-icons:autocad" },
 ];
 
@@ -29,40 +29,48 @@ const row2Skills = [
 ---
 
 <section class="w-full py-0 mb-13 overflow-hidden bg-[hsl(var(--background))] text-[hsl(var(--foreground))]">
-  <div class="container mx-auto px-0 mb-4 text-left">
+  <div class="container mx-auto px-0 mb-6 text-left">
     <h2 class="text-2xl md:text-xl font-bold tracking-tight sm:text-3xl text-[hsl(var(--primary))]">
       Skills & Tech Stack
     </h2>
   </div>
 
-  <div class="flex flex-col gap-4 w-full relative">
+  <div class="flex flex-col gap-y-4 w-full relative">
     <div class="absolute inset-y-0 left-0 w-1/6 bg-gradient-to-r from-[hsl(var(--background))] to-transparent z-10 pointer-events-none"></div>
     <div class="absolute inset-y-0 right-0 w-1/6 bg-gradient-to-l from-[hsl(var(--background))] to-transparent z-10 pointer-events-none"></div>
 
-    {/* Baris 1 */}
     <div class="flex overflow-hidden select-none group w-full">
-      <div class="flex gap-4 animate-marquee-left whitespace-nowrap w-max justify-start [animation-play-state:running] group-hover:[animation-play-state:paused]">
-        {row1Skills.concat(row1Skills).map((skill) => (
+      <div class="flex gap-4 pr-4 shrink-0 animate-marquee-left whitespace-nowrap group-hover:[animation-play-state:paused]">
+        {row1Skills.map((skill) => (
           <div class="inline-flex items-center justify-center gap-3 px-6 py-3 rounded-[var(--radius)] border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm transition-all hover:bg-[hsl(var(--muted))] hover:scale-105">
-            <Icon 
-              name={skill.icon} 
-              class={`w-5 h-5 object-contain ${skill.class || ''}`} 
-            />
+            <Icon name={skill.icon} class="w-5 h-5 object-contain" />
+            <span>{skill.name}</span>
+          </div>
+        ))}
+      </div>
+      <div class="flex gap-4 pr-4 shrink-0 animate-marquee-left whitespace-nowrap group-hover:[animation-play-state:paused]" aria-hidden="true">
+        {row1Skills.map((skill) => (
+          <div class="inline-flex items-center justify-center gap-3 px-6 py-3 rounded-[var(--radius)] border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm transition-all hover:bg-[hsl(var(--muted))] hover:scale-105">
+            <Icon name={skill.icon} class="w-5 h-5 object-contain" />
             <span>{skill.name}</span>
           </div>
         ))}
       </div>
     </div>
 
-    {/* Baris 2 */}
     <div class="flex overflow-hidden select-none group w-full">
-      <div class="flex gap-4 animate-marquee-right whitespace-nowrap w-max justify-start [animation-play-state:running] group-hover:[animation-play-state:paused]">
-        {row2Skills.concat(row2Skills).map((skill) => (
+      <div class="flex gap-4 pr-4 shrink-0 animate-marquee-right whitespace-nowrap group-hover:[animation-play-state:paused]">
+        {row2Skills.map((skill) => (
           <div class="inline-flex items-center justify-center gap-3 px-6 py-3 rounded-[var(--radius)] border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm transition-all hover:bg-[hsl(var(--muted))] hover:scale-105">
-            <Icon 
-              name={skill.icon} 
-              class={`w-5 h-5 object-contain ${skill.class || ''}`} 
-            />
+            <Icon name={skill.icon} class="w-5 h-5 object-contain" />
+            <span>{skill.name}</span>
+          </div>
+        ))}
+      </div>
+      <div class="flex gap-4 pr-4 shrink-0 animate-marquee-right whitespace-nowrap group-hover:[animation-play-state:paused]" aria-hidden="true">
+        {row2Skills.map((skill) => (
+          <div class="inline-flex items-center justify-center gap-3 px-6 py-3 rounded-[var(--radius)] border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm transition-all hover:bg-[hsl(var(--muted))] hover:scale-105">
+            <Icon name={skill.icon} class="w-5 h-5 object-contain" />
             <span>{skill.name}</span>
           </div>
         ))}
@@ -70,3 +78,25 @@ const row2Skills = [
     </div>
   </div>
 </section>
+
+<style>
+  /* Animasi Bergerak ke Kiri (Mulai dari 0% ke -100%) */
+  .animate-marquee-left {
+    animation: marqueeLeft 15s linear infinite;
+  }
+
+  /* Animasi Bergerak ke Kanan (Mulai dari -100% ke 0%) */
+  .animate-marquee-right {
+    animation: marqueeRight 15s linear infinite;
+  }
+
+  @keyframes marqueeLeft {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+
+  @keyframes marqueeRight {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(0); }
+  }
+</style>
