@@ -1,4 +1,6 @@
 ---
+import { ChevronDown, Download } from "@lucide/astro";
+
 const role = "About";
 const bio =
   "Fokus membangun pengalaman web yang bersih, cepat, dan fungsional. Senang memecahkan masalah kompleks lewat baris kode yang minimalis dan terstruktur. Saya menggabungkan estetika desain dengan performa kode yang optimal untuk menciptakan produk digital yang berdampak.";
@@ -21,19 +23,112 @@ const bio =
     </p>
 
     <div class="flex flex-wrap items-center gap-3 pt-1">
+      <!-- Tombol Hubungi Saya -->
       <a
         href="#contact"
-        class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-slate-900 text-slate-50 hover:bg-slate-900/90 h-10 px-4 py-2 shadow-sm active:scale-[0.98]"
+        class="inline-flex items-center justify-center rounded-xl text-sm font-medium transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-border dark:border-foreground/20 bg-background text-foreground hover:bg-muted hover:text-foreground h-10 px-4 py-2 shadow-sm active:scale-[0.98]"
       >
-        Hubungi Saya
+        Contact Me
       </a>
 
-      <a
-        href="/blog"
-        class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-slate-200 bg-white text-slate-900 hover:bg-slate-100 hover:text-slate-900 h-10 px-4 py-2 shadow-sm active:scale-[0.98]"
-      >
-        Lihat Karya
-      </a>
+      <!-- Dropdown Resume Wrapper -->
+      <div class="relative inline-block text-left" id="lang-dropdown-wrapper">
+        <!-- Tombol Pemicu Dropdown -->
+        <button
+          id="lang-dropdown-btn"
+          type="button"
+          aria-haspopup="true"
+          aria-expanded="false"
+          class="inline-flex items-center justify-center gap-2 rounded-xl text-sm font-medium transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-border dark:border-foreground/20 bg-background text-foreground hover:bg-muted hover:text-foreground h-10 px-4 py-2 shadow-sm active:scale-[0.98] cursor-pointer w-full sm:w-auto"
+        >
+          <span>Resume</span>
+          <ChevronDown
+            class="h-4 w-4 shrink-0 transition-transform duration-200 id-chevron"
+          />
+        </button>
+
+        <!-- Menu Pilihan Bahasa Dropdown (Dibuat sedikit lebih lebar untuk ikon download) -->
+        <div
+          id="lang-dropdown-menu"
+          class="absolute left-1/2 -translate-x-1/2 mt-2 w-34 origin-top rounded-xl border border-border dark:border-foreground/20 bg-background p-1 text-foreground shadow-md transition-all duration-100 scale-95 opacity-0 pointer-events-none z-50"
+          role="menu"
+        >
+          <!-- Pilihan English (Simetris dengan Ikon Download) -->
+          <a
+            href="/resume-en.pdf"
+            class="flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm font-medium hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            role="menuitem"
+          >
+            <span>English</span>
+            <Download
+              class="h-4 w-4 opacity-60 group-hover:opacity-100 transition-opacity"
+            />
+          </a>
+
+          <!-- Pilihan Indonesia (Simetris dengan Ikon Download) -->
+          <a
+            href="/resume-id.pdf"
+            class="flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm font-medium hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            role="menuitem"
+          >
+            <span>Indonesia</span>
+            <Download
+              class="h-4 w-4 opacity-60 group-hover:opacity-100 transition-opacity"
+            />
+          </a>
+        </div>
+      </div>
+      <!-- Akhir Dropdown Resume -->
     </div>
   </div>
 </section>
+
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const wrapper = document.getElementById("lang-dropdown-wrapper");
+    const btn = document.getElementById("lang-dropdown-btn");
+    const menu = document.getElementById("lang-dropdown-menu");
+
+    if (!btn || !menu) return;
+
+    // 1. Kloning tombol terlebih dahulu untuk membersihkan event listener duplikat
+    const newBtn = btn.cloneNode(true) as HTMLButtonElement;
+    btn.parentNode?.replaceChild(newBtn, btn);
+
+    // 2. Cari chevron DI DALAM tombol baru (newBtn) agar referensinya tepat!
+    const chevron = newBtn.querySelector(".id-chevron");
+
+    function toggleDropdown() {
+      if (!chevron) return; // Proteksi jika chevron tidak ketemu
+
+      const isExpanded = newBtn.getAttribute("aria-expanded") === "true";
+
+      if (isExpanded) {
+        newBtn.setAttribute("aria-expanded", "false");
+        menu.classList.add("scale-95", "opacity-0", "pointer-events-none");
+        menu.classList.remove("scale-100", "opacity-100");
+        chevron.classList.remove("rotate-180");
+      } else {
+        newBtn.setAttribute("aria-expanded", "true");
+        menu.classList.remove("scale-95", "opacity-0", "pointer-events-none");
+        menu.classList.add("scale-100", "opacity-100");
+        chevron.classList.add("rotate-180");
+      }
+    }
+
+    newBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleDropdown();
+    });
+
+    document.addEventListener("click", (e) => {
+      if (wrapper && !wrapper.contains(e.target as Node)) {
+        if (!chevron) return;
+        newBtn.setAttribute("aria-expanded", "false");
+        menu.classList.add("scale-95", "opacity-0", "pointer-events-none");
+        menu.classList.remove("scale-100", "opacity-100");
+        chevron.classList.remove("rotate-180");
+      }
+    });
+  });
+</script>

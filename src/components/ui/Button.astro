@@ -1,0 +1,153 @@
+---
+// Jika kamu sudah membuat komponen Button.astro, import di sini:
+// import Button from "@/components/Button.astro";
+
+// Untuk icon, jika tidak memakai lucide-react, kamu bisa memakai library seperti Astro Icon
+// atau salin SVG-nya langsung. Di bawah ini kita asumsikan menggunakan tag <button> langsung
+// dengan class Tailwind khas Shadcn v4 yang sudah kita petakan.
+---
+
+<div class="grid gap-4">
+    <div class="flex flex-wrap gap-4">
+        <!-- Default Button -->
+        <button
+            class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+        >
+            Button
+        </button>
+
+        <!-- Secondary Button -->
+        <button
+            class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2"
+        >
+            Secondary
+        </button>
+
+        <!-- Destructive Button -->
+        <button
+            class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-red-600 text-white hover:bg-red-600/90 h-10 px-4 py-2"
+        >
+            Destructive
+        </button>
+
+        <!-- Outline Button -->
+        <button
+            class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-border bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+        >
+            Outline
+        </button>
+
+        <!-- Ghost Button -->
+        <button
+            class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-muted hover:text-foreground h-10 px-4 py-2"
+        >
+            Ghost
+        </button>
+
+        <!-- Link Button -->
+        <button
+            class="inline-flex items-center justify-center text-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 text-primary underline-offset-4 hover:underline h-10 py-2"
+        >
+            Link
+        </button>
+
+        <!-- Icon Button (Bookmark) -->
+        <button
+            class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring bg-secondary text-secondary-foreground hover:bg-secondary/80 w-9 h-9"
+        >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"
+                ></path></svg
+            >
+        </button>
+
+        <!-- Outline with Icon (New Branch) -->
+        <button
+            class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-hidden border border-border bg-background hover:bg-muted h-10 px-4 py-2"
+        >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><line x1="6" x2="6" y1="3" y2="15"></line><circle
+                    cx="18"
+                    cy="6"
+                    r="3"></circle><circle cx="6" cy="18" r="3"></circle><path
+                    d="M18 9a9 9 0 0 1-9 9"></path></svg
+            >
+            New Branch
+        </button>
+
+        <!-- Disabled with Spinner -->
+        <button
+            disabled
+            class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-colors border border-border bg-background opacity-50 cursor-not-allowed h-10 px-4 py-2"
+        >
+            <svg
+                class="animate-spin h-4 w-4 text-current"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+            >
+                <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"></circle>
+                <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+            </svg>
+            Submit
+        </button>
+    </div>
+
+    <!-- Bagian Ukuran (S, M, L) -->
+    <div class="flex flex-wrap items-start gap-8 mt-4">
+        <!-- Small Size -->
+        <div class="flex gap-2">
+            <button
+                class="inline-flex items-center justify-center rounded-md text-xs border border-border bg-background hover:bg-muted h-8 px-3"
+            >
+                Small
+            </button>
+        </div>
+
+        <!-- Default Size -->
+        <div class="flex gap-2">
+            <button
+                class="inline-flex items-center justify-center rounded-lg text-sm border border-border bg-background hover:bg-muted h-10 px-4"
+            >
+                Default
+            </button>
+        </div>
+
+        <!-- Large Size -->
+        <div class="flex gap-2">
+            <button
+                class="inline-flex items-center justify-center rounded-lg text-base border border-border bg-background hover:bg-muted h-11 px-8"
+            >
+                Large
+            </button>
+        </div>
+    </div>
+</div>

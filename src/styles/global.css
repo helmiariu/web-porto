@@ -1,5 +1,21 @@
 @import "tailwindcss";
-/* Tambahkan ini di bagian bawah file global.css */
+
+/* Integrasi Tema Shadcn untuk Tailwind v4 */
+@theme {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-primary: hsl(var(--primary));
+  --color-secondary: hsl(var(--secondary));
+  --color-muted: hsl(var(--muted));
+  --color-border: hsl(var(--border));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+/* Tambahkan ini di bagian bawah file global.css jika masih dibutuhkan, 
+   tapi dengan v4 biasanya konfigurasi config eksternal lewat CSS sudah tidak wajib */
 @config "../../tailwind.config.mjs";
 
 @layer base {
@@ -21,11 +37,13 @@
     --primary: 0 0% 98%;
     --secondary: 0 0% 14.9%;
     --muted: 0 0% 14.9%;
-    --border: 0 0% 14.9%;
+    --border: 0 0% 20%;
+    /* --border: 0 0% 14.9%; */
   }
 
   body {
-    @apply bg-[hsl(var(--background))] text-[hsl(var(--foreground))];
+    /* Menggunakan variabel v4 yang baru kita petakan di atas */
+    @apply bg-background text-foreground;
   }
 
   html {
