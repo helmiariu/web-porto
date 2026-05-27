@@ -1,7 +1,10 @@
 ---
 // ProfileCard.astro
 import SocialLinks from "@components/ui/SocialLinks.astro";
-import { Icon } from 'astro-icon/components';
+import { Icon } from "astro-icon/components";
+// 1. Import komponen Image dan file gambar dari assets
+import { Image } from "astro:assets";
+import avatarImage from "@assets/avatar.jpg"; // Sesuaikan path ini dengan struktur folder Anda
 
 interface Props {
   variant?: "sidebar" | "mobile";
@@ -13,13 +16,10 @@ const isMobile = variant === "mobile";
 
 {
   isMobile ? (
-    // Mengubah flex-col menjadi flex-row, items-center, dan justify-between
     <div class="md:hidden w-full mb-0 pr-3 sm:pr-10 pl-0 pb-4 pt-6 border-[hsl(var(--border))] animate-fade-in flex flex-row items-center justify-between text-left">
-      
       {/* SEBELAH KIRI: Nama & Status */}
       <div class="flex flex-col gap-1">
-        <h2 class="text-[clamp(1.3rem,6vw,1.5rem)] font-bold tracking-tight text-foreground"> 
-          {/* text-[clamp(1.15rem,3vw,1.35rem)] font-bold tracking-tight text-foreground */}
+        <h2 class="text-[clamp(1.3rem,6vw,1.5rem)] font-bold tracking-tight text-foreground">
           Helmi Arimbawa
         </h2>
         <div class="flex items-center gap-2">
@@ -32,46 +32,50 @@ const isMobile = variant === "mobile";
         </div>
       </div>
 
+      {/* SEBELAH KANAN: Avatar */}
       <div class="relative w-17 h-17 flex-shrink-0">
         <div class="w-full h-full rounded-full overflow-hidden border border-[hsl(var(--border))]">
-          <img
-            src="/avatar.jpg"
+          {/* 2. Menggunakan Astro Image untuk Mobile */}
+          <Image
+            src={avatarImage}
             alt="Helmi Arimbawa"
-            class="w-full h-full object-cover"
+            width={150}
+            height={150}
+            format="webp"
             loading="eager"
-            decoding="sync"
-            onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXIiPjxwYXRoIGQ9Ik0xOSAyMXYtMmE0IDQgMCAwIDAtNC00SDlhNCA0IDAgMCAwLTQgNHYyIi8+PGNpcmNsZSBjeD0iMTIiIGN5PSI3IiByPSI0Ii8+PC9zdmc+'"
+            class="w-full h-full object-cover"
           />
         </div>
 
-        {/* Badge Centang Menggunakan SVG Pilihan Anda */}
+        {/* Badge Centang */}
         <div class="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-white p-[1px] dark:bg-[hsl(var(--background))]">
-          <svg 
-            stroke="currentColor" 
-            fill="currentColor" 
-            stroke-width="0" 
-            viewBox="0 0 24 24" 
-            class="text-blue-400 w-full h-full" 
+          <svg
+            stroke="currentColor"
+            fill="currentColor"
+            stroke-width="0"
+            viewBox="0 0 24 24"
+            class="text-blue-400 w-full h-full"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <path fill="none" d="M0 0h24v24H0z"></path>
-            <path d="m23 12-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82L8.6 22.5l3.4-1.47 3.4 1.46 1.89-3.19 3.61-.82-.34-3.69L23 12zm-12.91 4.72-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48-7.33 7.35z"></path>
+            <path fill="none" d="M0 0h24v24H0z" />
+            <path d="m23 12-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82L8.6 22.5l3.4-1.47 3.4 1.46 1.89-3.19 3.61-.82-.34-3.69L23 12zm-12.91 4.72-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48-7.33 7.35z" />
           </svg>
         </div>
       </div>
-
     </div>
   ) : (
     <div class="mb-5 pl-2 flex flex-col">
       <div class="relative">
         <div class="w-24 h-24 rounded-full overflow-hidden mb-4 border border-[hsl(var(--border))]">
-          <img
-            src="/avatar.jpg"
-            alt="Profile"
-            class="w-full h-full object-cover"
+          {/* 3. Menggunakan Astro Image untuk Sidebar */}
+          <Image
+            src={avatarImage}
+            alt="Helmi Arimbawa"
+            width={150}
+            height={150}
+            format="webp"
             loading="eager"
-            decoding="sync"
-            onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXIiPjxwYXRoIGQ9Ik0xOSAyMXYtMmE0IDQgMCAwIDAtNC00SDlhNCA0IDAgMCAwLTQgNHYyIi8+PGNpcmNsZSBjeD0iMTIiIGN5PSI3IiByPSI0Ii8+PC9zdmc+'"
+            class="w-full h-full object-cover"
           />
         </div>
       </div>
