@@ -1,45 +1,51 @@
 ---
 // mobile-navbar-icons.astro
 import { mainNavData } from "@lib/constants/navigation-menu.ts";
-import { Menu } from "@lucide/astro";
+import { ChevronUp } from "@lucide/astro";
 const navItems = mainNavData(false);
 ---
 
 <nav
-  class="md:hidden fixed bottom-3 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-xs z-[60] rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-3 py-2.5 shadow-lg"
+  class="md:hidden fixed bottom-13 left-1/2 -translate-x-1/2 w-max max-w-[calc(100%-2rem)] z-[60] rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] p-1.5 shadow-lg"
 >
-  <div class="flex items-center gap-2">
-    {
-      navItems.map((item) => {
-        const IconComponent = item.icon ?? Menu;
-        
-        return (
-          <a
-            href={item.href}
-            data-nav-link
-            aria-label={item.label}
-            class="flex-1 flex h-11 items-center justify-center rounded-2xl transition-all duration-200 border text-[hsl(var(--foreground)/0.6)] border-transparent bg-transparent hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]"
-          >
-            <span class="flex items-center justify-center h-5 w-5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block">
-              <IconComponent />
-            </span>
-          </a>
-        );
-      })
-    }
+  <div class="flex items-center gap-1.5">
+    <div class="flex items-center gap-1">
+      {
+        navItems.map((item) => {
+          const IconComponent = item.icon ?? ChevronUp;
+          
+          return (
+            <a
+              href={item.href}
+              data-nav-link
+              aria-label={item.label}
+              class="w-11 h-11 flex items-center justify-center rounded-xl transition-all duration-200 border text-[hsl(var(--foreground)/0.6)] border-transparent bg-transparent hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]"
+            >
+              <span class="flex items-center justify-center h-5 w-5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block">
+                <IconComponent />
+              </span>
+            </a>
+          );
+        })
+      }
+    </div>
+
+    <div class="h-9 w-[1px] bg-[hsl(var(--border))] opacity-100 shrink-0 mx-1"></div>
 
     <button
       id="mobile-menu-trigger"
-      class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))] transition-colors shadow-sm ml-auto"
+      class="group inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] transition-colors shadow-lg"
+      
       aria-label="Open menu"
       aria-expanded="false"
     >
-      <span class="flex items-center justify-center h-5 w-5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block">
-        <Menu />
+      <span class="flex items-center justify-center h-5.5 w-5.5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block transition-transform duration-200 group-aria-expanded:rotate-180">
+        <ChevronUp />
       </span>
     </button>
   </div>
 </nav>
+
 
 <script>
   document.addEventListener("astro:page-load", () => {
@@ -49,46 +55,59 @@ const navItems = mainNavData(false);
 
     navLinks.forEach((link) => {
       const href = link.getAttribute("href");
-      // Cek kesesuaian path (root atau sub-halaman)
       const isActive = href === "/" 
         ? currentPath === "/" 
         : currentPath.startsWith(href || "");
 
       if (isActive) {
-        link.className = "flex-1 flex h-11 items-center justify-center rounded-2xl transition-all duration-200 border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] shadow-sm";
+        // Disamakan menggunakan rounded-xl agar konsisten
+        link.className = "w-11 flex h-11 items-center justify-center rounded-xl transition-all duration-200 border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] shadow-sm";
       } else {
-        link.className = "flex-1 flex h-11 items-center justify-center rounded-2xl transition-all duration-200 border border-transparent bg-transparent text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]";
+        // Disamakan menggunakan rounded-xl agar bentuk hover sama dengan aktif
+        link.className = "w-11 flex h-11 items-center justify-center rounded-xl transition-all duration-200 border border-transparent bg-transparent text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]";
       }
     });
 
-    // --- 2. LOGIKA DRAWER MENU MOBILE ---
+// --- 2. LOGIKA DRAWER MENU MOBILE ---
     const trigger = document.getElementById("mobile-menu-trigger");
     const dropdown = document.getElementById("mobile-dropdown");
     const backdrop = document.getElementById("mobile-dropdown-backdrop");
 
-    const closeDropdown = () => {
-      if (dropdown && trigger && backdrop) {
+    if (trigger && dropdown && backdrop) {
+
+      // 1. INI BUAT TES (Memaksa bounce selalu aktif saat dev)
+      trigger.classList.add("animate-bounce");
+
+      // 2. KOMENTARI ATAU HAPUS BLOK INI SEMENTARA AGAR TIDAK ERROR:
+      /* const hasClicked = localStorage.getItem("menu-bounce-disabled") === "true";
+      if (!hasClicked) {
+        trigger.classList.add("animate-bounce");
+      }
+      */
+
+      const closeDropdown = () => {
         dropdown.classList.add("opacity-0", "pointer-events-none", "translate-y-4");
         dropdown.classList.remove("opacity-100", "pointer-events-auto", "translate-y-0");
         backdrop.classList.add("opacity-0", "pointer-events-none");
         backdrop.classList.remove("opacity-100", "pointer-events-auto");
         document.body.classList.remove("overflow-hidden");
         trigger.setAttribute("aria-expanded", "false");
-      }
-    };
+      };
 
-    const openDropdown = () => {
-      if (dropdown && trigger && backdrop) {
+      const openDropdown = () => {
         dropdown.classList.remove("opacity-0", "pointer-events-none", "translate-y-4");
         dropdown.classList.add("opacity-100", "pointer-events-auto", "translate-y-0");
         backdrop.classList.remove("opacity-0", "pointer-events-none");
         backdrop.classList.add("opacity-100", "pointer-events-auto");
         document.body.classList.add("overflow-hidden");
         trigger.setAttribute("aria-expanded", "true");
-      }
-    };
+        
+        // Tetap hapus class bounce saat diklik agar transisi buka menu mulus
+        if (trigger.classList.contains("animate-bounce")) {
+          trigger.classList.remove("animate-bounce");
+        }
+      };
 
-    if (trigger && dropdown && backdrop) {
       trigger.addEventListener("click", () => {
         const isOpen = dropdown.classList.contains("opacity-100");
         if (isOpen) {
@@ -102,7 +121,6 @@ const navItems = mainNavData(false);
         closeDropdown();
       });
 
-      // OTOMATIS TUTUP MENU JIKA LINK DI DALAM DRAWER DIKLIK (Pindah halaman)
       dropdown.querySelectorAll("a").forEach((link) => {
         link.addEventListener("click", () => {
           closeDropdown();
@@ -111,3 +129,85 @@ const navItems = mainNavData(false);
     }
   });
 </script>
+
+
+
+
+
+<!-- <script>
+  document.addEventListener("astro:page-load", () => {
+    // --- 1. LOGIKA UPDATE LINK NAVIGASI AKTIF SECARA DINAMIS ---
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll("[data-nav-link]");
+
+    navLinks.forEach((link) => {
+      const href = link.getAttribute("href");
+      const isActive = href === "/" 
+        ? currentPath === "/" 
+        : currentPath.startsWith(href || "");
+
+      if (isActive) {
+        // Disamakan menggunakan rounded-xl agar konsisten
+        link.className = "w-11 flex h-11 items-center justify-center rounded-xl transition-all duration-200 border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] shadow-sm";
+      } else {
+        // Disamakan menggunakan rounded-xl agar bentuk hover sama dengan aktif
+        link.className = "w-11 flex h-11 items-center justify-center rounded-xl transition-all duration-200 border border-transparent bg-transparent text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]";
+      }
+    });
+
+    // --- 2. LOGIKA DRAWER MENU MOBILE ---
+    const trigger = document.getElementById("mobile-menu-trigger");
+    const dropdown = document.getElementById("mobile-dropdown");
+    const backdrop = document.getElementById("mobile-dropdown-backdrop");
+
+    if (trigger && dropdown && backdrop) {
+      const hasClicked = localStorage.getItem("menu-bounce-disabled") === "true";
+      
+      if (!hasClicked) {
+        trigger.classList.add("animate-bounce");
+      }
+
+      const closeDropdown = () => {
+        dropdown.classList.add("opacity-0", "pointer-events-none", "translate-y-4");
+        dropdown.classList.remove("opacity-100", "pointer-events-auto", "translate-y-0");
+        backdrop.classList.add("opacity-0", "pointer-events-none");
+        backdrop.classList.remove("opacity-100", "pointer-events-auto");
+        document.body.classList.remove("overflow-hidden");
+        trigger.setAttribute("aria-expanded", "false");
+      };
+
+      const openDropdown = () => {
+        dropdown.classList.remove("opacity-0", "pointer-events-none", "translate-y-4");
+        dropdown.classList.add("opacity-100", "pointer-events-auto", "translate-y-0");
+        backdrop.classList.remove("opacity-0", "pointer-events-none");
+        backdrop.classList.add("opacity-100", "pointer-events-auto");
+        document.body.classList.add("overflow-hidden");
+        trigger.setAttribute("aria-expanded", "true");
+        
+        if (trigger.classList.contains("animate-bounce")) {
+          trigger.classList.remove("animate-bounce");
+          localStorage.setItem("menu-bounce-disabled", "true");
+        }
+      };
+
+      trigger.addEventListener("click", () => {
+        const isOpen = dropdown.classList.contains("opacity-100");
+        if (isOpen) {
+          closeDropdown();
+        } else {
+          openDropdown();
+        }
+      });
+
+      backdrop.addEventListener("click", () => {
+        closeDropdown();
+      });
+
+      dropdown.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", () => {
+          closeDropdown();
+        });
+      });
+    }
+  });
+</script> -->
