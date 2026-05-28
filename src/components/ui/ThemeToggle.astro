@@ -12,7 +12,7 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
   <div class="space-y-1.5">
     <label
       for={uniqueId}
-      class="flex items-center justify-between rounded-xl border border-transparent bg-transparent transition-all duration-150 cursor-pointer relative py-[6px] px-[12px] group text-[hsl(var(--foreground)/0.6)] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))] select-none"
+      class="flex items-center justify-between rounded-xl border border-transparent bg-transparent duration-150 cursor-pointer relative py-[6px] px-[12px] group text-[hsl(var(--foreground)/0.6)] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))] select-none"
     >
       <span class="flex items-center gap-3">
         <span
@@ -52,10 +52,10 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
           id={uniqueId}
           type="checkbox"
           aria-label="Toggle Dark Mode"
-          class="theme-switch-input peer appearance-none w-11 h-5 bg-slate-200 dark:bg-zinc-800 rounded-full checked:bg-slate-800 dark:checked:bg-emerald-500 cursor-pointer transition-colors duration-150"
+          class="theme-switch-input peer appearance-none w-11 h-5 bg-slate-200 dark:bg-zinc-800 rounded-full checked:bg-slate-800 dark:checked:bg-emerald-500 cursor-pointer transition-[background-color] duration-150 ease-out"
         />
         <span
-          class="absolute top-0 left-0 w-5 h-5 bg-white rounded-full border border-slate-300 dark:border-zinc-700 shadow-sm transition-transform duration-150 peer-checked:translate-x-6 peer-checked:border-slate-800 dark:peer-checked:border-emerald-500 cursor-pointer"
+          class="absolute top-0 left-0 w-5 h-5 bg-white rounded-full border border-slate-300 dark:border-zinc-700 shadow-sm transition-transform duration-150 ease-out peer-checked:translate-x-6 cursor-pointer"
         ></span>
 
         <script is:inline data-astro-rerun>
@@ -97,16 +97,15 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
     const storageKey = "astro-theme";
     const html = document.documentElement;
 
-    // Mengambil semua instance di halaman (Mobile Nav, Sidebar Desktop, dll)
     const checkboxes = document.querySelectorAll(
       ".theme-switch-input",
     ) as NodeListOf<HTMLInputElement>;
     const iconContainers = document.querySelectorAll(".theme-icon-container");
 
-    // Fungsi pusat untuk memperbarui tampilan SEMUA tombol & ikon di web Anda
     const updateUI = (dark: boolean) => {
       checkboxes.forEach((checkbox) => {
-        checkbox.checked = dark;
+        // Hanya update jika statusnya berbeda agar tidak memicu re-render gratisan
+        if (checkbox.checked !== dark) checkbox.checked = dark;
       });
 
       iconContainers.forEach((container) => {
@@ -135,36 +134,45 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
     const savedTheme = getSavedTheme();
     const isDark = savedTheme ? savedTheme === "dark" : getPreferredTheme();
 
-    // Set UI awal agar sinkron di mobile & desktop
     updateUI(isDark);
 
     checkboxes.forEach((checkbox) => {
       checkbox.addEventListener("change", () => {
         const nextTheme = checkbox.checked;
 
-        // 1. Ganti tema visual halaman global
-        html.classList.toggle("dark", nextTheme);
+        // Tambahkan class no-transitions ke html sebelum ganti tema
+        html.classList.add("no-transitions");
 
-        // 2. Perbarui seluruh ikon di semua tempat secara instan
+        // Ganti tema global
+        html.classList.toggle("dark", nextTheme);
         updateUI(nextTheme);
 
-        // 3. Simpan asinkron ke storage (Ramah prosesor Helio G35)
+        try {
+          localStorage.setItem(storageKey, nextTheme ? "dark" : "light");
+        } catch (e) {}
+
+        // Kembalikan transisinya setelah browser selesai memproses perubahan warna dasar
         setTimeout(() => {
-          try {
-            localStorage.setItem(storageKey, nextTheme ? "dark" : "light");
-          } catch (e) {}
-        }, 0);
+          html.classList.remove("no-transitions");
+        }, 50);
       });
     });
 
-    // Mengamati jika ada perubahan tema dari luar komponen (misal sinkronisasi antar tab)
+    // OPTIMASI MUTATION OBSERVER: Putus siklus loop tak berujung
+    let isObserving = true;
     const observer = new MutationObserver((mutations) => {
+      if (!isObserving) return;
+
       mutations.forEach((mutation) => {
         if (mutation.attributeName === "class") {
+          // Matikan observer sebentar agar tidak bentrok dengan event 'change' di atas
+          isObserving = false;
           updateUI(html.classList.contains("dark"));
+          isObserving = true;
         }
       });
     });
+
     observer.observe(html, { attributes: true });
   });
 </script>

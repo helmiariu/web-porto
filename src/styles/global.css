@@ -43,10 +43,28 @@
   }
 
   body {
-    /* Menggunakan variabel v4 yang baru kita petakan di atas */
     @apply bg-background text-foreground;
-    transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1),
-      color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Animasi transisi tema HANYA aktif di layar besar (Desktop) */
+  @media (min-width: 768px) {
+    body {
+      transition: background-color 200ms ease, color 200ms ease;
+    }
+  }
+
+  /* Memaksa elemen Marquee mengabaikan kalkulasi berat saat ganti tema */
+  .marquee-container {
+    contain: content;
+  }
+
+  /* Matikan transisi saat tema ditukar, KECUALI untuk tombol toggle */
+  .no-transitions,
+  .no-transitions::before,
+  .no-transitions::after,
+  .no-transitions *:not(.theme-switch-input):not(.theme-switch-input ~ *) {
+    transition: none !important;
+    animation-duration: 0s !important;
   }
 
   html {

@@ -33,7 +33,7 @@ const row2Skills = [
 ---
 
 <section
-  class="w-full py-0 mb-13 overflow-hidden bg-[hsl(var(--background))] text-[hsl(var(--foreground))]"
+  class="w-full py-0 mb-13 overflow-hidden bg-[hsl(var(--background))] text-[hsl(var(--foreground))] skill-section-contain"
 >
   <div class="container px-0 mb-5 text-left">
     <h2
@@ -55,14 +55,14 @@ const row2Skills = [
 
     <div class="flex overflow-hidden select-none group w-full">
       <div
-        class="flex gap-4 max-[426px]:gap-2 pr-4 max-[426px]:pr-2 shrink-0 animate-marquee-left whitespace-nowrap group-hover:[animation-play-state:paused]"
+        class="flex gap-4 max-[426px]:gap-2 pr-4 max-[426px]:pr-2 shrink-0 animate-marquee-left will-change-transform whitespace-nowrap group-hover:[animation-play-state:paused]"
       >
         {
           row1Skills.map((skill) => (
-            <div class="inline-flex items-center justify-center gap-3 max-[426px]:gap-2 px-6 py-3 max-[426px]:px-4 max-[426px]:py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm max-[426px]:text-xs transition-all hover:bg-[hsl(var(--muted))] hover:scale-105">
+            <div class="inline-flex items-center justify-center gap-3 max-[426px]:gap-2 px-6 py-3 max-[426px]:px-4 max-[426px]:py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm max-[426px]:text-xs transition-transform duration-200 ease-out hover:scale-105">
               <Icon
                 name={skill.icon}
-                class={`w-5 h-5 max-[426px]:w-4 max-[426px]:h-4 flex-shrink-0 transform-gpu antialiased object-contain ${skill.color || ""}`}
+                class={`w-5 h-5 max-[426px]:w-4 max-[426px]:h-4 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
               />
               <span>{skill.name}</span>
             </div>
@@ -70,15 +70,15 @@ const row2Skills = [
         }
       </div>
       <div
-        class="flex gap-4 max-[426px]:gap-2 pr-4 max-[426px]:pr-2 shrink-0 animate-marquee-left whitespace-nowrap group-hover:[animation-play-state:paused]"
+        class="flex gap-4 max-[426px]:gap-2 pr-4 max-[426px]:pr-2 shrink-0 animate-marquee-left will-change-transform whitespace-nowrap group-hover:[animation-play-state:paused]"
         aria-hidden="true"
       >
         {
           row1Skills.map((skill) => (
-            <div class="inline-flex items-center justify-center gap-3 max-[426px]:gap-2 px-6 py-3 max-[426px]:px-4 max-[426px]:py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm max-[426px]:text-xs transition-all hover:bg-[hsl(var(--muted))] hover:scale-105">
+            <div class="inline-flex items-center justify-center gap-3 max-[426px]:gap-2 px-6 py-3 max-[426px]:px-4 max-[426px]:py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm max-[426px]:text-xs transition-transform duration-200 ease-out hover:scale-105">
               <Icon
                 name={skill.icon}
-                class={`w-5 h-5 max-[426px]:w-4 max-[426px]:h-4 flex-shrink-0 transform-gpu antialiased object-contain ${skill.color || ""}`}
+                class={`w-5 h-5 max-[426px]:w-4 max-[426px]:h-4 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
               />
               <span>{skill.name}</span>
             </div>
@@ -89,14 +89,14 @@ const row2Skills = [
 
     <div class="flex overflow-hidden select-none group w-full">
       <div
-        class="flex gap-4 max-[426px]:gap-2 pr-4 max-[426px]:pr-2 shrink-0 animate-marquee-right whitespace-nowrap group-hover:[animation-play-state:paused]"
+        class="flex gap-4 max-[426px]:gap-2 pr-4 max-[426px]:pr-2 shrink-0 animate-marquee-right will-change-transform whitespace-nowrap group-hover:[animation-play-state:paused]"
       >
         {
           row2Skills.map((skill) => (
-            <div class="inline-flex items-center justify-center gap-3 max-[426px]:gap-2 px-6 py-3 max-[426px]:px-4 max-[426px]:py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm max-[426px]:text-xs transition-all hover:bg-[hsl(var(--muted))] hover:scale-105">
+            <div class="inline-flex items-center justify-center gap-3 max-[426px]:gap-2 px-6 py-3 max-[426px]:px-4 max-[426px]:py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm max-[426px]:text-xs transition-transform duration-200 ease-out hover:scale-105">
               <Icon
                 name={skill.icon}
-                class={`w-5 h-5 max-[426px]:w-4 max-[426px]:h-4 flex-shrink-0 transform-gpu antialiased object-contain ${skill.color || ""}`}
+                class={`w-5 h-5 max-[426px]:w-4 max-[426px]:h-4 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
               />
               <span>{skill.name}</span>
             </div>
@@ -104,15 +104,15 @@ const row2Skills = [
         }
       </div>
       <div
-        class="flex gap-4 max-[426px]:gap-2 pr-4 max-[426px]:pr-2 shrink-0 animate-marquee-right whitespace-nowrap group-hover:[animation-play-state:paused]"
+        class="flex gap-4 max-[426px]:gap-2 pr-4 max-[426px]:pr-2 shrink-0 animate-marquee-right will-change-transform whitespace-nowrap group-hover:[animation-play-state:paused]"
         aria-hidden="true"
       >
         {
           row2Skills.map((skill) => (
-            <div class="inline-flex items-center justify-center gap-3 max-[426px]:gap-2 px-6 py-3 max-[426px]:px-4 max-[426px]:py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm max-[426px]:text-xs transition-all hover:bg-[hsl(var(--muted))] hover:scale-105">
+            <div class="inline-flex items-center justify-center gap-3 max-[426px]:gap-2 px-6 py-3 max-[426px]:px-4 max-[426px]:py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm max-[426px]:text-xs transition-transform duration-200 ease-out hover:scale-105">
               <Icon
                 name={skill.icon}
-                class={`w-5 h-5 max-[426px]:w-4 max-[426px]:h-4 flex-shrink-0 transform-gpu antialiased object-contain ${skill.color || ""}`}
+                class={`w-5 h-5 max-[426px]:w-4 max-[426px]:h-4 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
               />
               <span>{skill.name}</span>
             </div>
@@ -124,35 +124,43 @@ const row2Skills = [
 </section>
 
 <style>
-  /* Animasi Bergerak ke Kiri dengan optimasi hardware akselerasi */
-  .animate-marquee-left {
-    animation: marqueeLeft 30s linear infinite;
-    transform: translateZ(0);
-    backface-visibility: hidden;
+  /* Mengisolasi section ini agar tidak memicu render ulang elemen luar */
+  .skill-section-contain {
+    content-visibility: auto;
+    contain-intrinsic-size: 200px;
   }
 
-  /* Animasi Bergerak ke Kanan dengan optimasi hardware akselerasi */
+  .animate-marquee-left {
+    animation: marqueeLeft 30s linear infinite;
+  }
+
   .animate-marquee-right {
     animation: marqueeRight 30s linear infinite;
-    transform: translateZ(0);
+  }
+
+  /* Menerapkan Hardware Acceleration murni */
+  .will-change-transform {
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
     backface-visibility: hidden;
+    perspective: 1000px;
   }
 
   @keyframes marqueeLeft {
     0% {
-      transform: translateX(0);
+      transform: translate3d(0, 0, 0);
     }
     100% {
-      transform: translateX(-100%);
+      transform: translate3d(-100%, 0, 0);
     }
   }
 
   @keyframes marqueeRight {
     0% {
-      transform: translateX(-100%);
+      transform: translate3d(-100%, 0, 0);
     }
     100% {
-      transform: translateX(0);
+      transform: translate3d(0, 0, 0);
     }
   }
 </style>
