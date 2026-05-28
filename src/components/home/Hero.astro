@@ -24,12 +24,12 @@ const bio =
 
     <div class="flex flex-wrap items-center gap-3 pt-1">
       <!-- Tombol Hubungi Saya -->
-      <a
+      <!-- <a
         href="#contact"
         class="inline-flex items-center justify-center rounded-xl text-sm font-medium transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-border dark:border-foreground/10 bg-transparent text-foreground hover:bg-muted h-10 px-4 py-2 active:scale-[0.98]"
       >
         Contact Me
-      </a>
+      </a> -->
 
       <!-- Dropdown Resume Wrapper -->
       <div class="relative inline-block text-left" id="lang-dropdown-wrapper">
@@ -38,7 +38,7 @@ const bio =
           type="button"
           aria-haspopup="true"
           aria-expanded="false"
-          class="inline-flex items-center justify-center gap-2 rounded-xl text-sm font-medium transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50 bg-primary text-background hover:opacity-90 h-10 px-4 py-2 shadow-sm active:scale-[0.98] cursor-pointer w-full sm:w-auto"
+          class="inline-flex items-center justify-center gap-2 rounded-[11px] text-sm font-medium transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50 bg-primary text-background hover:opacity-90 h-9 px-4 py-2 shadow-sm active:scale-[0.98] cursor-pointer w-full sm:w-auto"
         >
           <span>Resume</span>
           <ChevronDown
@@ -48,29 +48,57 @@ const bio =
 
         <div
           id="lang-dropdown-menu"
-          class="absolute left-1/2 -translate-x-1/2 mt-2 w-36 origin-top rounded-xl border border-border bg-background p-1.5 text-foreground shadow-lg transition-all duration-100 scale-95 opacity-0 pointer-events-none z-50"
+          class="absolute left-0 mt-2 w-36 origin-top rounded-xl border border-border bg-background p-1.5 text-foreground shadow-lg transition-all duration-100 scale-95 opacity-0 pointer-events-none z-50"
           role="menu"
         >
           <a
             href="/resume-en.pdf"
-            class="group flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-foreground/80 hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+            class="group flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-foreground lg:text-foreground/80 hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
             role="menuitem"
           >
             <span>English</span>
-            <Download
-              class="h-4 w-4 opacity-50 group-hover:opacity-100 transition-opacity"
-            />
+
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="h-4 w-4 opacity-100 lg:opacity-50 group-hover:opacity-100 transition-opacity overflow-visible lucide lucide-download"
+            >
+              <path d="M12 15V3" class="arrow-part"></path>
+              <path d="m7 10 5 5 5-5" class="arrow-part"></path>
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            </svg>
           </a>
 
           <a
             href="/resume-id.pdf"
-            class="group flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-foreground/80 hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+            class="group flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-foreground lg:text-foreground/80 hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
             role="menuitem"
           >
             <span>Indonesia</span>
-            <Download
-              class="h-4 w-4 opacity-50 group-hover:opacity-100 transition-opacity"
-            />
+
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="h-4 w-4 opacity-100 lg:opacity-50 group-hover:opacity-100 transition-opacity overflow-visible lucide lucide-download"
+            >
+              <path d="M12 15V3" class="arrow-part"></path>
+              <path d="m7 10 5 5 5-5" class="arrow-part"></path>
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            </svg>
           </a>
         </div>
       </div>
@@ -78,6 +106,31 @@ const bio =
     </div>
   </div>
 </section>
+
+<style>
+  /* Kondisi saat dropdown tertutup / diam: naikkan panah sedikit */
+  .lucide-download .arrow-part {
+    transform: translateY(-4px); /* Menggeser panah ke atas sebanyak 2px */
+    transition: transform 0.2s ease;
+  }
+
+  /* Kondisi saat dropdown terbuka: jalankan animasi naik-turun */
+  #lang-dropdown-menu:not(.opacity-0) .lucide-download .arrow-part {
+    animation: arrow-down-bounce 0.8s ease-in-out infinite;
+  }
+
+  @keyframes arrow-down-bounce {
+    /* Mulai dari posisi agak tinggi (-2px) */
+    0%,
+    100% {
+      transform: translateY(-4px);
+    }
+    /* Turun sedikit ke bawah (+2px dari posisi asli) */
+    50% {
+      transform: translateY(0px);
+    }
+  }
+</style>
 
 <script>
   document.addEventListener("astro:page-load", () => {
