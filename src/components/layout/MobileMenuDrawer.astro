@@ -2,6 +2,9 @@
 // MobileMenuDrawer.astro
 import { publicDashboardMenu } from "@lib/constants/navigation-menu.ts";
 import { Menu, ArrowRight, User } from "@lucide/astro";
+
+// Memanggil komponen utama ThemeToggle yang sudah optimal
+import ThemeToggle from "@components/ui/ThemeToggle.astro";
 ---
 
 <div
@@ -75,65 +78,13 @@ import { Menu, ArrowRight, User } from "@lucide/astro";
     </div>
 
     <div class="space-y-3">
-      <p
-        class="text-[0.63rem] font-semibold uppercase tracking-[0.3em] text-[hsl(var(--foreground)/0.5)] pl-3"
-      >
-        THEMING
-      </p>
-      <div class="space-y-2">
-        <label
-          for="mobile-theme-switch"
-          class="flex items-center justify-between rounded-xl border border-transparent bg-transparent transition-all duration-200 cursor-pointer relative py-[6px] px-[12px] group text-[hsl(var(--foreground)/0.6)] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))] select-none"
-        >
-          <span class="flex items-center gap-3">
-            <span
-              id="mobile-theme-icon"
-              class="theme-icon-container flex shrink-0 items-center justify-center transition-all duration-200 w-[26px] h-[26px] [&>svg]:block [&>svg]:w-[15px] [&>svg]:h-[15px] text-[hsl(var(--foreground)/0.6)] group-hover:text-[hsl(var(--foreground))] animate-fade-in"
-            ></span>
-            <span class="font-medium text-[14px]">Dark Mode</span>
-          </span>
-          <div
-            class="relative inline-block w-11 h-5 shrink-0 pointer-events-none mr-1"
-          >
-            <input
-              id="mobile-theme-switch"
-              type="checkbox"
-              class="theme-switch-input peer appearance-none w-11 h-5 bg-slate-200 dark:bg-zinc-800 rounded-full checked:bg-slate-800 dark:checked:bg-emerald-500 cursor-pointer transition-colors duration-300"
-            />
-            <span
-              class="absolute top-0 left-0 w-5 h-5 bg-white rounded-full border border-slate-300 dark:border-zinc-700 shadow-sm transition-transform duration-300 peer-checked:translate-x-6 peer-checked:border-slate-800 dark:peer-checked:border-emerald-500 cursor-pointer"
-            >
-            </span>
-
-            <script is:inline data-astro-rerun>
-              (function () {
-                try {
-                  const theme = localStorage.getItem("astro-theme");
-                  const isDark = theme
-                    ? theme === "dark"
-                    : window.matchMedia?.("(prefers-color-scheme: dark)")
-                        .matches;
-                  const mobileSwitch = document.getElementById(
-                    "mobile-theme-switch",
-                  );
-                  if (mobileSwitch) {
-                    mobileSwitch.checked = isDark;
-                  }
-                } catch (e) {
-                  // ignore
-                }
-              })();
-            </script>
-          </div>
-        </label>
-      </div>
+      <ThemeToggle />
     </div>
   </div>
 </div>
 
 <script>
   document.addEventListener("astro:page-load", () => {
-    // --- 1. LOGIKA UPDATE NAVIGASI AKTIF DI DALAM DRAWER ---
     const currentPath = window.location.pathname;
     const drawerLinks = document.querySelectorAll("[data-drawer-link]");
 
@@ -141,7 +92,6 @@ import { Menu, ArrowRight, User } from "@lucide/astro";
       const href = link.getAttribute("href");
       const isActive =
         href === "/" ? currentPath === "/" : currentPath.startsWith(href || "");
-
       const iconSpan = link.querySelector(".drawer-icon-span");
       const arrowSpan = link.querySelector(".drawer-arrow-span");
 

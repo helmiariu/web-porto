@@ -1,40 +1,63 @@
 ---
 // ThemeToggle.astro
-// Membuat ID unik untuk setiap instance komponen agar label tidak salah target
 const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
 ---
 
 <div class="space-y-2">
   <p
-    class="text-[10px] font-semibold uppercase tracking-[0.3em] text-[hsl(var(--foreground)/0.65)] pl-3"
+    class="text-[0.63rem] font-semibold uppercase tracking-[0.3em] text-[hsl(var(--foreground)/0.5)] pl-3"
   >
     THEMING
   </p>
   <div class="space-y-1.5">
     <label
       for={uniqueId}
-      class="flex items-center justify-between rounded-xl border border-transparent bg-transparent transition-all duration-200 cursor-pointer relative py-[6px] px-[12px] group text-[hsl(var(--foreground)/0.6)] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))] select-none"
+      class="flex items-center justify-between rounded-xl border border-transparent bg-transparent transition-all duration-150 cursor-pointer relative py-[6px] px-[12px] group text-[hsl(var(--foreground)/0.6)] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))] select-none"
     >
       <span class="flex items-center gap-3">
         <span
-          class="theme-icon-container flex shrink-0 items-center justify-center transition-all duration-200 w-[26px] h-[26px] [&>svg]:block [&>svg]:w-[15px] [&>svg]:h-[15px] text-[hsl(var(--foreground)/0.6)] group-hover:text-[hsl(var(--foreground))]"
+          class="theme-icon-container flex shrink-0 items-center justify-center w-[26px] h-[26px] text-[hsl(var(--foreground)/0.6)] group-hover:text-[hsl(var(--foreground))]"
         >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="sun-icon w-[15px] h-[15px] block"
+            ><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"
+            ></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"
+            ></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"
+            ></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"
+            ></path><path d="m19.07 4.93-1.41 1.41"></path></svg
+          >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="moon-icon w-[15px] h-[15px] hidden"
+            ><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg
+          >
         </span>
         <span class="font-medium text-[14px]">Dark Mode</span>
       </span>
-      <div
-        class="relative inline-block w-11 h-5 shrink-0 pointer-events-none"
-      >
+      <div class="relative inline-block w-11 h-5 shrink-0 pointer-events-none">
         <input
           id={uniqueId}
           type="checkbox"
-          class="theme-switch-input peer appearance-none w-11 h-5 bg-slate-200 dark:bg-zinc-800 rounded-full checked:bg-slate-800 dark:checked:bg-emerald-500 cursor-pointer transition-colors duration-300"
+          aria-label="Toggle Dark Mode"
+          class="theme-switch-input peer appearance-none w-11 h-5 bg-slate-200 dark:bg-zinc-800 rounded-full checked:bg-slate-800 dark:checked:bg-emerald-500 cursor-pointer transition-colors duration-150"
         />
         <span
-          class="absolute top-0 left-0 w-5 h-5 bg-white rounded-full border border-slate-300 dark:border-zinc-700 shadow-sm transition-transform duration-300 peer-checked:translate-x-6 peer-checked:border-slate-800 dark:peer-checked:border-emerald-500 cursor-pointer"
-        >
-        </span>
-        
+          class="absolute top-0 left-0 w-5 h-5 bg-white rounded-full border border-slate-300 dark:border-zinc-700 shadow-sm transition-transform duration-150 peer-checked:translate-x-6 peer-checked:border-slate-800 dark:peer-checked:border-emerald-500 cursor-pointer"
+        ></span>
+
         <script is:inline data-astro-rerun>
           (function () {
             try {
@@ -42,13 +65,26 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
               const isDark = theme
                 ? theme === "dark"
                 : window.matchMedia?.("(prefers-color-scheme: dark)").matches;
-              
-              document.querySelectorAll(".theme-switch-input").forEach(el => {
+
+              document.querySelectorAll(".theme-switch-input").forEach((el) => {
                 el.checked = isDark;
               });
-            } catch (e) {
-              // ignore
-            }
+
+              // Sinkronisasi status tampilan ikon secepat mungkin sebelum script utama selesai di-load
+              document
+                .querySelectorAll(".theme-icon-container")
+                .forEach((container) => {
+                  const sun = container.querySelector(".sun-icon");
+                  const moon = container.querySelector(".moon-icon");
+                  if (isDark) {
+                    sun?.classList.replace("block", "hidden");
+                    moon?.classList.replace("hidden", "block");
+                  } else {
+                    sun?.classList.replace("hidden", "block");
+                    moon?.classList.replace("block", "hidden");
+                  }
+                });
+            } catch (e) {}
           })();
         </script>
       </div>
@@ -60,26 +96,30 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
   document.addEventListener("astro:page-load", () => {
     const storageKey = "astro-theme";
     const html = document.documentElement;
-    
-    const checkboxes = document.querySelectorAll(".theme-switch-input") as NodeListOf<HTMLInputElement>;
-    const icons = document.querySelectorAll(".theme-icon-container");
 
-    const SunIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
-    const MoonIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
+    // Mengambil semua instance di halaman (Mobile Nav, Sidebar Desktop, dll)
+    const checkboxes = document.querySelectorAll(
+      ".theme-switch-input",
+    ) as NodeListOf<HTMLInputElement>;
+    const iconContainers = document.querySelectorAll(".theme-icon-container");
 
-    // Dipisah: Fungsi khusus untuk update tampilan tombol & ikon saja
+    // Fungsi pusat untuk memperbarui tampilan SEMUA tombol & ikon di web Anda
     const updateUI = (dark: boolean) => {
       checkboxes.forEach((checkbox) => {
         checkbox.checked = dark;
       });
-      icons.forEach((icon) => {
-        icon.innerHTML = dark ? MoonIcon : SunIcon;
-      });
-    };
 
-    const setTheme = (dark: boolean) => {
-      html.classList.toggle("dark", dark);
-      updateUI(dark);
+      iconContainers.forEach((container) => {
+        const sun = container.querySelector(".sun-icon");
+        const moon = container.querySelector(".moon-icon");
+        if (dark) {
+          sun?.classList.replace("block", "hidden");
+          moon?.classList.replace("hidden", "block");
+        } else {
+          sun?.classList.replace("hidden", "block");
+          moon?.classList.replace("block", "hidden");
+        }
+      });
     };
 
     const getSavedTheme = () => {
@@ -95,30 +135,33 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
     const savedTheme = getSavedTheme();
     const isDark = savedTheme ? savedTheme === "dark" : getPreferredTheme();
 
-    // Set kondisi awal saat ganti halaman
-    setTheme(isDark);
+    // Set UI awal agar sinkron di mobile & desktop
+    updateUI(isDark);
 
-    // Event listener untuk klik tombol switch tema
     checkboxes.forEach((checkbox) => {
       checkbox.addEventListener("change", () => {
         const nextTheme = checkbox.checked;
-        try {
-          localStorage.setItem(storageKey, nextTheme ? "dark" : "light");
-        } catch {
-          // ignore
-        }
-        // Langsung ubah class html, biarkan MutationObserver yang memperbarui UI
+
+        // 1. Ganti tema visual halaman global
         html.classList.toggle("dark", nextTheme);
+
+        // 2. Perbarui seluruh ikon di semua tempat secara instan
+        updateUI(nextTheme);
+
+        // 3. Simpan asinkron ke storage (Ramah prosesor Helio G35)
+        setTimeout(() => {
+          try {
+            localStorage.setItem(storageKey, nextTheme ? "dark" : "light");
+          } catch (e) {}
+        }, 0);
       });
     });
 
-    // Mengamati perubahan class global secara real-time
+    // Mengamati jika ada perubahan tema dari luar komponen (misal sinkronisasi antar tab)
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.attributeName === "class") {
-          const isCurrentlyDark = html.classList.contains("dark");
-          // Perbarui UI semua tombol secara serentak
-          updateUI(isCurrentlyDark);
+          updateUI(html.classList.contains("dark"));
         }
       });
     });
