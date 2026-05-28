@@ -17,4 +17,4 @@ Ini adalah proyek portfolio pertama saya yang dirancang dengan performa maksimal
 - **Responsif:** Terlihat sempurna di ponsel maupun desktop.
 - **Dark Mode:** Tema gelap bawaan yang elegan.
 
-Saya belajar banyak tentang _Static Site Generation_ (SSG) selama mengerjakan proyek ini.
+Saya belajar banyak tentang _Static Site Generation_ (SSG) selama mengerjakan proyek ini. 

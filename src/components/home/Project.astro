@@ -33,17 +33,23 @@ const featuredProjects = allProjects
             />
         </a>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Ganti baris <div class="grid grid-cols-1 md:grid-cols-2 gap-6"> dengan kode di bawah ini -->
+    <div
+        class="flex flex-row overflow-x-auto snap-x snap-mandatory gap-4 pb-4 md:grid md:grid-cols-2 md:gap-6 md:pb-0 scrollbar-none"
+    >
         {
             featuredProjects.map((project) => (
-                <CardProject
-                    title={project.data.title}
-                    description={project.data.description}
-                    image={project.data.image}
-                    tags={project.data.tags}
-                    slug={project.id}
-                    featured={project.data.featured}
-                />
+                // Tambahkan wrapper <div> agar ukuran card di HP konsisten dan efek snap bekerja
+                <div class="w-[85%] shrink-0 snap-center md:w-full">
+                    <CardProject
+                        title={project.data.title}
+                        description={project.data.description}
+                        image={project.data.image}
+                        tags={project.data.tags}
+                        slug={project.id}
+                        featured={project.data.featured}
+                    />
+                </div>
             ))
         }
     </div>

@@ -9,12 +9,29 @@ export interface Props {
 const { title, description, pubDate, slug } = Astro.props;
 ---
 
-<a href={`/blog/${slug}`} class="group flex flex-col gap-2 rounded-xl border border-transparent p-4 hover:border-[hsl(var(--border))] hover:bg-[hsl(var(--secondary))] transition-colors">
-  <div class="flex items-center gap-2 text-xs text-[hsl(var(--foreground)/0.6)]">
+<a
+  href={`/blog/${slug}`}
+  class="group flex flex-col gap-2 rounded-xl border border-transparent p-4 hover:border-[hsl(var(--border))] hover:bg-[hsl(var(--secondary))] transition-colors"
+>
+  <div
+    class="flex items-center gap-2 text-xs text-[hsl(var(--foreground)/0.6)]"
+  >
     <time datetime={pubDate.toISOString()}>
-      {pubDate.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
+      {
+        pubDate.toLocaleDateString("id-ID", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      }
     </time>
   </div>
-  <h3 class="font-bold text-[hsl(var(--foreground))] group-hover:text-primary transition-colors">{title}</h3>
-  <p class="text-sm text-[hsl(var(--foreground)/0.7)] line-clamp-2">{description}</p>
+  <h3
+    class="font-bold text-[hsl(var(--foreground))] group-hover:text-primary transition-colors"
+  >
+    {title}
+  </h3>
+  <p class="text-sm text-[hsl(var(--foreground)/0.7)] line-clamp-2">
+    {description}
+  </p>
 </a>
