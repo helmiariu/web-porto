@@ -1,0 +1,50 @@
+---
+import CardProject from "@components/ui/CardProject.astro";
+import { getCollection } from "astro:content";
+import { ArrowRight } from "@lucide/astro";
+
+const allProjects = await getCollection("projects");
+const featuredProjects = allProjects
+    .filter((project) => project.data.featured)
+    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+    .slice(0, 4);
+---
+
+<section
+    class="mb-10 md:mb-10 pt-0 md:pt-0 py-0 md:py-0 px-0 md:px-0 bg-background text-foreground antialiased transition-colors duration-300"
+>
+    <!-- default 6 -->
+    <div
+        class="flex items-center justify-between w-full md:w-full md:max-w-full space-y-3 mb-3"
+    >
+        <p
+            class="text-[clamp(1.3rem,6vw,1.4rem)] font-bold tracking-tight text-foreground"
+        >
+            Projects
+        </p>
+
+        <a
+            href="/project"
+            class="inline-flex items-center justify-center gap-2 rounded-sm text-sm font-medium transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-border dark:border-foreground/20 bg-background text-foreground hover:bg-muted hover:text-foreground h-8 px-4 py-2 shadow-sm active:scale-[0.98]"
+        >
+            <span>View All</span>
+            <ArrowRight
+                class="h-4 w-4 shrink-0 transition-transform duration-200 id-chevron"
+            />
+        </a>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {
+            featuredProjects.map((project) => (
+                <CardProject
+                    title={project.data.title}
+                    description={project.data.description}
+                    image={project.data.image}
+                    tags={project.data.tags}
+                    slug={project.id}
+                    featured={project.data.featured}
+                />
+            ))
+        }
+    </div>
+</section>
