@@ -1,5 +1,5 @@
 ---
-title: "IoT IoT Edge Monitor: Golang SSE Server on HG680P"
+title: "Golang SSE Server on HG680P"
 description: "Sistem monitoring performa hardware real-time berbasis Server-Sent Events (SSE) menggunakan Go, yang dideploy pada STB Android TV bekas (HG680P) sebagai Linux server."
 pubDate: 2026-05-29
 tags: ["Golang", "Server-Sent Events", "Linux Embedded", "Hardware"]
