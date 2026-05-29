@@ -3,39 +3,36 @@ import CardBlog from "@components/ui/CardBlog.astro";
 import { getCollection } from "astro:content";
 import { ArrowRight } from "@lucide/astro";
 
-const allProjects = await getCollection("projects");
-const featuredProjects = allProjects
-    .filter((project) => project.data.featured)
+const allPosts = await getCollection("blogs");
+const latestPosts = allPosts
     .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-    .slice(0, 4);
+    .slice(0, 3); // Mengambil 3 artikel terbaru agar pas dengan grid-cols-3 di desktop
 ---
 
 <section
     class="mb-10 md:mb-10 pt-0 md:pt-0 py-0 md:py-0 px-0 md:px-0 bg-background text-foreground antialiased transition-colors duration-300"
 >
-    <!-- Header simpel tanpa tombol -->
+    <!-- Header simpel yang serasi dengan Projects -->
     <div class="flex items-center w-full mb-4">
         <p
             class="text-[clamp(1.3rem,6vw,1.4rem)] font-bold tracking-tight text-foreground"
         >
-            Projects
+            Latest Articles
         </p>
     </div>
 
-    <!-- Grid / Carousel Proyek -->
+    <!-- Grid / Carousel Blog -->
     <div
         class="flex flex-row overflow-x-auto snap-x snap-mandatory gap-4 pb-4 md:grid md:grid-cols-3 md:gap-6 md:pb-0 scrollbar-none"
     >
         {
-            featuredProjects.map((project) => (
+            latestPosts.map((post) => (
                 <div class="w-[85%] shrink-0 snap-center md:w-full">
-                    <CardProject
-                        title={project.data.title}
-                        description={project.data.description}
-                        image={project.data.image}
-                        tags={project.data.tags}
-                        slug={project.id}
-                        featured={project.data.featured}
+                    <CardBlog
+                        title={post.data.title}
+                        description={post.data.description}
+                        pubDate={post.data.pubDate}
+                        slug={post.id}
                     />
                 </div>
             ))
@@ -46,7 +43,7 @@ const featuredProjects = allProjects
             class="w-[40%] shrink-0 snap-center flex items-center justify-center pr-4 md:hidden"
         >
             <a
-                href="/project"
+                href="/blog"
                 class="flex flex-col items-center justify-center gap-2 w-full h-full min-h-[150px] border border-dashed border-border dark:border-foreground/20 rounded-md bg-muted/30 text-muted-foreground hover:text-foreground active:scale-[0.98] transition-all"
             >
                 <div
@@ -59,13 +56,13 @@ const featuredProjects = allProjects
         </div>
     </div>
 
-    <!-- TOMBOL KHUSUS DESKTOP: Muncul di bawah grid (karena di desktop tidak bisa di-scroll) -->
+    <!-- TOMBOL KHUSUS DESKTOP: Muncul di bawah grid -->
     <div class="hidden md:flex justify-center mt-8 w-full">
         <a
-            href="/project"
+            href="/blog"
             class="inline-flex items-center justify-center gap-2 rounded-sm text-sm font-medium transition-all border border-border dark:border-foreground/20 bg-background text-foreground hover:bg-muted h-9 px-5 shadow-sm active:scale-[0.98]"
         >
-            <span>View All Projects</span>
+            <span>View All Articles</span>
             <ArrowRight class="h-4 w-4 shrink-0" />
         </a>
     </div>

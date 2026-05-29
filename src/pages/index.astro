@@ -1,16 +1,10 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import CardBlog from "@components/ui/CardBlog.astro";
 import MobileProfile from "@components/ui/MobileProfile.astro";
 import Hero from "@components/home/Hero.astro";
 import Skill from "@components/home/Skill.astro";
 import Project from "@components/home/Project.astro";
-import { getCollection } from "astro:content";
-
-const allPosts = await getCollection("blogs");
-const latestPosts = allPosts
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-  .slice(0, 3);
+import Blog from "@components/home/Blog.astro";
 ---
 
 <Layout>
@@ -18,33 +12,5 @@ const latestPosts = allPosts
   <Hero />
   <Project />
   <Skill />
-
-  <div class="space-y-16">
-    <section class="space-y-6">
-      <div class="flex items-center justify-between">
-        <h2
-          class="text-2xl font-bold tracking-tight text-[hsl(var(--foreground))]"
-        >
-          Artikel Terbaru
-        </h2>
-        <a
-          href="/blog"
-          class="text-sm font-medium text-emerald-500 hover:underline"
-          >Baca semua &rarr;</a
-        >
-      </div>
-      <div class="flex flex-col gap-4">
-        {
-          latestPosts.map((post) => (
-            <CardBlog
-              title={post.data.title}
-              description={post.data.description}
-              pubDate={post.data.pubDate}
-              slug={post.id}
-            />
-          ))
-        }
-      </div>
-    </section>
-  </div>
+  <Blog />
 </Layout>
