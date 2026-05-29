@@ -4,34 +4,99 @@ export interface Props {
   description: string;
   pubDate: Date;
   slug: string;
+  image?: string;
+  layout?: "list" | "grid"; // Prop baru untuk mengontrol bentuk card
 }
 
-const { title, description, pubDate, slug } = Astro.props;
+const {
+  title,
+  description,
+  pubDate,
+  slug,
+  image,
+  layout = "list",
+} = Astro.props;
+const fallbackImage =
+  "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1471&q=80";
+
+// Kondisi CSS berdasarkan jenis layout
+const isGrid = layout === "grid";
 ---
 
 <a
   href={`/blog/${slug}`}
-  class="group flex flex-col gap-2 rounded-xl border border-transparent p-4 hover:border-[hsl(var(--border))] hover:bg-[hsl(var(--secondary))] transition-colors"
+  class:list={[
+    "group flex flex-col w-full rounded-xl border border-transparent bg-background text-foreground shadow-xs overflow-hidden hover:border-[hsl(var(--border))] hover:bg-[hsl(var(--secondary))] transition-all duration-200",
+    isGrid ? "lg:flex-col" : "sm:flex-row max-w-[48rem]",
+  ]}
 >
   <div
-    class="flex items-center gap-2 text-xs text-[hsl(var(--foreground)/0.6)]"
+    class:list={[
+      "relative m-0 w-full shrink-0 overflow-hidden bg-muted",
+      isGrid
+        ? "sm:w-[40%] lg:w-full aspect-video lg:rounded-b-none"
+        : "sm:w-2/5 sm:rounded-r-none aspect-video sm:aspect-auto",
+    ]}
   >
-    <time datetime={pubDate.toISOString()}>
-      {
-        pubDate.toLocaleDateString("id-ID", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })
-      }
-    </time>
+    <img
+      src={image || fallbackImage}
+      alt={title}
+      class:list={[
+        "h-full w-full object-cover group-hover:scale-105 transition-transform duration-300",
+        isGrid
+          ? "min-h-[160px] lg:min-h-[160px]"
+          : "min-h-[160px] sm:min-h-full",
+      ]}
+    />
   </div>
-  <h3
-    class="font-bold text-[hsl(var(--foreground))] group-hover:text-primary transition-colors"
-  >
-    {title}
-  </h3>
-  <p class="text-sm text-[hsl(var(--foreground)/0.7)] line-clamp-2">
-    {description}
-  </p>
+
+  <div class="p-5 flex flex-col justify-between flex-1 gap-1.5">
+    <div class="flex flex-col gap-1.5">
+      <div
+        class="flex items-center gap-2 text-xs text-[hsl(var(--foreground)/0.6)]"
+      >
+        <time datetime={pubDate.toISOString()}>
+          {
+            pubDate.toLocaleDateString("id-ID", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })
+          }
+        </time>
+      </div>
+
+      <h3
+        class:list={[
+          "font-bold tracking-tight text-[hsl(var(--foreground))] group-hover:text-[hsl(var(--primary))] transition-colors line-clamp-2",
+          isGrid ? "text-base" : "text-base sm:text-lg",
+        ]}
+      >
+        {title}
+      </h3>
+
+      <p class="text-xs text-[hsl(var(--foreground)/0.7)] line-clamp-2">
+        {description}
+      </p>
+    </div>
+
+    <div
+      class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase text-[hsl(var(--primary))] opacity-80 group-hover:opacity-100 pt-3 mt-auto"
+    >
+      Read More
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="2.5"
+        stroke="currentColor"
+        class="h-3 w-3 transform group-hover:translate-x-1 transition-transform"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"></path>
+      </svg>
+    </div>
+  </div>
 </a>

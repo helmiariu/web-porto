@@ -1,7 +1,6 @@
 ---
 import Layout from "@layouts/Layout.astro";
 import { getCollection, render } from "astro:content";
-
 import { ArrowLeft, ExternalLink } from "@lucide/astro";
 
 export async function getStaticPaths() {
@@ -17,45 +16,50 @@ const { Content } = await render(entry);
 ---
 
 <Layout>
-  <article class="space-y-8">
+  <article class="space-y-6 animate-fade-in-up">
     <a
       href="/project"
-      class="inline-flex items-center gap-2 text-sm font-medium text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] transition-colors"
+      class="inline-flex items-center gap-1.5 text-xs font-medium text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] transition-colors group"
     >
-      <ArrowLeft class="h-4 w-4" />
+      <ArrowLeft
+        class="h-3.5 w-3.5 transform group-hover:-translate-x-0.5 transition-transform"
+      />
       Back to Projects
     </a>
 
-    <div class="space-y-4">
-      <h1 class="text-3xl md:text-4xl font-bold text-[hsl(var(--foreground))]">
+    <div class="space-y-3">
+      <h1
+        class="text-2xl md:text-3xl font-bold tracking-tight text-[hsl(var(--foreground))]"
+      >
         {entry.data.title}
       </h1>
-      <p class="text-lg text-[hsl(var(--foreground)/0.7)]">
+      <p
+        class="text-sm md:text-base text-[hsl(var(--foreground)/0.7)] leading-relaxed"
+      >
         {entry.data.description}
       </p>
 
-      <div class="flex flex-wrap gap-2 pt-2">
+      <div class="flex flex-wrap gap-1.5 pt-1">
         {
           entry.data.tags.map((tag: string) => (
-            <span class="rounded-md bg-[hsl(var(--secondary))] px-2 py-1 text-xs text-[hsl(var(--foreground)/0.8)] border border-[hsl(var(--border))]">
+            <span class="rounded bg-[hsl(var(--secondary))] px-2 py-0.5 text-[11px] font-medium text-[hsl(var(--foreground)/0.7)] border border-[hsl(var(--border))]">
               {tag}
             </span>
           ))
         }
       </div>
 
-      <div class="flex items-center gap-4 pt-4">
+      <div class="flex items-center gap-2.5 pt-2">
         {
           entry.data.github && (
             <a
               href={entry.data.github}
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center gap-2 rounded-lg bg-[hsl(var(--secondary))] px-4 py-2 text-sm font-medium text-[hsl(var(--foreground))] hover:bg-[hsl(var(--border))] transition-colors"
+              class="inline-flex items-center gap-1.5 rounded-md bg-[hsl(var(--secondary))] px-3 py-1.5 text-xs font-medium text-[hsl(var(--foreground))] border border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))] transition-colors"
             >
-              {/* Menggunakan SVG murni yang terbukti bekerja di web tanpa library */}
               <svg
-                class="w-4 h-4"
+                class="w-3.5 h-3.5"
                 viewBox="0 0 15 15"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -77,9 +81,9 @@ const { Content } = await render(entry);
               href={entry.data.link}
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-4 py-2 text-sm font-medium text-[hsl(var(--background))] hover:opacity-90 transition-opacity"
+              class="inline-flex items-center gap-1.5 rounded-md bg-[hsl(var(--primary))] px-3 py-1.5 text-xs font-medium text-[hsl(var(--background))] hover:opacity-90 transition-opacity"
             >
-              <ExternalLink class="h-4 w-4" />
+              <ExternalLink class="h-3.5 w-3.5" />
               Live Demo
             </a>
           )
@@ -89,20 +93,222 @@ const { Content } = await render(entry);
 
     {
       entry.data.image && (
-        <div class="aspect-video w-full overflow-hidden rounded-xl border border-[hsl(var(--border))] bg-muted">
+        <div class="aspect-video w-full overflow-hidden rounded-lg border border-[hsl(var(--border))] bg-muted shadow-xs">
           <img
             src={entry.data.image}
             alt={entry.data.title}
             class="h-full w-full object-cover"
+            loading="eager"
           />
         </div>
       )
     }
 
-    <div
-      class="prose prose-invert max-w-none prose-headings:text-[hsl(var(--foreground))] prose-p:text-[hsl(var(--foreground)/0.8)] prose-a:text-emerald-500"
-    >
+    <div class="blog-content prose dark:prose-invert">
       <Content />
     </div>
   </article>
 </Layout>
+
+<style is:global>
+  .blog-content {
+    width: 100%;
+    margin-top: 1.75rem;
+  }
+
+  /* --- UX TYPOGRAPHY ADJUSTMENT --- */
+
+  .blog-content p {
+    font-size: 0.9375rem; /* 15px di HP */
+    line-height: 1.65;
+    color: hsl(var(--foreground) / 0.8);
+    margin-bottom: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .blog-content p {
+      font-size: 1rem; /* 16px standar emas desktop */
+      line-height: 1.7;
+    }
+  }
+
+  .blog-content h1,
+  .blog-content h2,
+  .blog-content h3 {
+    color: hsl(var(--foreground)) !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem !important;
+  }
+
+  .blog-content h2 {
+    font-size: 1.25rem !important;
+    margin-top: 2rem !important;
+    border-bottom: 1px solid hsl(var(--border) / 0.4);
+    padding-bottom: 0.35rem;
+  }
+
+  .blog-content h3 {
+    font-size: 1.1rem !important;
+    margin-top: 1.5rem !important;
+  }
+
+  @media (min-width: 768px) {
+    .blog-content h2 {
+      font-size: 1.375rem !important;
+    }
+    .blog-content h3 {
+      font-size: 1.15rem !important;
+    }
+  }
+
+  .blog-content ul,
+  .blog-content ol {
+    margin-top: 0.35rem !important;
+    margin-bottom: 1.25rem !important;
+    padding-left: 1.25rem !important;
+  }
+
+  .blog-content li {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: hsl(var(--foreground) / 0.8);
+    margin-bottom: 0.35rem !important;
+  }
+
+  @media (min-width: 768px) {
+    .blog-content li {
+      font-size: 1rem;
+    }
+  }
+
+  .blog-content blockquote {
+    background-color: hsl(var(--muted) / 0.25) !important;
+    border-left: 3px solid hsl(var(--primary)) !important;
+    padding: 0.75rem 1.2rem !important;
+    margin: 1.5rem 0 !important;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .blog-content blockquote p {
+    font-style: normal;
+    color: hsl(var(--foreground) / 0.7) !important;
+    font-size: 0.9375rem !important;
+    margin-bottom: 0 !important;
+  }
+
+  @media (min-width: 768px) {
+    .blog-content blockquote p {
+      font-size: 1rem !important;
+    }
+  }
+
+  .blog-content a {
+    color: hsl(var(--primary)) !important;
+    text-decoration: none !important;
+    border-bottom: 1px dashed hsl(var(--primary) / 0.6);
+    font-weight: 500;
+  }
+
+  .blog-content hr {
+    border: 0;
+    border-top: 1px solid hsl(var(--border) / 0.7) !important;
+    margin: 2rem 0 !important;
+  }
+
+  /* --- TOMBOL COPY CODE UX --- */
+  .blog-content pre {
+    position: relative;
+    padding-top: 2.5rem !important; /* Beri ruang di atas agar kode tidak tertutup tombol */
+  }
+
+  .copy-code-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.35rem 0.6rem; /* Diperluas sedikit agar proporsional dengan ikon */
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1;
+
+    /* UX FIX: Menyejajarkan Ikon dan Teks secara horizontal */
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+
+    color: hsl(var(--foreground) / 0.6);
+    background-color: hsl(var(--muted) / 0.5);
+    border: 1px solid hsl(var(--border) / 0.5);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    opacity: 0;
+  }
+
+  /* Tombol hanya muncul ketika kursor user diarahkan ke dalam blok kode (Hover State) */
+  .blog-content pre:hover .copy-code-btn {
+    opacity: 1;
+  }
+
+  .copy-code-btn:hover {
+    color: hsl(var(--foreground));
+    background-color: hsl(var(--muted));
+    border-color: hsl(var(--border));
+  }
+
+  /* Style tambahan saat status berubah menjadi 'Copied!' */
+  .copy-code-btn.copied {
+    color: hsl(var(--primary));
+    border-color: hsl(var(--primary) / 0.5);
+    background-color: hsl(var(--primary) / 0.1);
+  }
+</style>
+
+<script>
+  function attachCopyButtons() {
+    const codeBlocks = document.querySelectorAll("div.blog-content pre");
+
+    codeBlocks.forEach((block) => {
+      if (block.querySelector(".copy-code-btn")) return;
+
+      block.style.position = "relative";
+
+      // 1. Buat tombol
+      const copyButton = document.createElement("button");
+      copyButton.className = "copy-code-btn";
+
+      // 2. Desain Konten Tombol (Gabungan SVG Lucide Icon + Teks)
+      const copyIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
+      const checkIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>`;
+
+      // Set tampilan awal (Icon + Tulisan "Copy")
+      copyButton.innerHTML = `${copyIcon} <span>Copy</span>`;
+      block.appendChild(copyButton);
+
+      // 3. Logika Klik
+      copyButton.addEventListener("click", async () => {
+        const codeElement = block.querySelector("code");
+        const codeText = codeElement ? codeElement.innerText : "";
+
+        try {
+          await navigator.clipboard.writeText(codeText);
+
+          // Ubah menjadi ikon Check + "Copied!"
+          copyButton.innerHTML = `${checkIcon} <span>Copied!</span>`;
+          copyButton.classList.add("copied");
+
+          setTimeout(() => {
+            // Kembalikan ke format semula
+            copyButton.innerHTML = `${copyIcon} <span>Copy</span>`;
+            copyButton.classList.remove("copied");
+          }, 2000);
+        } catch (err) {
+          console.error("Gagal menyalin kode: ", err);
+          copyButton.innerHTML = "Error";
+        }
+      });
+    });
+  }
+
+  document.addEventListener("astro:page-load", attachCopyButtons);
+</script>
