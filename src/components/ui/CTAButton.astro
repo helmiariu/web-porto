@@ -1,0 +1,30 @@
+---
+// src/components/CTAButton.astro
+interface Props {
+    text?: string;
+    link?: string;
+    variant?: "primary" | "secondary";
+}
+
+const {
+    text = "Contact Me",
+    link = "#contact",
+    variant = "primary",
+} = Astro.props;
+
+const baseStyles =
+    "inline-flex items-center justify-center rounded-xl text-sm font-medium transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 active:scale-[0.98] cursor-pointer w-auto sm:w-auto";
+
+const variants = {
+    // Ditambahkan border border-border dark:border-foreground/10 sesuai desain lamamu
+    primary: "bg-primary text-background hover:opacity-90 shadow-sm",
+    secondary:
+        "border border-border dark:border-foreground/10 bg-transparent text-foreground hover:bg-muted",
+};
+
+const selectedVariant = variants[variant] || variants.primary;
+---
+
+<a href={link} class:list={[baseStyles, selectedVariant]}>
+    {text}
+</a>

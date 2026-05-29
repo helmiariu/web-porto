@@ -1,0 +1,196 @@
+---
+// src/components/ResumeDropdown.astro
+import { ChevronDown } from "@lucide/astro";
+---
+
+<div
+    class="relative inline-block text-left w-auto sm:w-auto"
+    id="lang-dropdown-wrapper"
+>
+    <button
+        id="lang-dropdown-btn"
+        type="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+        *
+        PERUBAHAN:
+        'hover:bg-muted'
+        diubah
+        menjadi
+        'md:hover:bg-muted'
+        *
+        class="inline-flex items-center justify-center gap-2 rounded-xl text-sm font-medium transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50 bg-secondary text-foreground border border-border md:hover:bg-muted h-10 px-4 py-2 shadow-sm active:scale-[0.98] cursor-pointer w-auto sm:w-auto"
+    >
+        <span>Resume</span>
+        <ChevronDown
+            class="h-4 w-4 shrink-0 transition-transform duration-200 id-chevron"
+        />
+    </button>
+
+    <div
+        id="lang-dropdown-menu"
+        class="absolute left-0 mt-2 w-36 origin-top rounded-xl border border-border bg-background p-1.5 text-foreground shadow-lg transition-all duration-100 scale-95 opacity-0 pointer-events-none z-50"
+        role="menu"
+    >
+        <a
+            href="/resume-en.pdf"
+            download
+            *
+            PERUBAHAN:
+            'hover:bg-muted
+            hover:text-foreground'
+            diubah
+            menjadi
+            'md:hover:bg-muted
+            md:hover:text-foreground'
+            *
+            class="group flex w-auto items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-foreground lg:text-foreground/80 md:hover:bg-muted md:hover:text-foreground transition-colors cursor-pointer"
+            role="menuitem"
+        >
+            <span>English</span>
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="h-4 w-4 opacity-100 lg:opacity-100 group-hover:opacity-100 transition-opacity overflow-visible lucide lucide-download"
+            >
+                <path d="M12 15V3" class="arrow-part"></path>
+                <path d="m7 10 5 5 5-5" class="arrow-part"></path>
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            </svg>
+        </a>
+
+        <a
+            href="/resume-id.pdf"
+            download
+            *
+            PERUBAHAN:
+            'hover:bg-muted
+            hover:text-foreground'
+            diubah
+            menjadi
+            'md:hover:bg-muted
+            md:hover:text-foreground'
+            *
+            class="group flex w-auto items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-foreground lg:text-foreground/80 md:hover:bg-muted md:hover:text-foreground transition-colors cursor-pointer"
+            role="menuitem"
+        >
+            <span>Indonesia</span>
+            <svg
+                xmlns="http://www.w3.org/2000/xl"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="h-4 w-4 opacity-100 lg:opacity-100 group-hover:opacity-100 transition-opacity overflow-visible lucide lucide-download"
+            >
+                <path d="M12 15V3" class="arrow-part"></path>
+                <path d="m7 10 5 5 5-5" class="arrow-part"></path>
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            </svg>
+        </a>
+    </div>
+</div>
+
+<style>
+    /* Kode animasi panahmu yang lama tetap di sini */
+    .lucide-download .arrow-part {
+        transform: translateY(-3px);
+        transition: transform 0.2s ease;
+    }
+    #lang-dropdown-menu:not(.opacity-0) .lucide-download .arrow-part {
+        animation: arrow-down-bounce 0.8s ease-in-out infinite;
+    }
+    @keyframes arrow-down-bounce {
+        0%,
+        100% {
+            transform: translateY(-3px);
+        }
+        50% {
+            transform: translateY(0px);
+        }
+    }
+
+    /* ======================================================== */
+    /* SOLUSI FIX HOVER: Matikan efek hover jika BUKAN desktop   */
+    /* ======================================================== */
+    @media (pointer: coarse) {
+        #lang-dropdown-btn:hover,
+        [role="menuitem"]:hover {
+            background-color: transparent !important; /* Mencegah warna abu-abu mengunci di HP */
+        }
+
+        /* Kembalikan warna asli tombol utama saat di-tap di HP */
+        #lang-dropdown-btn:hover {
+            background-color: hsl(var(--secondary)) !important;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener("astro:page-load", () => {
+        const wrapper = document.getElementById("lang-dropdown-wrapper");
+        const btn = document.getElementById("lang-dropdown-btn");
+        const menu = document.getElementById("lang-dropdown-menu");
+
+        if (!btn || !menu) return;
+
+        const newBtn = btn.cloneNode(true) as HTMLButtonElement;
+        btn.parentNode?.replaceChild(newBtn, btn);
+        const chevron = newBtn.querySelector(".id-chevron");
+
+        function toggleDropdown() {
+            if (!chevron) return;
+            const isExpanded = newBtn.getAttribute("aria-expanded") === "true";
+
+            if (isExpanded) {
+                newBtn.setAttribute("aria-expanded", "false");
+                menu!.classList.add(
+                    "scale-95",
+                    "opacity-0",
+                    "pointer-events-none",
+                );
+                menu!.classList.remove("scale-100", "opacity-100");
+                chevron.classList.remove("rotate-180");
+            } else {
+                newBtn.setAttribute("aria-expanded", "true");
+                menu!.classList.remove(
+                    "scale-95",
+                    "opacity-0",
+                    "pointer-events-none",
+                );
+                menu!.classList.add("scale-100", "opacity-100");
+                chevron.classList.add("rotate-180");
+            }
+        }
+
+        newBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            toggleDropdown();
+        });
+
+        document.addEventListener("click", (e) => {
+            if (wrapper && !wrapper.contains(e.target as Node)) {
+                if (!chevron) return;
+                newBtn.setAttribute("aria-expanded", "false");
+                menu.classList.add(
+                    "scale-95",
+                    "opacity-0",
+                    "pointer-events-none",
+                );
+                menu.classList.remove("scale-100", "opacity-100");
+                chevron.classList.remove("rotate-180");
+            }
+        });
+    });
+</script>
