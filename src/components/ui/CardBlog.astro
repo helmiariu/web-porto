@@ -26,8 +26,9 @@ const isGrid = layout === "grid";
 <a
   href={`/blog/${slug}`}
   class:list={[
-    "group flex flex-col w-full rounded-xl border border-transparent bg-background text-foreground shadow-xs overflow-hidden hover:border-[hsl(var(--border))] hover:bg-[hsl(var(--secondary))] transition-all duration-200",
-    isGrid ? "lg:flex-col" : "sm:flex-row max-w-[48rem]",
+    "bg-muted/30 group flex flex-col w-full rounded-xl border border-dashed dark:border-foreground/20 md:border-solid bg-background text-foreground shadow-xs overflow-hidden hover:border-[hsl(var(--border))] hover:bg-[hsl(var(--secondary))] transition-all duration-200",
+    // PERBAIKAN: Hapus max-w-[48rem] atau setel max-w-full agar dia bisa melebar penuh mengikuti parent
+    isGrid ? "lg:flex-col" : "sm:flex-row w-full max-w-full",
   ]}
 >
   <div

@@ -21,7 +21,7 @@ const latestPosts = allPosts
     </div>
 
     <div
-        class="flex flex-row overflow-x-auto snap-x snap-mandatory gap-4 pb-4 lg:grid lg:grid-cols-3 lg:gap-6 lg:pb-0 scrollbar-none"
+        class="flex flex-row overflow-x-auto snap-x snap-mandatory gap-4 pb-4 lg:grid lg:grid-cols-1 lg:gap-6 lg:pb-0 scrollbar-none"
     >
         {
             latestPosts.map((post) => (
@@ -31,7 +31,7 @@ const latestPosts = allPosts
                         description={post.data.description}
                         pubDate={post.data.pubDate}
                         slug={post.id}
-                        layout="grid" // <--- Ditambahkan agar otomatis berbentuk vertikal proporsional di home desktop
+                        layout="list" // <--- Ditambahkan agar otomatis berbentuk vertikal proporsional di home desktop
                     />
                 </div>
             ))
