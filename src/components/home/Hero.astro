@@ -17,7 +17,7 @@ const bio =
     </p>
 
     <p
-      class="text-[clamp(1rem,1.5vw,1rem)] font-[450] text-muted-foreground leading-7 md:leading-relaxed"
+      class="text-[clamp(1rem,1.5vw,1rem)] opacity-80 font-[450] text-muted-foreground leading-7 md:leading-relaxed"
     >
       {bio}
     </p>
@@ -68,7 +68,7 @@ const bio =
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              class="h-4 w-4 opacity-100 lg:opacity-50 group-hover:opacity-100 transition-opacity overflow-visible lucide lucide-download"
+              class="h-4 w-4 opacity-100 lg:opacity-100 group-hover:opacity-100 transition-opacity overflow-visible lucide lucide-download"
             >
               <path d="M12 15V3" class="arrow-part"></path>
               <path d="m7 10 5 5 5-5" class="arrow-part"></path>
@@ -93,7 +93,7 @@ const bio =
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              class="h-4 w-4 opacity-100 lg:opacity-50 group-hover:opacity-100 transition-opacity overflow-visible lucide lucide-download"
+              class="h-4 w-4 opacity-100 lg:opacity-100 group-hover:opacity-100 transition-opacity overflow-visible lucide lucide-download"
             >
               <path d="M12 15V3" class="arrow-part"></path>
               <path d="m7 10 5 5 5-5" class="arrow-part"></path>
@@ -110,7 +110,7 @@ const bio =
 <style>
   /* Kondisi saat dropdown tertutup / diam: naikkan panah sedikit */
   .lucide-download .arrow-part {
-    transform: translateY(-4px); /* Menggeser panah ke atas sebanyak 2px */
+    transform: translateY(-3px); /* Menggeser panah ke atas sebanyak 2px */
     transition: transform 0.2s ease;
   }
 
@@ -123,7 +123,7 @@ const bio =
     /* Mulai dari posisi agak tinggi (-2px) */
     0%,
     100% {
-      transform: translateY(-4px);
+      transform: translateY(-3px);
     }
     /* Turun sedikit ke bawah (+2px dari posisi asli) */
     50% {

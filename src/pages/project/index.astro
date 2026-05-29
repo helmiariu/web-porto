@@ -1,30 +1,79 @@
 ---
-import Layout from '@layouts/Layout.astro';
-import CardProject from '@components/ui/CardProject.astro';
-import { getCollection } from 'astro:content';
+import Layout from "@layouts/Layout.astro";
+import CardProject from "@components/ui/CardProject.astro";
+import { getCollection } from "astro:content";
 
-const allProjects = await getCollection('projects');
-const sortedProjects = allProjects.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const allProjects = await getCollection("projects");
+const sortedProjects = allProjects.sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
 ---
 
 <Layout>
-  <div class="space-y-8">
-    <div class="space-y-2">
-      <h1 class="text-3xl font-bold tracking-tight text-[hsl(var(--foreground))]">Semua Proyek</h1>
-      <p class="text-[hsl(var(--foreground)/0.7)]">Daftar lengkap proyek yang pernah saya kerjakan.</p>
+  <div class="space-y-4 animate-fade-in-up">
+    <div class="space-y-1">
+      <h1
+        class="text-[clamp(1.3rem,6vw,1.4rem)] font-bold tracking-tight text-foreground"
+      >
+        All Projects
+      </h1>
+      <p class="text-[hsl(var(--foreground)/0.7)]">
+        Daftar lengkap proyek yang pernah saya kerjakan.
+      </p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {sortedProjects.map(project => (
-        <CardProject 
-          title={project.data.title}
-          description={project.data.description}
-          image={project.data.image}
-          tags={project.data.tags}
-          slug={project.id}
-          featured={project.data.featured}
-        />
-      ))}
+      {
+        sortedProjects.map((project) => (
+          /* Wrapper khusus lazy-render untuk menghemat RAM HP lama */
+          <div class="project-card-lazy">
+            <CardProject
+              title={project.data.title}
+              description={project.data.description}
+              image={project.data.image}
+              tags={project.data.tags}
+              slug={project.id}
+              featured={project.data.featured}
+            />
+          </div>
+        ))
+      }
     </div>
   </div>
 </Layout>
+
+<style>
+  /* 1. Optimasi Animasi untuk HP Spek Lama */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(
+        12px
+      ); /* Jarak dikurangi (dari 20px ke 12px) agar beban render GPU lebih ringan */
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    will-change:
+      transform, opacity; /* Memaksa HP spek rendah pakai Akselerasi GPU */
+  }
+
+  /* 2. LAZY RENDERING: Mencegah card di bawah layar dirender duluan */
+  .project-card-lazy {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 350px; /* Memberikan estimasi tinggi card (misal 350px) agar scrollbar tidak lompat-lompat */
+  }
+
+  /* Matikan animasi jika user mengaktifkan mode hemat daya/baterai di HP mereka */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-in-up {
+      animation: none;
+      will-change: auto;
+    }
+  }
+</style>
