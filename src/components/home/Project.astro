@@ -13,7 +13,6 @@ const featuredProjects = allProjects
 <section
     class="mb-2 md:mb-10 pt-0 md:pt-0 py-0 md:py-0 px-0 md:px-0 bg-background text-foreground antialiased transition-colors duration-300"
 >
-    <!-- Header simpel tanpa tombol -->
     <div class="flex items-center w-full mb-4">
         <p
             class="text-[clamp(1.3rem,6vw,1.4rem)] font-bold tracking-tight text-foreground"
@@ -22,13 +21,13 @@ const featuredProjects = allProjects
         </p>
     </div>
 
-    <!-- Grid / Carousel Proyek -->
     <div
-        class="flex flex-row overflow-x-auto snap-x snap-mandatory gap-4 pb-4 md:grid md:grid-cols-3 md:gap-6 md:pb-0 scrollbar-none"
+        class="flex flex-row items-stretch h-auto overflow-x-auto snap-x snap-mandatory gap-4 pb-4 md:grid md:grid-cols-3 md:gap-6 md:pb-0 scrollbar-none"
     >
         {
             featuredProjects.map((project) => (
-                <div class="w-[85%] shrink-0 snap-center md:w-full">
+                /* SOLUSI KUNCI HP: Gunakan 'flex self-stretch' dan 'min-w-0' agar layout tidak jebol dan tingginya mengunci seimbang */
+                <div class="w-[85%] shrink-0 snap-center md:w-full flex flex-col self-stretch min-w-0">
                     <CardProject
                         title={project.data.title}
                         description={project.data.description}
@@ -41,9 +40,8 @@ const featuredProjects = allProjects
             ))
         }
 
-        <!-- KARTU KHUSUS MOBILE: Muncul di akhir horizontal scroll -->
         <div
-            class="w-[40%] shrink-0 snap-center flex items-center justify-center pr-4 md:hidden"
+            class="w-[40%] shrink-0 snap-center flex items-center justify-center pr-4 self-stretch md:hidden"
         >
             <a
                 href="/project"
@@ -59,8 +57,7 @@ const featuredProjects = allProjects
         </div>
     </div>
 
-    <!-- TOMBOL KHUSUS DESKTOP: Muncul di bawah grid (karena di desktop tidak bisa di-scroll) -->
-    <div class="hidden md:flex justify-center mt-8 w-full">
+    <div class="hidden md:flex justify-center mt-5 w-full">
         <a
             href="/project"
             class="inline-flex items-center justify-center gap-2 rounded-sm text-sm font-medium transition-all border border-border dark:border-foreground/20 bg-background text-foreground hover:bg-muted h-9 px-5 shadow-sm active:scale-[0.98]"

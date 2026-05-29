@@ -13,7 +13,7 @@ const { title, description, image, tags, slug, featured } = Astro.props;
 
 <a
   href={`/project/${slug}`}
-  class="group flex flex-col w-full rounded-xl border border-transparent bg-background text-foreground shadow-xs overflow-hidden hover:border-[hsl(var(--border))] hover:bg-[hsl(var(--secondary))] transition-all duration-200"
+  class="group flex flex-col w-full h-full rounded-xl border border-dashed dark:border-foreground/20 md:border-solid bg-background text-foreground shadow-xs overflow-hidden hover:border-[hsl(var(--border))] hover:bg-[hsl(var(--secondary))] transition-all duration-200"
 >
   <div
     class="relative m-0 w-full shrink-0 overflow-hidden bg-muted aspect-video rounded-t-xl"
@@ -30,7 +30,6 @@ const { title, description, image, tags, slug, featured } = Astro.props;
           src="/no-image.jpg"
           alt="No image"
           class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
-          onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWltYWdlIj48cmVjdCB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHg9IjMiIHk9IjMiIHJ4PSIyIiByeT0iMiIvPjxjaXJjbGUgY3g9IjkiIGN5PSI5IiByPSIyIi8+PHBhdGggZD0ibTIxIDE1LTMuMDgtMy4wOGEyIDIgMCAwIDAtMi443AwbC0zLjQ2IDMuNDYiLz48cGF0aCBkPSJtMTYgMTItMi4wOC0yLjA4YTIgMiAwIDAgMC0yLjgzIDBsLTMuNDYgMy40NiIvPjwvc3ZnPg=='"
         />
       )
     }
@@ -38,7 +37,9 @@ const { title, description, image, tags, slug, featured } = Astro.props;
 
   <div class="p-5 flex flex-col justify-between flex-1 gap-3">
     <div class="flex flex-col gap-2">
-      <div class="flex items-center justify-between gap-2">
+      <div
+        class="flex items-center justify-between gap-2 min-h-[44px] md:min-h-0"
+      >
         <h3
           class="text-base font-bold tracking-tight text-[hsl(var(--foreground))] group-hover:text-[hsl(var(--primary))] transition-colors line-clamp-1"
         >
@@ -61,15 +62,13 @@ const { title, description, image, tags, slug, featured } = Astro.props;
 
       <div class="mt-1 flex flex-wrap gap-1.5">
         {
-          tags.slice(0, 3).map(
-            (
-              tag, // Membatasi max 3 tag agar card tetap rapi di grid
-            ) => (
+          tags
+            .slice(0, 3)
+            .map((tag) => (
               <span class="rounded-md bg-muted/60 px-2 py-0.5 text-[10px] font-medium text-[hsl(var(--foreground)/0.8)] border border-[hsl(var(--border))]">
                 {tag}
               </span>
-            ),
-          )
+            ))
         }
         {
           tags.length > 3 && (
