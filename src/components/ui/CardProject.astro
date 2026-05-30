@@ -13,11 +13,19 @@ const { title, description, image, tags, slug, featured } = Astro.props;
 
 <a
   href={`/project/${slug}`}
-  class="bg-muted/30 group flex flex-col w-full h-full rounded-xl border border-dashed dark:border-foreground/20 md:border-solid bg-background text-foreground shadow-xs overflow-hidden hover:border-[hsl(var(--border))] hover:bg-[hsl(var(--secondary))] transition-all duration-200"
+  class="bg-muted/30 group flex flex-col w-full h-full rounded-xl border border-solid border-border/60 bg-background text-foreground shadow-xs overflow-hidden hover:border-primary/40 hover:bg-muted/20 transition-all duration-300"
 >
+  <!-- Image Container dengan Badge Absolute -->
   <div
     class="relative m-0 w-full shrink-0 overflow-hidden bg-muted aspect-video rounded-t-xl"
   >
+    {
+      featured && (
+        <span class="absolute top-3 left-3 z-10 rounded-full bg-emerald-600 px-2.5 py-0.5 text-[10px] font-semibold text-white dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-500/20 shadow-xs backdrop-blur-md">
+          Featured
+        </span>
+      )
+    }
     {
       image ? (
         <img
@@ -35,37 +43,30 @@ const { title, description, image, tags, slug, featured } = Astro.props;
     }
   </div>
 
-  <div class="p-5 flex flex-col justify-between flex-1 gap-3">
-    <div class="flex flex-col gap-2">
-      <div
-        class="flex items-center justify-between gap-2 min-h-[44px] md:min-h-0"
+  <!-- Content Container -->
+  <div class="p-5 flex flex-col justify-between flex-1 gap-4">
+    <div class="flex flex-col gap-2.5">
+      <!-- Judul -->
+      <h3
+        class="text-lg font-bold tracking-tight text-[hsl(var(--foreground))] group-hover:text-primary transition-colors line-clamp-2 leading-snug"
       >
-        <h3
-          class="text-base font-bold tracking-tight text-[hsl(var(--foreground))] group-hover:text-[hsl(var(--primary))] transition-colors line-clamp-1"
-        >
-          {title}
-        </h3>
-        {
-          featured && (
-            <span class="shrink-0 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              Featured
-            </span>
-          )
-        }
-      </div>
+        {title}
+      </h3>
 
+      <!-- Deskripsi -->
       <p
-        class="text-xs text-[hsl(var(--foreground)/0.7)] line-clamp-2 leading-relaxed"
+        class="text-sm text-[hsl(var(--foreground)/0.7)] line-clamp-2 leading-relaxed"
       >
         {description}
       </p>
 
+      <!-- Tags Area -->
       <div class="mt-1 flex flex-wrap gap-1.5">
         {
           tags
             .slice(0, 3)
             .map((tag) => (
-              <span class="rounded-md bg-muted/60 px-2 py-0.5 text-[10px] font-medium text-[hsl(var(--foreground)/0.8)] border border-[hsl(var(--border))]">
+              <span class="rounded-md bg-muted/60 px-2 py-0.5 text-[10px] font-medium text-[hsl(var(--foreground)/0.8)] border border-border/60">
                 {tag}
               </span>
             ))
@@ -80,8 +81,9 @@ const { title, description, image, tags, slug, featured } = Astro.props;
       </div>
     </div>
 
+    <!-- Footer Card (Border disesuaikan agar solid & senada) -->
     <div
-      class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase text-[hsl(var(--primary))] opacity-80 group-hover:opacity-100 pt-2 mt-auto border-t border-dashed dark:border-foreground/20 md:border-solid md:border-[hsl(var(--border))/10]"
+      class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase text-primary opacity-80 group-hover:opacity-100 pt-2 mt-auto border-t border-solid border-border/40"
     >
       View Project
       <svg
