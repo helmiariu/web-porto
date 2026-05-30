@@ -1,10 +1,7 @@
 ---
 // ProfileCard.astro
-import SocialLinks from "@components/ui/SocialLinks.astro";
-import { Icon } from "astro-icon/components";
-// 1. Import komponen Image dan file gambar dari assets
-import { Image } from "astro:assets";
-import avatarImage from "@assets/avatar.jpg"; // Sesuaikan path ini dengan struktur folder Anda
+import VerifiedBadge from "@components/ui/VerifiedBadge.astro";
+import AvatarDropdown from "@components/ui/AvatarDropdown.astro";
 
 interface Props {
   variant?: "sidebar" | "mobile";
@@ -16,83 +13,31 @@ const isMobile = variant === "mobile";
 
 {
   isMobile ? (
-    <div class="md:hidden w-full mb-0 pr-3 sm:pr-10 pl-0 pb-4 pt-4 border-[hsl(var(--border))] animate-fade-in flex flex-row items-center justify-between text-left">
-      {/* SEBELAH KIRI: Nama & Status */}
-      <div class="flex flex-col gap-1">
+    /* Tampilan khusus Handphone (di atas halaman home) */
+    <div class="md:hidden w-full mb-0 pr-3 sm:pr-10 pl-0 pb-4 pt-2 border-[hsl(var(--border))] animate-fade-in flex flex-col items-start gap-4 text-left">
+      <AvatarDropdown sizeClass="w-22 h-22" />
+
+      <div class="flex items-center gap-1.5">
         <h2 class="text-[clamp(1.3rem,6vw,1.5rem)] font-bold tracking-tight text-foreground">
           Helmi Arimbawa
         </h2>
-        <div class="flex items-center gap-2">
-          <span class="relative flex h-2 w-2">
-            <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
-          </span>
-          <span class="text-xs font-medium text-[hsl(var(--foreground)/0.65)]">
-            Online
-          </span>
-        </div>
-      </div>
-
-      {/* SEBELAH KANAN: Avatar */}
-      <div class="relative w-17 h-17 flex-shrink-0">
-        <div class="w-full h-full rounded-full overflow-hidden border border-[hsl(var(--border))]">
-          {/* 2. Menggunakan Astro Image untuk Mobile */}
-          <Image
-            src={avatarImage}
-            alt="Helmi Arimbawa"
-            width={150}
-            height={150}
-            format="webp"
-            loading="eager"
-            class="w-full h-full object-cover"
-          />
-        </div>
-
-        {/* Badge Centang */}
-        <div class="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-white p-[1px] dark:bg-[hsl(var(--background))]">
-          <svg
-            stroke="currentColor"
-            fill="currentColor"
-            stroke-width="0"
-            viewBox="0 0 24 24"
-            class="text-blue-400 w-full h-full"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path fill="none" d="M0 0h24v24H0z" />
-            <path d="m23 12-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82L8.6 22.5l3.4-1.47 3.4 1.46 1.89-3.19 3.61-.82-.34-3.69L23 12zm-12.91 4.72-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48-7.33 7.35z" />
-          </svg>
-        </div>
+        <VerifiedBadge />
       </div>
     </div>
   ) : (
-    <div class="mb-5 pl-2 flex flex-col">
-      <div class="relative">
-        <div class="w-24 h-24 rounded-full overflow-hidden mb-4 border border-[hsl(var(--border))]">
-          {/* 3. Menggunakan Astro Image untuk Sidebar */}
-          <Image
-            src={avatarImage}
-            alt="Helmi Arimbawa"
-            width={150}
-            height={150}
-            format="webp"
-            loading="eager"
-            class="w-full h-full object-cover"
-          />
-        </div>
-      </div>
+    /* Tampilan khusus Desktop (di Sidebar) */
+<div class="mb-5 pl-2 flex flex-col">
+  <div class="relative mb-1">
+    <AvatarDropdown sizeClass="w-24 h-24" />
+  </div>
 
-      <div class="space-y-1">
-        <h1 class="text-xl font-bold tracking-tight text-[hsl(var(--foreground))]">
-          Helmi Arimbawa
-        </h1>
-        <div class="flex items-center pt-0">
-          <a
-            href="mailto:[EMAIL_ADDRESS]"
-            class="text-xs font-medium text-[hsl(var(--foreground)/0.65)] hover:text-[hsl(var(--foreground))] transition-colors truncate"
-          >
-            [EMAIL_ADDRESS]
-          </a>
-        </div>
-      </div>
-    </div>
+  <div class="space-y-1">
+    <!-- Perubahan ada pada class text-lg lg:text-xl dan tambahan whitespace-nowrap -->
+    <h1 class="text-lg lg:text-xl font-bold tracking-tight text-[hsl(var(--foreground))] flex items-center gap-1.5 whitespace-nowrap">
+      Helmi Arimbawa
+      <VerifiedBadge />
+    </h1>
+  </div>
+</div>
   )
 }
