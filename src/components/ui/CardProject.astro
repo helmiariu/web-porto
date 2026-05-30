@@ -45,14 +45,14 @@ const { title, description, image, tags, slug, featured } = Astro.props;
   <div class="p-5 flex flex-col flex-1 gap-4 overflow-hidden">
     <div class="flex flex-col gap-2.5 flex-1 overflow-hidden" data-card-body>
       <h3
-        class="text-lg font-bold tracking-tight text-[hsl(var(--foreground))] group-hover:text-primary transition-colors line-clamp-2 leading-snug"
+        class="font-bold tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-2 text-base md:text-lg leading-snug"
       >
         {title}
       </h3>
 
       <p
         data-card-desc
-        class="text-sm text-[hsl(var(--foreground)/0.7)] leading-relaxed line-clamp-4"
+        class="text-xs sm:text-sm text-[hsl(var(--foreground)/0.7)] leading-relaxed line-clamp-4"
       >
         {description}
       </p>
@@ -82,7 +82,7 @@ const { title, description, image, tags, slug, featured } = Astro.props;
       </div>
 
       <div
-        class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase text-primary opacity-80 group-hover:opacity-100 pt-2 border-t border-solid border-border/40"
+        class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase text-primary lg:opacity-80 lg:group-hover:opacity-100 pt-2 border-t border-solid border-border/40"
       >
         View Project
         <svg
@@ -129,96 +129,94 @@ const { title, description, image, tags, slug, featured } = Astro.props;
       const moreBadge = container.querySelector("[data-more]") as HTMLElement;
       const moreCount = container.querySelector("[data-more-count]");
 
-      // ==========================================
-      // 1. KONTROL DESCRIPTION (Binary Search - Tetap Dipertahankan)
-      // ==========================================
-      if (cardBody && descEl) {
-        const titleEl = cardBody.querySelector("h3") as HTMLElement;
+      // OPTIMASI: Bungkus dalam requestAnimationFrame agar dieksekusi di frame berikutnya yang lega
+      requestAnimationFrame(() => {
+        // ==========================================
+        // 1. KONTROL DESCRIPTION (Binary Search)
+        // ==========================================
+        if (cardBody && descEl) {
+          const titleEl = cardBody.querySelector("h3") as HTMLElement;
 
-        if (titleEl) {
-          const titleComputed = window.getComputedStyle(titleEl);
-          const titleLineHeight = parseFloat(titleComputed.lineHeight) || 24;
-          const titleLines = Math.round(titleEl.clientHeight / titleLineHeight);
-          descEl.style.webkitLineClamp = titleLines >= 2 ? "3" : "4";
+          if (titleEl) {
+            const titleComputed = window.getComputedStyle(titleEl);
+            const titleLineHeight = parseFloat(titleComputed.lineHeight) || 24;
+            const titleLines = Math.round(
+              titleEl.clientHeight / titleLineHeight,
+            );
+            descEl.style.webkitLineClamp = titleLines >= 2 ? "2" : "3";
+          }
+
+          if (
+            cardBody.scrollHeight - cardBody.clientHeight > 1 ||
+            descEl.scrollHeight - descEl.clientHeight > 1
+          ) {
+            let words = descEl.textContent.trim().split(/\s+/);
+            let left = 0;
+            let right = words.length;
+            let bestFit = 0;
+
+            while (left <= right) {
+              let mid = Math.floor((left + right) / 2);
+              descEl.textContent = words.slice(0, mid).join(" ") + "...";
+
+              if (
+                cardBody.scrollHeight - cardBody.clientHeight <= 1 &&
+                descEl.scrollHeight - descEl.clientHeight <= 1
+              ) {
+                bestFit = mid;
+                left = mid + 1;
+              } else {
+                right = mid - 1;
+              }
+            }
+            descEl.textContent = words.slice(0, bestFit).join(" ") + "...";
+          }
         }
 
-        if (
-          cardBody.scrollHeight - cardBody.clientHeight > 1 ||
-          descEl.scrollHeight - descEl.clientHeight > 1
-        ) {
-          let words = descEl.textContent.trim().split(/\s+/);
-          let left = 0;
-          let right = words.length;
-          let bestFit = 0;
+        // ==========================================
+        // 2. KONTROL TAGS (Hybrid Batching)
+        // ==========================================
+        if (tags.length) {
+          const maxContentHeight = 46;
+          const tagElements = Array.from(tags) as HTMLElement[];
 
-          while (left <= right) {
-            let mid = Math.floor((left + right) / 2);
-            descEl.textContent = words.slice(0, mid).join(" ") + "...";
+          tagElements.forEach((t) => (t.style.display = "inline-block"));
+          if (moreBadge) moreBadge.style.display = "none";
 
+          let firstOverflowIndex = -1;
+          for (let i = 0; i < tagElements.length; i++) {
             if (
-              cardBody.scrollHeight - cardBody.clientHeight <= 1 &&
-              descEl.scrollHeight - descEl.clientHeight <= 1
+              tagElements[i].offsetTop + tagElements[i].offsetHeight >
+              maxContentHeight
             ) {
-              bestFit = mid;
-              left = mid + 1;
-            } else {
-              right = mid - 1;
+              firstOverflowIndex = i;
+              break;
             }
           }
-          descEl.textContent = words.slice(0, bestFit).join(" ") + "...";
-        }
-      }
 
-      // ==========================================
-      // 2. KONTROL TAGS (Hybrid Teroptimasi & Akurat)
-      // ==========================================
-      if (tags.length) {
-        const maxContentHeight = 46;
-        const tagElements = Array.from(tags) as HTMLElement[];
+          if (firstOverflowIndex !== -1 && moreBadge && moreCount) {
+            for (let i = firstOverflowIndex; i < tagElements.length; i++) {
+              tagElements[i].style.display = "none";
+            }
 
-        // A. FASE RESET (Wajib agar nilai offset tidak bernilai 0)
-        tagElements.forEach((t) => (t.style.display = "inline-block"));
-        if (moreBadge) moreBadge.style.display = "none";
+            moreBadge.style.display = "inline-block";
 
-        // B. FASE BACA MASSAL (Mencari tag pertama yang keluar jalur)
-        let firstOverflowIndex = -1;
-        for (let i = 0; i < tagElements.length; i++) {
-          if (
-            tagElements[i].offsetTop + tagElements[i].offsetHeight >
-            maxContentHeight
-          ) {
-            firstOverflowIndex = i;
-            break;
+            let lastVisibleIndex = firstOverflowIndex - 1;
+            while (
+              lastVisibleIndex >= 0 &&
+              moreBadge.offsetTop + moreBadge.offsetHeight > maxContentHeight
+            ) {
+              tagElements[lastVisibleIndex].style.display = "none";
+              lastVisibleIndex--;
+            }
+
+            const totalHidden = tagElements.length - (lastVisibleIndex + 1);
+            moreCount.textContent = totalHidden.toString();
           }
         }
+      });
 
-        // C. FASE EKSEKUSI & KALIBRASI BADGE
-        if (firstOverflowIndex !== -1 && moreBadge && moreCount) {
-          // Sembunyikan semua tag dari indeks yang meluber ke belakang
-          for (let i = firstOverflowIndex; i < tagElements.length; i++) {
-            tagElements[i].style.display = "none";
-          }
-
-          // Tampilkan badge pendukung
-          moreBadge.style.display = "inline-block";
-
-          // Kalibrasi Mundur: Jika ukuran badge "+more" mendorong tag sebelumnya ke baris baru,
-          // kita sembunyikan tag sebelumnya satu per satu hingga posisi badge aman.
-          let lastVisibleIndex = firstOverflowIndex - 1;
-          while (
-            lastVisibleIndex >= 0 &&
-            moreBadge.offsetTop + moreBadge.offsetHeight > maxContentHeight
-          ) {
-            tagElements[lastVisibleIndex].style.display = "none";
-            lastVisibleIndex--;
-          }
-
-          // Hitung total akhir tag yang benar-benar tersembunyi
-          const totalHidden = tagElements.length - (lastVisibleIndex + 1);
-          moreCount.textContent = totalHidden.toString();
-        }
-      }
-
+      // Tetap unobserve setelah dijadwalkan agar tidak berjalan berulang kali
       self.unobserve(container);
     });
   }, obOptions);

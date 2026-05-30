@@ -1,5 +1,5 @@
 ---
-title: "Efficient Multi-Stage Build for Go ARM64"
+title: "clone Efficient Multi-Stage Build for Go ARM64"
 description: "Optimasi containerization aplikasi backend Go SSE menggunakan Docker Multi-stage Build untuk memangkas ukuran image hingga 95% agar super ringan saat berjalan di STB HG680P."
 pubDate: 2026-05-29
 tags: ["Docker", "DevOps", "Golang", "ARM64 Architecture"]
