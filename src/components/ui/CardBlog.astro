@@ -6,7 +6,7 @@ export interface Props {
   pubDate: Date;
   slug: string;
   image?: string;
-  layout?: "list" | "grid" | "vertical";
+  featured?: boolean; // Cukup gunakan true/false untuk membedakan kartu utama
 }
 
 const {
@@ -15,29 +15,26 @@ const {
   pubDate,
   slug,
   image,
-  layout = "list",
+  featured = false, // Default-nya adalah kartu biasa (bukan utama)
 } = Astro.props;
 
 const fallbackImage =
   "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1471&q=80";
-
-const isGrid = layout === "grid";
 ---
 
 <a
   href={`/blog/${slug}`}
   class:list={[
     "bg-muted/30 group flex w-full h-full rounded-xl border border-solid border-border/60 bg-background text-foreground shadow-xs overflow-hidden hover:border-primary/40 hover:bg-muted/20 transition-all duration-300",
-    // Menggunakan lg sebagai jangkar transisi layout menyamping
-    isGrid ? "flex-col" : "flex-col lg:flex-row items-stretch",
+    // Jika kartu utama (featured) = vertikal murni. Jika kartu biasa = vertikal di mobile, horizontal di laptop (lg)
+    featured ? "flex-col" : "flex-col lg:flex-row items-stretch",
   ]}
 >
   <div
     class:list={[
       "relative m-0 shrink-0 overflow-hidden bg-muted aspect-[16/10]",
-      // UI/UX FIX: Menggunakan lebar tetap (w-48 sampai w-56) di mode list laptop
-      // agar tidak terpengaruh penyusutan persentase layar
-      isGrid ? "w-full" : "w-full lg:w-44 xl:w-56",
+      // Ukuran gambar otomatis proporsional tanpa ternary teks yang panjang
+      featured ? "w-full" : "w-full lg:w-48 xl:w-56",
     ]}
   >
     <img
@@ -47,29 +44,16 @@ const isGrid = layout === "grid";
     />
   </div>
 
-  <div
-    class:list={[
-      "flex flex-col justify-between flex-1 p-4 sm:p-5",
-      isGrid ? "pt-4 gap-4" : "gap-3 lg:p-4 xl:p-5",
-    ]}
-  >
-    <div class="flex flex-col justify-center flex-1 gap-1.5 xl:gap-2">
+  <div class="flex flex-col justify-between flex-1 p-4 sm:p-5 gap-3">
+    <div class="flex flex-col justify-center flex-1 gap-2">
       <h3
-        class:list={[
-          "font-bold tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-2",
-          isGrid
-            ? "text-lg md:text-xl lg:text-lg xl:text-xl leading-snug"
-            : "text-base lg:text-sm xl:text-lg leading-snug",
-        ]}
+        class="font-bold tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-2 text-base md:text-lg leading-snug"
       >
         {title}
       </h3>
 
       <p
-        class:list={[
-          "text-muted-foreground leading-relaxed text-xs xl:text-sm",
-          isGrid ? "line-clamp-2 lg:line-clamp-3" : "line-clamp-2",
-        ]}
+        class="text-muted-foreground leading-relaxed text-xs sm:text-sm line-clamp-2"
       >
         {description}
       </p>

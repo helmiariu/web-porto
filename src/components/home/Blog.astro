@@ -34,7 +34,7 @@ const remainingPosts = latestPosts.slice(1);
                         description={featuredPost.data.description}
                         pubDate={featuredPost.data.pubDate}
                         slug={featuredPost.id}
-                        layout="grid"
+                        featured={true}
                     />
                 </div>
             )
@@ -44,25 +44,12 @@ const remainingPosts = latestPosts.slice(1);
             {
                 remainingPosts.map((post) => (
                     <div class="w-full flex flex-col h-full">
-                        <div class="block lg:hidden w-full">
-                            <CardBlog
-                                title={post.data.title}
-                                description={post.data.description}
-                                pubDate={post.data.pubDate}
-                                slug={post.id}
-                                layout="vertical"
-                            />
-                        </div>
-
-                        <div class="hidden lg:flex flex-1 w-full h-full">
-                            <CardBlog
-                                title={post.data.title}
-                                description={post.data.description}
-                                pubDate={post.data.pubDate}
-                                slug={post.id}
-                                layout="list"
-                            />
-                        </div>
+                        <CardBlog
+                            title={post.data.title}
+                            description={post.data.description}
+                            pubDate={post.data.pubDate}
+                            slug={post.id}
+                        />
                     </div>
                 ))
             }
@@ -74,7 +61,7 @@ const remainingPosts = latestPosts.slice(1);
             href="/blog"
             class="inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-all border border-border bg-background text-foreground hover:bg-muted/80 h-11 px-6 shadow-sm hover:shadow-md active:scale-[0.98]"
         >
-            <span>View All Articles</span>
+            <span>Open Blog Page</span>
             <ArrowRight
                 class="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1"
             />
