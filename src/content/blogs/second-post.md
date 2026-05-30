@@ -1,5 +1,5 @@
 ---
-title: "Dummy 1"
+title: "Dummy 1 "
 description: "docker adalah sdfsdfsdfsdfsdf"
 pubDate: 2026-05-23
 tags: ["Astro", "WebDev", "Performance"]

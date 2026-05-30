@@ -1,11 +1,12 @@
 ---
+// CardBlog.astro
 export interface Props {
   title: string;
   description: string;
   pubDate: Date;
   slug: string;
   image?: string;
-  layout?: "list" | "grid"; // Prop baru untuk mengontrol bentuk card
+  layout?: "list" | "grid" | "vertical";
 }
 
 const {
@@ -16,88 +17,98 @@ const {
   image,
   layout = "list",
 } = Astro.props;
+
 const fallbackImage =
   "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1471&q=80";
 
-// Kondisi CSS berdasarkan jenis layout
 const isGrid = layout === "grid";
 ---
 
 <a
   href={`/blog/${slug}`}
   class:list={[
-    "bg-muted/30 group flex flex-col w-full rounded-xl border border-dashed dark:border-foreground/20 md:border-solid bg-background text-foreground shadow-xs overflow-hidden hover:border-[hsl(var(--border))] hover:bg-[hsl(var(--secondary))] transition-all duration-200",
-    // PERBAIKAN: Hapus max-w-[48rem] atau setel max-w-full agar dia bisa melebar penuh mengikuti parent
-    isGrid ? "lg:flex-col" : "sm:flex-row w-full max-w-full",
+    "bg-muted/30 group flex w-full h-full rounded-xl border border-solid border-border/60 bg-background text-foreground shadow-xs overflow-hidden hover:border-primary/40 hover:bg-muted/20 transition-all duration-300",
+    // Menggunakan lg sebagai jangkar transisi layout menyamping
+    isGrid ? "flex-col" : "flex-col lg:flex-row items-stretch",
   ]}
 >
   <div
     class:list={[
-      "relative m-0 w-full shrink-0 overflow-hidden bg-muted",
-      isGrid
-        ? "sm:w-[40%] lg:w-full aspect-video lg:rounded-b-none"
-        : "sm:w-2/5 sm:rounded-r-none aspect-video sm:aspect-auto",
+      "relative m-0 shrink-0 overflow-hidden bg-muted aspect-[16/10]",
+      // UI/UX FIX: Menggunakan lebar tetap (w-48 sampai w-56) di mode list laptop
+      // agar tidak terpengaruh penyusutan persentase layar
+      isGrid ? "w-full" : "w-full lg:w-44 xl:w-56",
     ]}
   >
     <img
       src={image || fallbackImage}
       alt={title}
-      class:list={[
-        "h-full w-full object-cover group-hover:scale-105 transition-transform duration-300",
-        isGrid
-          ? "min-h-[160px] lg:min-h-[160px]"
-          : "min-h-[160px] sm:min-h-full",
-      ]}
+      class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
     />
   </div>
 
-  <div class="p-5 flex flex-col justify-between flex-1 gap-1.5">
-    <div class="flex flex-col gap-1.5">
-      <div
-        class="flex items-center gap-2 text-xs text-[hsl(var(--foreground)/0.6)]"
-      >
-        <time datetime={pubDate.toISOString()}>
-          {
-            pubDate.toLocaleDateString("id-ID", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })
-          }
-        </time>
-      </div>
-
+  <div
+    class:list={[
+      "flex flex-col justify-between flex-1 p-4 sm:p-5",
+      isGrid ? "pt-4 gap-4" : "gap-3 lg:p-4 xl:p-5",
+    ]}
+  >
+    <div class="flex flex-col justify-center flex-1 gap-1.5 xl:gap-2">
       <h3
         class:list={[
-          "font-bold tracking-tight text-[hsl(var(--foreground))] group-hover:text-[hsl(var(--primary))] transition-colors line-clamp-2",
-          isGrid ? "text-base" : "text-base sm:text-lg",
+          "font-bold tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-2",
+          isGrid
+            ? "text-lg md:text-xl lg:text-lg xl:text-xl leading-snug"
+            : "text-base lg:text-sm xl:text-lg leading-snug",
         ]}
       >
         {title}
       </h3>
 
-      <p class="text-xs text-[hsl(var(--foreground)/0.7)] line-clamp-2">
+      <p
+        class:list={[
+          "text-muted-foreground leading-relaxed text-xs xl:text-sm",
+          isGrid ? "line-clamp-2 lg:line-clamp-3" : "line-clamp-2",
+        ]}
+      >
         {description}
       </p>
     </div>
 
     <div
-      class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase text-[hsl(var(--primary))] opacity-80 group-hover:opacity-100 pt-3 mt-auto"
+      class="flex items-center justify-between pt-3 border-t border-border/40 w-full mt-auto"
     >
-      Read More
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="2.5"
-        stroke="currentColor"
-        class="h-3 w-3 transform group-hover:translate-x-1 transition-transform"
+      <div
+        class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase text-primary tracking-wider"
       >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"></path>
-      </svg>
+        Read More
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2.5"
+          stroke="currentColor"
+          class="h-3 w-3 transform group-hover:translate-x-1 transition-transform duration-200"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"></path>
+        </svg>
+      </div>
+
+      <time
+        datetime={pubDate.toISOString()}
+        class="text-[11px] text-muted-foreground/80 font-medium"
+      >
+        {
+          pubDate.toLocaleDateString("id-ID", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })
+        }
+      </time>
     </div>
   </div>
 </a>
