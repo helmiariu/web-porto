@@ -15,7 +15,6 @@ const { title, description, image, tags, slug, featured } = Astro.props;
   href={`/project/${slug}`}
   class="bg-muted/30 group flex flex-col w-full h-full rounded-xl border border-solid border-border/60 bg-background text-foreground shadow-xs overflow-hidden hover:border-primary/40 hover:bg-muted/20 transition-all duration-300"
 >
-  <!-- Image Container dengan Badge Absolute -->
   <div
     class="relative m-0 w-full shrink-0 overflow-hidden bg-muted aspect-video rounded-t-xl"
   >
@@ -43,62 +42,192 @@ const { title, description, image, tags, slug, featured } = Astro.props;
     }
   </div>
 
-  <!-- Content Container -->
-  <div class="p-5 flex flex-col justify-between flex-1 gap-4">
-    <div class="flex flex-col gap-2.5">
-      <!-- Judul -->
+  <div class="p-5 flex flex-col flex-1 gap-4 overflow-hidden">
+    <div class="flex flex-col gap-2.5 flex-1 overflow-hidden" data-card-body>
       <h3
         class="text-lg font-bold tracking-tight text-[hsl(var(--foreground))] group-hover:text-primary transition-colors line-clamp-2 leading-snug"
       >
         {title}
       </h3>
 
-      <!-- Deskripsi -->
       <p
-        class="text-sm text-[hsl(var(--foreground)/0.7)] line-clamp-2 leading-relaxed"
+        data-card-desc
+        class="text-sm text-[hsl(var(--foreground)/0.7)] leading-relaxed line-clamp-4"
       >
         {description}
       </p>
-
-      <!-- Tags Area -->
-      <div class="mt-1 flex flex-wrap gap-1.5">
-        {
-          tags
-            .slice(0, 3)
-            .map((tag) => (
-              <span class="rounded-md bg-muted/60 px-2 py-0.5 text-[10px] font-medium text-[hsl(var(--foreground)/0.8)] border border-border/60">
-                {tag}
-              </span>
-            ))
-        }
-        {
-          tags.length > 3 && (
-            <span class="text-[10px] text-[hsl(var(--foreground)/0.5)] self-center ml-0.5">
-              +{tags.length - 3} more
-            </span>
-          )
-        }
-      </div>
     </div>
 
-    <!-- Footer Card (Border disesuaikan agar solid & senada) -->
-    <div
-      class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase text-primary opacity-80 group-hover:opacity-100 pt-2 mt-auto border-t border-solid border-border/40"
-    >
-      View Project
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="2.5"
-        stroke="currentColor"
-        class="h-3 w-3 transform group-hover:translate-x-1 transition-transform"
+    <div class="flex flex-col gap-3 mt-auto">
+      <div
+        class="flex flex-wrap gap-1.5 max-h-[46px] overflow-hidden relative"
+        data-card-tags
       >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"></path>
-      </svg>
+        {
+          tags.map((tag) => (
+            <span
+              data-tag
+              class="rounded-md bg-muted/60 px-2 py-0.5 text-[10px] font-medium text-[hsl(var(--foreground)/0.8)] border border-border/60 whitespace-nowrap"
+            >
+              {tag}
+            </span>
+          ))
+        }
+        <span
+          data-more
+          class="hidden rounded-md bg-muted/60 px-2 py-0.5 text-[10px] font-medium text-[hsl(var(--foreground)/0.8)] border border-border/60 whitespace-nowrap shadow-xs"
+        >
+          +<span data-more-count>0</span> more
+        </span>
+      </div>
+
+      <div
+        class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase text-primary opacity-80 group-hover:opacity-100 pt-2 border-t border-solid border-border/40"
+      >
+        View Project
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2.5"
+          stroke="currentColor"
+          class="h-3 w-3 transform group-hover:translate-x-1 transition-transform"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"></path>
+        </svg>
+      </div>
     </div>
   </div>
 </a>
+
+<script>
+  const obOptions = {
+    root: null,
+    rootMargin: "60px",
+    threshold: 0,
+  };
+
+  const observer = new IntersectionObserver((entries, self) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+
+      const container = entry.target as HTMLElement;
+      const cardContent = container.closest(".p-5") as HTMLElement;
+
+      if (!cardContent) return;
+
+      const cardBody = cardContent.querySelector(
+        "[data-card-body]",
+      ) as HTMLElement;
+      const descEl = cardContent.querySelector(
+        "[data-card-desc]",
+      ) as HTMLElement;
+      const tags = container.querySelectorAll("[data-tag]");
+      const moreBadge = container.querySelector("[data-more]") as HTMLElement;
+      const moreCount = container.querySelector("[data-more-count]");
+
+      // ==========================================
+      // 1. KONTROL DESCRIPTION (Binary Search - Tetap Dipertahankan)
+      // ==========================================
+      if (cardBody && descEl) {
+        const titleEl = cardBody.querySelector("h3") as HTMLElement;
+
+        if (titleEl) {
+          const titleComputed = window.getComputedStyle(titleEl);
+          const titleLineHeight = parseFloat(titleComputed.lineHeight) || 24;
+          const titleLines = Math.round(titleEl.clientHeight / titleLineHeight);
+          descEl.style.webkitLineClamp = titleLines >= 2 ? "3" : "4";
+        }
+
+        if (
+          cardBody.scrollHeight - cardBody.clientHeight > 1 ||
+          descEl.scrollHeight - descEl.clientHeight > 1
+        ) {
+          let words = descEl.textContent.trim().split(/\s+/);
+          let left = 0;
+          let right = words.length;
+          let bestFit = 0;
+
+          while (left <= right) {
+            let mid = Math.floor((left + right) / 2);
+            descEl.textContent = words.slice(0, mid).join(" ") + "...";
+
+            if (
+              cardBody.scrollHeight - cardBody.clientHeight <= 1 &&
+              descEl.scrollHeight - descEl.clientHeight <= 1
+            ) {
+              bestFit = mid;
+              left = mid + 1;
+            } else {
+              right = mid - 1;
+            }
+          }
+          descEl.textContent = words.slice(0, bestFit).join(" ") + "...";
+        }
+      }
+
+      // ==========================================
+      // 2. KONTROL TAGS (Hybrid Teroptimasi & Akurat)
+      // ==========================================
+      if (tags.length) {
+        const maxContentHeight = 46;
+        const tagElements = Array.from(tags) as HTMLElement[];
+
+        // A. FASE RESET (Wajib agar nilai offset tidak bernilai 0)
+        tagElements.forEach((t) => (t.style.display = "inline-block"));
+        if (moreBadge) moreBadge.style.display = "none";
+
+        // B. FASE BACA MASSAL (Mencari tag pertama yang keluar jalur)
+        let firstOverflowIndex = -1;
+        for (let i = 0; i < tagElements.length; i++) {
+          if (
+            tagElements[i].offsetTop + tagElements[i].offsetHeight >
+            maxContentHeight
+          ) {
+            firstOverflowIndex = i;
+            break;
+          }
+        }
+
+        // C. FASE EKSEKUSI & KALIBRASI BADGE
+        if (firstOverflowIndex !== -1 && moreBadge && moreCount) {
+          // Sembunyikan semua tag dari indeks yang meluber ke belakang
+          for (let i = firstOverflowIndex; i < tagElements.length; i++) {
+            tagElements[i].style.display = "none";
+          }
+
+          // Tampilkan badge pendukung
+          moreBadge.style.display = "inline-block";
+
+          // Kalibrasi Mundur: Jika ukuran badge "+more" mendorong tag sebelumnya ke baris baru,
+          // kita sembunyikan tag sebelumnya satu per satu hingga posisi badge aman.
+          let lastVisibleIndex = firstOverflowIndex - 1;
+          while (
+            lastVisibleIndex >= 0 &&
+            moreBadge.offsetTop + moreBadge.offsetHeight > maxContentHeight
+          ) {
+            tagElements[lastVisibleIndex].style.display = "none";
+            lastVisibleIndex--;
+          }
+
+          // Hitung total akhir tag yang benar-benar tersembunyi
+          const totalHidden = tagElements.length - (lastVisibleIndex + 1);
+          moreCount.textContent = totalHidden.toString();
+        }
+      }
+
+      self.unobserve(container);
+    });
+  }, obOptions);
+
+  function initTagsObserver() {
+    const containers = document.querySelectorAll("[data-card-tags]");
+    containers.forEach((c) => observer.observe(c));
+  }
+
+  initTagsObserver();
+  document.addEventListener("astro:page-load", initTagsObserver);
+</script>
