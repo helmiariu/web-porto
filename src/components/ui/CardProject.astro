@@ -82,7 +82,7 @@ const { title, description, image, tags, slug, featured } = Astro.props;
       </div>
 
       <div
-        class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase text-primary lg:opacity-80 lg:group-hover:opacity-100 pt-2 border-t border-solid border-border/40"
+        class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase text-primary lg:opacity-80 lg:group-hover:opacity-100 pl-1 pt-2 border-t border-solid border-border/40"
       >
         View Project
         <svg
@@ -104,79 +104,65 @@ const { title, description, image, tags, slug, featured } = Astro.props;
 </a>
 
 <script>
-  const obOptions = {
-    root: null,
-    rootMargin: "60px",
-    threshold: 0,
-  };
+  function tuneAllCards() {
+    // Ambil semua card yang ada di halaman sekaligus
+    const cards = document.querySelectorAll("[data-card-body]");
 
-  const observer = new IntersectionObserver((entries, self) => {
-    entries.forEach((entry) => {
-      if (!entry.isIntersecting) return;
+    if (cards.length === 0) return;
 
-      const container = entry.target as HTMLElement;
-      const cardContent = container.closest(".p-5") as HTMLElement;
+    // Jalankan di dalam requestAnimationFrame agar sinkron dengan render browser
+    requestAnimationFrame(() => {
+      cards.forEach((cardBody) => {
+        const descEl = cardBody.querySelector(
+          "[data-card-desc]",
+        ) as HTMLElement;
+        const titleEl = cardBody.querySelector("h3") as HTMLElement;
+        const container = cardBody.closest(".p-5") as HTMLElement;
 
-      if (!cardContent) return;
+        if (!descEl || !titleEl || !container) return;
 
-      const cardBody = cardContent.querySelector(
-        "[data-card-body]",
-      ) as HTMLElement;
-      const descEl = cardContent.querySelector(
-        "[data-card-desc]",
-      ) as HTMLElement;
-      const tags = container.querySelectorAll("[data-tag]");
-      const moreBadge = container.querySelector("[data-more]") as HTMLElement;
-      const moreCount = container.querySelector("[data-more-count]");
+        // 1. SETTING ATURAN BARIS SECARA INSTAN
+        const titleComputed = window.getComputedStyle(titleEl);
+        const titleLineHeight = parseFloat(titleComputed.lineHeight) || 24;
+        const titleLines = Math.round(titleEl.clientHeight / titleLineHeight);
 
-      // OPTIMASI: Bungkus dalam requestAnimationFrame agar dieksekusi di frame berikutnya yang lega
-      requestAnimationFrame(() => {
-        // ==========================================
-        // 1. KONTROL DESCRIPTION (Binary Search)
-        // ==========================================
-        if (cardBody && descEl) {
-          const titleEl = cardBody.querySelector("h3") as HTMLElement;
+        // Langsung kunci aturan mainnya di awal
+        descEl.style.webkitLineClamp = titleLines >= 2 ? "2" : "3";
 
-          if (titleEl) {
-            const titleComputed = window.getComputedStyle(titleEl);
-            const titleLineHeight = parseFloat(titleComputed.lineHeight) || 24;
-            const titleLines = Math.round(
-              titleEl.clientHeight / titleLineHeight,
-            );
-            descEl.style.webkitLineClamp = titleLines >= 2 ? "2" : "3";
-          }
+        // 2. BINARY SEARCH UNTUK POTONG TEKS
+        if (
+          cardBody.scrollHeight - cardBody.clientHeight > 1 ||
+          descEl.scrollHeight - descEl.clientHeight > 1
+        ) {
+          let words = descEl.textContent.trim().split(/\s+/);
+          let left = 0;
+          let right = words.length;
+          let bestFit = 0;
 
-          if (
-            cardBody.scrollHeight - cardBody.clientHeight > 1 ||
-            descEl.scrollHeight - descEl.clientHeight > 1
-          ) {
-            let words = descEl.textContent.trim().split(/\s+/);
-            let left = 0;
-            let right = words.length;
-            let bestFit = 0;
+          while (left <= right) {
+            let mid = Math.floor((left + right) / 2);
+            descEl.textContent = words.slice(0, mid).join(" ") + "...";
 
-            while (left <= right) {
-              let mid = Math.floor((left + right) / 2);
-              descEl.textContent = words.slice(0, mid).join(" ") + "...";
-
-              if (
-                cardBody.scrollHeight - cardBody.clientHeight <= 1 &&
-                descEl.scrollHeight - descEl.clientHeight <= 1
-              ) {
-                bestFit = mid;
-                left = mid + 1;
-              } else {
-                right = mid - 1;
-              }
+            if (
+              cardBody.scrollHeight - cardBody.clientHeight <= 1 &&
+              descEl.scrollHeight - descEl.clientHeight <= 1
+            ) {
+              bestFit = mid;
+              left = mid + 1;
+            } else {
+              right = mid - 1;
             }
-            descEl.textContent = words.slice(0, bestFit).join(" ") + "...";
           }
+          descEl.textContent = words.slice(0, bestFit).join(" ") + "...";
         }
 
-        // ==========================================
-        // 2. KONTROL TAGS (Hybrid Batching)
-        // ==========================================
-        if (tags.length) {
+        // 3. TUNING BAGIAN TAGS
+        const tagsContainer = container.querySelector("[data-card-tags]");
+        const tags = container.querySelectorAll("[data-tag]");
+        const moreBadge = container.querySelector("[data-more]") as HTMLElement;
+        const moreCount = container.querySelector("[data-more-count]");
+
+        if (tagsContainer && tags.length) {
           const maxContentHeight = 46;
           const tagElements = Array.from(tags) as HTMLElement[];
 
@@ -215,17 +201,15 @@ const { title, description, image, tags, slug, featured } = Astro.props;
           }
         }
       });
-
-      // Tetap unobserve setelah dijadwalkan agar tidak berjalan berulang kali
-      self.unobserve(container);
     });
-  }, obOptions);
-
-  function initTagsObserver() {
-    const containers = document.querySelectorAll("[data-card-tags]");
-    containers.forEach((c) => observer.observe(c));
   }
 
-  initTagsObserver();
-  document.addEventListener("astro:page-load", initTagsObserver);
+  // Jalankan langsung saat web pertama kali dimuat
+  tuneAllCards();
+
+  // Jalankan ulang jika kamu menggunakan fitur Astro View Transitions (saat pindah halaman)
+  document.addEventListener("astro:page-load", tuneAllCards);
+
+  // Kalibrasi ulang jika user memutar layar HP (Landscape / Portrait)
+  window.addEventListener("resize", tuneAllCards);
 </script>
