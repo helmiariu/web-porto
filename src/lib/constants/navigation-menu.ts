@@ -36,13 +36,13 @@ export const publicDashboardMenu: SidebarMenu[] = [
       { href: "/chat", label: "Chat", icon: MessageCircle },
     ],
   },
-  {
-    groupLabel: "Playground",
-    menus: [
-      { href: "/tools", label: "Tools", icon: Wrench },
-      // { href: "/roadmap", label: "Roadmap" },
-    ],
-  },
+  // {
+  //   groupLabel: "Playground",
+  //   menus: [
+  //     { href: "/tools", label: "Tools", icon: Wrench },
+  //     // { href: "/roadmap", label: "Roadmap" },
+  //   ],
+  // },
 ];
 
 export const mainNavData = (isHaveToken: boolean) => [

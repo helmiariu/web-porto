@@ -1,17 +1,21 @@
 ---
-// src/components/ui/AvatarDropdown.astro
+// @components/ui/AvatarDropdown.astro
 import { Image } from "astro:assets";
 import avatarImage from "@assets/avatar.jpg";
-// Tetap pakai Lucide hanya untuk ikon badge kecil di pojok avatar
 import { ChevronDown } from "@lucide/astro";
 
 interface Props {
     sizeClass?: string;
+    showChevron?: boolean;
+    class?: string;
 }
 
-const { sizeClass = "w-24 h-24" } = Astro.props;
+const {
+    sizeClass = "w-24 h-24", // Default template Anda
+    showChevron = true,
+    class: className = "",
+} = Astro.props;
 
-// Data media sosial disesuaikan dengan potongan kode Anda
 const socialLinks = [
     { name: "GitHub", url: "https://github.com", icon: "github" },
     { name: "LinkedIn", url: "https://linkedin.com", icon: "linkedin" },
@@ -19,35 +23,76 @@ const socialLinks = [
     { name: "Figma", url: "https://figma.com", icon: "figma" },
     { name: "Email", url: "mailto:your-email@example.com", icon: "email" },
 ];
+
+// Deteksi otomatis apakah komponen membungkus teks nama (slot) atau tidak
+const hasSlot = Astro.slots.has("default");
 ---
 
-<div class="relative profile-dropdown-container inline-block">
+<!-- CONTAINER: Otomatis 'block w-full' jika ada slot nama, atau 'inline-block' jika default (hanya avatar) -->
+<div
+    class={`relative profile-dropdown-container ${hasSlot ? "block w-full" : "inline-block"}`}
+>
     <button
         type="button"
         title="Find Me"
-        class="profile-dropdown-trigger relative block focus:outline-none group rounded-full select-none transition-transform duration-150 active:scale-95"
+        *
+        BUTTON:
+        Menampung
+        className
+        (kotak
+        biru)
+        hanya
+        jika
+        diinstruksikan
+        dari
+        pemanggilan
+        *
+        class={`profile-dropdown-trigger relative focus:outline-none group select-none transition-transform duration-150 active:scale-95 ${
+            hasSlot
+                ? `flex items-center gap-3 w-full text-left ${className}`
+                : `block ${className}`
+        }`}
         aria-haspopup="true"
         aria-expanded="false"
     >
+        {
+            /* Pembungkus Avatar: Otomatis deteksi roundness bawaan sizeClass atau fallback ke bulat penuh */
+        }
         <div
-            class={`${sizeClass} rounded-full overflow-hidden border border-[hsl(var(--border))] transition-all duration-300 group-hover:scale-105 group-[&[aria-expanded=true]]:scale-105 group-[&[aria-expanded=true]]:border-[hsl(var(--foreground)/0.3)] cursor-pointer`}
+            class={`relative shrink-0 ${sizeClass} ${sizeClass.includes("rounded") ? "" : "rounded-full"}`}
         >
-            <Image
-                src={avatarImage}
-                alt="Helmi Arimbawa"
-                width={150}
-                height={150}
-                format="webp"
-                loading="eager"
-                class="w-full h-full object-cover"
-            />
+            <div
+                class="w-full h-full overflow-hidden rounded-[inherit] border border-[hsl(var(--border))] transition-all duration-300 group-hover:scale-105 group-[&[aria-expanded=true]]:scale-105 group-[&[aria-expanded=true]]:border-[hsl(var(--foreground)/0.3)] cursor-pointer"
+            >
+                <Image
+                    src={avatarImage}
+                    alt="albert jan"
+                    width={150}
+                    height={150}
+                    format="webp"
+                    loading="eager"
+                    class="w-full h-full object-cover"
+                />
+            </div>
+            {
+                showChevron && (
+                    <div class="absolute bottom-0 right-0 bg-[hsl(var(--background))] text-[hsl(var(--foreground))] p-[2px] rounded-full shadow-sm border border-[hsl(var(--border))] transition-all duration-300 group-hover:scale-110 group-hover:border-[hsl(var(--foreground)/0.2)] group-[&[aria-expanded=true]]:scale-110 group-[&[aria-expanded=true]]:border-[hsl(var(--foreground)/0.3)] flex items-center justify-center">
+                        <ChevronDown
+                            size={14}
+                            class="w-3.5 h-3.5 stroke-[2.5]"
+                        />
+                    </div>
+                )
+            }
         </div>
 
-        <div
-            class="absolute bottom-0 right-0 bg-[hsl(var(--background))] text-[hsl(var(--foreground))] p-[2px] rounded-full shadow-sm border border-[hsl(var(--border))] transition-all duration-300 group-hover:scale-110 group-hover:border-[hsl(var(--foreground)/0.2)] group-[&[aria-expanded=true]]:scale-110 group-[&[aria-expanded=true]]:border-[hsl(var(--foreground)/0.3)] flex items-center justify-center"
-        >
-            <ChevronDown size={14} class="w-3.5 h-3.5 stroke-[2.5]" />
-        </div>
+        {
+            hasSlot && (
+                <div class="flex-1 min-w-0 text-left">
+                    <slot />
+                </div>
+            )
+        }
     </button>
 
     <div
@@ -68,7 +113,6 @@ const socialLinks = [
                             rel="noopener noreferrer"
                             class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-[hsl(var(--border))]/40 transition-colors"
                         >
-                            {/* Tempat merender SVG kustom Anda berdasarkan nama icon */}
                             <div class="w-4 h-4 shrink-0 opacity-80 flex items-center justify-center">
                                 {link.icon === "github" && (
                                     <svg
@@ -93,7 +137,7 @@ const socialLinks = [
                                         class="w-full h-full"
                                     >
                                         <path
-                                            d="M2 1C1.44772 1 1 1.44772 1 2V13C1 13.5523 1.44772 14 2 14H13C13.5523 14 14 13.5523 14 13V2C14 1.44772 13.5523 1 13 1H2ZM3.05 6H4.95V12H3.05V6ZM5.075 4.005C5.075 4.59871 4.59371 5.08 4 5.08C3.4063 5.08 2.925 4.59871 2.925 4.005C2.925 3.41129 3.4063 2.93 4 2.93C4.59371 2.93 5.075 3.41129 5.075 4.005ZM12 8.35713C12 6.55208 10.8334 5.85033 9.67449 5.85033C9.29502 5.83163 8.91721 5.91119 8.57874 6.08107C8.32172 6.21007 8.05265 6.50523 7.84516 7.01853H7.79179V6.00044H6V12.0047H7.90616V8.8112C7.8786 8.48413 7.98327 8.06142 8.19741 7.80987C8.41156 7.55832 8.71789 7.49825 8.95015 7.46774H9.02258C9.62874 7.46774 10.0786 7.84301 10.0786 8.78868V12.0047H11.9847L12 8.35713Z"
+                                            d="M2 1C1.44772 1 1 1.44772 1 2V13C1 13.5523 1.44772 14 2 14H13C13.5523 14 14 13.5523 14 13V2C14 1.44772 13.5523 1 13 1H2ZM3.05 6H4.95V12H3.05V6ZM5.075 4.005C5.075 4.59871 4.59371 5.08 4 5.08C3.4063 5.08 2.925 4.59871 2.925 4.005C2.925 3.41129 3.4063 2.93 4 2.93C4.59371 2.93 5.075 3.41129 5.075 4.005ZM12 8.35713C12 6.55208 10.8334 5.85033 10.6744 5.85033C9.29502 5.83163 8.91721 5.91119 8.57874 6.08107C8.32172 6.21007 8.05265 6.50523 7.84516 7.01853H7.79179V6.00044H6V12.0047H7.90616V8.8112C7.8786 8.48413 7.98327 8.06142 8.19741 7.80987C8.41156 7.55832 8.71789 7.49825 8.95015 7.46774H9.02258C9.62874 7.46774 10.0786 7.84301 10.0786 8.78868V12.0047H11.9847L12 8.35713Z"
                                             fill="currentColor"
                                             fill-rule="evenodd"
                                             clip-rule="evenodd"
@@ -198,8 +242,6 @@ const socialLinks = [
         });
     }
 
-    // Jalankan inisialisasi awal
     initProfileDropdown();
-    // Jalankan ulang jika menggunakan Astro View Transitions
     document.addEventListener("astro:after-swap", initProfileDropdown);
 </script>

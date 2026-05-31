@@ -1,7 +1,8 @@
 ---
 // MobileMenuDrawer.astro
 import { publicDashboardMenu } from "@lib/constants/navigation-menu.ts";
-import { Menu, ArrowRight, User } from "@lucide/astro";
+import { Menu, ArrowRight, ChevronDown } from "@lucide/astro";
+import AvatarDropdown from "@components/ui/AvatarDropdown.astro";
 
 // Memanggil komponen utama ThemeToggle yang sudah optimal
 import ThemeToggle from "@components/ui/ThemeToggle.astro";
@@ -9,7 +10,7 @@ import ThemeToggle from "@components/ui/ThemeToggle.astro";
 
 <div
   id="mobile-dropdown-backdrop"
-  class="md:hidden fixed inset-0 z-30 bg-zinc-900/40 dark:bg-black/50 backdrop-blur-[3px] opacity-0 pointer-events-none transition-opacity duration-300"
+  class="md:hidden fixed inset-0 z-30 bg-zinc-900/40 dark:bg-zinc-700/60 backdrop-blur-[3px] opacity-0 pointer-events-none transition-opacity duration-300"
 >
 </div>
 
@@ -18,26 +19,44 @@ import ThemeToggle from "@components/ui/ThemeToggle.astro";
   class="md:hidden fixed inset-x-0 bottom-0 z-40 overflow-y-auto rounded-t-[2rem] border-t border-[hsl(var(--border))] bg-[hsl(var(--background))] p-5 shadow-2xl max-h-[75vh] opacity-0 pointer-events-none translate-y-4 transition-all duration-300"
 >
   <div class="space-y-4 pb-22">
-    <div
-      class="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))/0.3] p-4"
+    <AvatarDropdown
+      sizeClass="h-13 w-13 rounded-lg"
+      showChevron={false}
+      class="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))/0.3] p-0 cursor-pointer"
     >
-      <div class="flex items-center gap-3">
-        <span
-          class="grid h-12 w-12 place-items-center rounded-2xl bg-[hsl(var(--primary))]/10 text-[hsl(var(--foreground))]"
-        >
-          <span
-            class="flex items-center justify-center h-5 w-5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block"
+      <div class="flex items-center justify-between w-full pl-4 pr-3 py-2">
+        <!-- Pembungkus Baru: Membuat nama dan status menumpuk ke bawah -->
+
+        <div class="flex flex-col text-left">
+          <p
+            class="text-md font-semibold text-[hsl(var(--foreground))] leading-tight"
           >
-            <User />
-          </span>
-        </span>
-        <div>
-          <p class="text-sm font-semibold text-[hsl(var(--foreground))]">
             Helmi Arimbawa
           </p>
+
+          <!-- Teks status dengan indikator ping hijau -->
+          <span
+            class="flex items-center gap-1.5 text-xs text-[hsl(var(--foreground))]/60 font-medium mt-1"
+          >
+            <!-- Indikator Ping Bulat Hijau -->
+            <span class="relative flex h-2 w-2">
+              <span
+                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"
+              ></span>
+              <span
+                class="relative inline-flex rounded-full h-2 w-2 bg-green-500"
+              ></span>
+            </span>
+
+            Available for work
+          </span>
         </div>
+
+        <!-- Icon tetap di ujung kanan -->
+
+        <ChevronDown class="h-5 w-5 text-[hsl(var(--foreground))]" />
       </div>
-    </div>
+    </AvatarDropdown>
 
     <div class="space-y-3">
       {
