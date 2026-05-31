@@ -6,7 +6,8 @@ export interface Props {
   pubDate: Date;
   slug: string;
   image?: string;
-  featured?: boolean; // Cukup gunakan true/false untuk membedakan kartu utama
+  layout?: "grid" | "list"; // BEST PRACTICE: Kontrol layout diserahkan ke Parent
+  featured?: boolean; // Fokus untuk styling/penanda artikel utama
 }
 
 const {
@@ -15,28 +16,42 @@ const {
   pubDate,
   slug,
   image,
-  featured = false, // Default-nya adalah kartu biasa (bukan utama)
+  layout = "grid", // Default berbentuk kotak/vertikal agar aman di dalam grid
+  featured = false,
 } = Astro.props;
 
 const fallbackImage =
   "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1471&q=80";
+
+const isList = layout === "list";
 ---
 
 <a
   href={`/blog/${slug}`}
   class:list={[
-    "bg-muted/30 group flex w-full h-full rounded-xl border border-solid border-border/60 bg-background text-foreground shadow-xs overflow-hidden hover:border-primary/40 hover:bg-muted/20 transition-all duration-300",
-    // Jika kartu utama (featured) = vertikal murni. Jika kartu biasa = vertikal di mobile, horizontal di laptop (lg)
-    featured ? "flex-col" : "flex-col lg:flex-row items-stretch",
+    "bg-muted/30 group flex w-full h-full rounded-xl border border-solid bg-background text-foreground shadow-xs overflow-hidden transition-all duration-300",
+    // Efek hover & penanda jika artikel ini featured
+    featured
+      ? "border-primary/50 shadow-md bg-primary/[0.02]"
+      : "border-border/60 hover:border-primary/40 hover:bg-muted/20",
+    // Pengkondisian layout berdasarkan prop `layout`
+    isList ? "flex-col sm:flex-row items-stretch" : "flex-col",
   ]}
 >
   <div
     class:list={[
       "relative m-0 shrink-0 overflow-hidden bg-muted aspect-[16/10]",
-      // Ukuran gambar otomatis proporsional tanpa ternary teks yang panjang
-      featured ? "w-full" : "w-full lg:w-48 xl:w-56",
+      // Jika mode list, gambar memanjang di kiri saat layar sm ke atas. Jika grid, penuhi lebar atas.
+      isList ? "w-full sm:w-48 md:w-56" : "w-full",
     ]}
   >
+    {
+      featured && (
+        <span class="absolute top-3 left-3 z-10 bg-primary text-primary-content text-[10px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-md shadow-sm">
+          Featured
+        </span>
+      )
+    }
     <img
       src={image || fallbackImage}
       alt={title}

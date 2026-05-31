@@ -7,7 +7,7 @@ const allProjects = await getCollection("projects");
 const featuredProjects = allProjects
     .filter((project) => project.data.featured)
     .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-    .slice(0, 4);
+    .slice(0, 3);
 ---
 
 <section
@@ -26,8 +26,8 @@ const featuredProjects = allProjects
     >
         {
             featuredProjects.map((project) => (
-                /* SOLUSI KUNCI HP: Gunakan 'flex self-stretch' dan 'min-w-0' agar layout tidak jebol dan tingginya mengunci seimbang */
-                <div class="w-[85%] shrink-0 snap-center md:w-full flex flex-col self-stretch min-w-0">
+                /* Tambahkan class md:[&:nth-child(n+3)]:hidden di div pembungkus ini */
+                <div class="w-[85%] shrink-0 snap-center md:w-full flex flex-col self-stretch min-w-0 md:[&:nth-child(n+3)]:hidden">
                     <CardProject
                         title={project.data.title}
                         description={project.data.description}

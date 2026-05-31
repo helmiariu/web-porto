@@ -13,7 +13,7 @@ const { title, description, image, tags, slug, featured } = Astro.props;
 
 <a
   href={`/project/${slug}`}
-  class="bg-muted/30 group flex flex-col w-full h-full rounded-xl border border-solid border-border/60 bg-background text-foreground shadow-xs overflow-hidden hover:border-primary/40 hover:bg-muted/20 transition-all duration-300"
+  class="bg-muted/30 group flex flex-col w-full h-full rounded-xl border border-solid border-border/60 bg-background text-foreground shadow-xs overflow-hidden hover:border-primary/40 hover:bg-muted/20 transition-all duration-300 project-card-item"
 >
   <div
     class="relative m-0 w-full shrink-0 overflow-hidden bg-muted aspect-video rounded-t-xl"
@@ -30,12 +30,16 @@ const { title, description, image, tags, slug, featured } = Astro.props;
         <img
           src={image}
           alt={title}
+          loading="lazy"
+          decoding="async"
           class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
       ) : (
         <img
           src="/no-image.jpg"
           alt="No image"
+          loading="lazy"
+          decoding="async"
           class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
       )
@@ -45,6 +49,7 @@ const { title, description, image, tags, slug, featured } = Astro.props;
   <div class="p-5 flex flex-col flex-1 gap-4 overflow-hidden">
     <div class="flex flex-col gap-2.5 flex-1 overflow-hidden" data-card-body>
       <h3
+        data-card-title
         class="font-bold tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-2 text-base md:text-lg leading-snug"
       >
         {title}
@@ -52,7 +57,7 @@ const { title, description, image, tags, slug, featured } = Astro.props;
 
       <p
         data-card-desc
-        class="text-xs sm:text-sm text-[hsl(var(--foreground)/0.7)] leading-relaxed line-clamp-4"
+        class="text-xs sm:text-sm text-[hsl(var(--foreground)/0.7)] leading-relaxed text-primary lg:opacity-80 line-clamp-3"
       >
         {description}
       </p>
@@ -67,7 +72,7 @@ const { title, description, image, tags, slug, featured } = Astro.props;
           tags.map((tag) => (
             <span
               data-tag
-              class="rounded-md bg-muted/60 px-2 py-0.5 text-[10px] font-medium text-[hsl(var(--foreground)/0.8)] border border-border/60 whitespace-nowrap"
+              class="rounded-md bg-muted/60 px-2 py-0.5 text-[10px] font-medium text-[hsl(var(--foreground)/0.8)] border border-border whitespace-nowrap"
             >
               {tag}
             </span>
@@ -104,112 +109,123 @@ const { title, description, image, tags, slug, featured } = Astro.props;
 </a>
 
 <script>
-  function tuneAllCards() {
-    // Ambil semua card yang ada di halaman sekaligus
-    const cards = document.querySelectorAll("[data-card-body]");
+  let resizeTimeout: number;
 
+  function tuneAllCards() {
+    const cards = document.querySelectorAll(".project-card-item");
     if (cards.length === 0) return;
 
-    // Jalankan di dalam requestAnimationFrame agar sinkron dengan render browser
-    requestAnimationFrame(() => {
-      cards.forEach((cardBody) => {
-        const descEl = cardBody.querySelector(
-          "[data-card-desc]",
-        ) as HTMLElement;
-        const titleEl = cardBody.querySelector("h3") as HTMLElement;
-        const container = cardBody.closest(".p-5") as HTMLElement;
+    // Array untuk menyimpan hasil pengukuran (Fase Membaca / Read Phase)
+    const measurements: any[] = [];
 
-        if (!descEl || !titleEl || !container) return;
+    // FASE 1: BACA DOM (Semua operasi baca dikelompokkan di sini untuk menghindari reflow berulang)
+    cards.forEach((card) => {
+      const titleEl = card.querySelector("[data-card-title]") as HTMLElement;
+      const descEl = card.querySelector("[data-card-desc]") as HTMLElement;
+      const tagsContainer = card.querySelector(
+        "[data-card-tags]",
+      ) as HTMLElement;
+      const tags = card.querySelectorAll(
+        "[data-tag]",
+      ) as NodeListOf<HTMLElement>;
+      const moreBadge = card.querySelector("[data-more]") as HTMLElement;
 
-        // 1. SETTING ATURAN BARIS SECARA INSTAN
-        const titleComputed = window.getComputedStyle(titleEl);
-        const titleLineHeight = parseFloat(titleComputed.lineHeight) || 24;
-        const titleLines = Math.round(titleEl.clientHeight / titleLineHeight);
+      if (!titleEl || !descEl) return;
 
-        // Langsung kunci aturan mainnya di awal
-        descEl.style.webkitLineClamp = titleLines >= 2 ? "2" : "3";
+      // 1. Tentukan jumlah baris judul berdasarkan tingginya
+      const titleHeight = titleEl.clientHeight;
+      const isMultiLineTitle = titleHeight > 28; // Lebih dari 28px biasanya berarti > 1 baris
 
-        // 2. BINARY SEARCH UNTUK POTONG TEKS
-        if (
-          cardBody.scrollHeight - cardBody.clientHeight > 1 ||
-          descEl.scrollHeight - descEl.clientHeight > 1
-        ) {
-          let words = descEl.textContent.trim().split(/\s+/);
-          let left = 0;
-          let right = words.length;
-          let bestFit = 0;
+      // 2. Deteksi indeks tag pertama yang meluap (overflow)
+      let firstOverflowIndex = -1;
+      const maxContentHeight = 46;
 
-          while (left <= right) {
-            let mid = Math.floor((left + right) / 2);
-            descEl.textContent = words.slice(0, mid).join(" ") + "...";
-
-            if (
-              cardBody.scrollHeight - cardBody.clientHeight <= 1 &&
-              descEl.scrollHeight - descEl.clientHeight <= 1
-            ) {
-              bestFit = mid;
-              left = mid + 1;
-            } else {
-              right = mid - 1;
-            }
+      if (tagsContainer && tags.length > 0) {
+        for (let i = 0; i < tags.length; i++) {
+          // offsetTop diukur relatif terhadap kontainer
+          if (tags[i].offsetTop + tags[i].offsetHeight > maxContentHeight) {
+            firstOverflowIndex = i;
+            break;
           }
-          descEl.textContent = words.slice(0, bestFit).join(" ") + "...";
+        }
+      }
+
+      measurements.push({
+        descEl,
+        isMultiLineTitle,
+        tags,
+        moreBadge,
+        firstOverflowIndex,
+        totalTags: tags.length,
+      });
+    });
+
+    // FASE 2: TULIS DOM (Browser hanya melakukan 1 kali render ulang)
+    requestAnimationFrame(() => {
+      measurements.forEach((m) => {
+        // 1. Sesuaikan line clamp deskripsi secara instan menggunakan class
+        if (m.isMultiLineTitle) {
+          m.descEl.classList.replace("line-clamp-3", "line-clamp-2");
+        } else {
+          m.descEl.classList.replace("line-clamp-2", "line-clamp-3");
         }
 
-        // 3. TUNING BAGIAN TAGS
-        const tagsContainer = container.querySelector("[data-card-tags]");
-        const tags = container.querySelectorAll("[data-tag]");
-        const moreBadge = container.querySelector("[data-more]") as HTMLElement;
-        const moreCount = container.querySelector("[data-more-count]");
-
-        if (tagsContainer && tags.length) {
-          const maxContentHeight = 46;
-          const tagElements = Array.from(tags) as HTMLElement[];
-
-          tagElements.forEach((t) => (t.style.display = "inline-block"));
-          if (moreBadge) moreBadge.style.display = "none";
-
-          let firstOverflowIndex = -1;
-          for (let i = 0; i < tagElements.length; i++) {
-            if (
-              tagElements[i].offsetTop + tagElements[i].offsetHeight >
-              maxContentHeight
-            ) {
-              firstOverflowIndex = i;
-              break;
+        // 2. Atur visibilitas tag & badge "+X more" jika terjadi luapan
+        if (m.firstOverflowIndex !== -1 && m.moreBadge) {
+          // Sembunyikan tag yang meluap
+          for (let i = 0; i < m.totalTags; i++) {
+            if (i >= m.firstOverflowIndex) {
+              m.tags[i].style.display = "none";
+            } else {
+              m.tags[i].style.display = "inline-block";
             }
           }
 
-          if (firstOverflowIndex !== -1 && moreBadge && moreCount) {
-            for (let i = firstOverflowIndex; i < tagElements.length; i++) {
-              tagElements[i].style.display = "none";
+          // Tampilkan badge "+X more"
+          m.moreBadge.style.display = "inline-block";
+          const moreCountEl = m.moreBadge.querySelector("[data-more-count]");
+          if (moreCountEl) {
+            const hiddenCount = m.totalTags - m.firstOverflowIndex;
+            moreCountEl.textContent = hiddenCount.toString();
+          }
+
+          // Kalibrasi pengaman: jika badge "+X more" sendiri ternyata meluap, sembunyikan tag sebelumnya satu per satu
+          let lastVisibleIndex = m.firstOverflowIndex - 1;
+          while (
+            lastVisibleIndex >= 0 &&
+            m.moreBadge.offsetTop + m.moreBadge.offsetHeight > 46
+          ) {
+            m.tags[lastVisibleIndex].style.display = "none";
+            lastVisibleIndex--;
+            if (moreCountEl) {
+              moreCountEl.textContent = (
+                m.totalTags -
+                (lastVisibleIndex + 1)
+              ).toString();
             }
-
-            moreBadge.style.display = "inline-block";
-
-            let lastVisibleIndex = firstOverflowIndex - 1;
-            while (
-              lastVisibleIndex >= 0 &&
-              moreBadge.offsetTop + moreBadge.offsetHeight > maxContentHeight
-            ) {
-              tagElements[lastVisibleIndex].style.display = "none";
-              lastVisibleIndex--;
-            }
-
-            const totalHidden = tagElements.length - (lastVisibleIndex + 1);
-            moreCount.textContent = totalHidden.toString();
+          }
+        } else {
+          // Jika tidak ada luapan, pastikan semua tag tampil
+          m.tags.forEach((t: HTMLElement) => {
+            t.style.display = "inline-block";
+          });
+          if (m.moreBadge) {
+            m.moreBadge.style.display = "none";
           }
         }
       });
     });
   }
 
-  // Jalankan langsung saat web pertama kali dimuat
+  // Jalankan optimasi saat pertama kali dimuat
   tuneAllCards();
 
-  // Jalankan ulang jika kamu menggunakan fitur Astro View Transitions (saat pindah halaman)
+  // Jalankan saat View Transitions selesai memuat halaman baru
   document.addEventListener("astro:page-load", tuneAllCards);
 
-  // Kalibrasi ulang jika user memutar layar HP (Landscape / Portrait)
-  window.addEventListener("resize", tuneAllCards);
+  // Gunakan debounce pada event resize agar tidak menembak fungsi ratusan kali per detik
+  window.addEventListener("resize", () => {
+    cancelAnimationFrame(resizeTimeout);
+    resizeTimeout = requestAnimationFrame(tuneAllCards);
+  });
 </script>

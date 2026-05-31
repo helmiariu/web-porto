@@ -16,23 +16,23 @@ const { Content } = await render(entry);
 ---
 
 <Layout>
-  <article class="space-y-6 animate-fade-in-up">
-    <div class="space-y-3">
+  <article
+    class="space-y-6 animate-fade-in-up max-w-3xl mr-auto px-0 pb-10 md:pb-0 sm:px-0"
+  >
+    <div class="space-y-3.5">
       <h1
-        class="text-2xl md:text-3xl font-bold tracking-tight text-[hsl(var(--foreground))]"
+        class="text-2xl md:text-3xl font-bold tracking-tight text-[hsl(var(--foreground))] leading-tight"
       >
         {entry.data.title}
       </h1>
-      <p
-        class="text-sm md:text-base text-[hsl(var(--foreground)/0.7)] leading-relaxed"
-      >
+      <p class="text-base text-[hsl(var(--foreground)/0.8)] leading-relaxed">
         {entry.data.description}
       </p>
 
       <div class="flex flex-wrap gap-1.5 pt-1">
         {
           entry.data.tags.map((tag: string) => (
-            <span class="rounded bg-[hsl(var(--secondary))] px-2 py-0.5 text-[11px] font-medium text-[hsl(var(--foreground)/0.7)] border border-[hsl(var(--border))]">
+            <span class="rounded bg-[hsl(var(--secondary))] px-2.5 py-0.5 text-[12px] font-medium text-[hsl(var(--foreground)/0.75)] border border-[hsl(var(--border))]">
               {tag}
             </span>
           ))
@@ -46,10 +46,10 @@ const { Content } = await render(entry);
               href={entry.data.github}
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center gap-1.5 rounded-md bg-[hsl(var(--secondary))] px-3 py-1.5 text-xs font-medium text-[hsl(var(--foreground))] border border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))] transition-colors"
+              class="inline-flex items-center gap-1.5 rounded-md bg-[hsl(var(--secondary))] px-3 py-2 text-sm font-medium text-[hsl(var(--foreground))] border border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))] transition-colors"
             >
               <svg
-                class="w-3.5 h-3.5"
+                class="w-4 h-4"
                 viewBox="0 0 15 15"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -71,9 +71,9 @@ const { Content } = await render(entry);
               href={entry.data.link}
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center gap-1.5 rounded-md bg-[hsl(var(--primary))] px-3 py-1.5 text-xs font-medium text-[hsl(var(--background))] hover:opacity-90 transition-opacity"
+              class="inline-flex items-center gap-1.5 rounded-md bg-[hsl(var(--primary))] px-3 py-2 text-sm font-medium text-[hsl(var(--background))] hover:opacity-90 transition-opacity"
             >
-              <ExternalLink class="h-3.5 w-3.5" />
+              <ExternalLink class="h-4 w-4" />
               Live Demo
             </a>
           )
@@ -103,23 +103,18 @@ const { Content } = await render(entry);
 <style is:global>
   .blog-content {
     width: 100%;
-    margin-top: 1.75rem;
+    margin-top: 2rem;
   }
 
-  /* --- UX TYPOGRAPHY ADJUSTMENT --- */
+  /* --- UX TYPOGRAPHY OPTIMIZATION (GEMINI STYLE) --- */
 
   .blog-content p {
-    font-size: 0.9375rem; /* 15px di HP */
-    line-height: 1.65;
-    color: hsl(var(--foreground) / 0.8);
-    margin-bottom: 1.25rem;
-  }
-
-  @media (min-width: 768px) {
-    .blog-content p {
-      font-size: 1rem; /* 16px standar emas desktop */
-      line-height: 1.7;
-    }
+    font-size: 1rem; /* 16px standar emas membaca di HP & Web Gemini */
+    line-height: 1.75; /* Jarak baris lebih renggang agar mata tidak lelah di layar kecil */
+    color: hsl(
+      var(--foreground) / 0.88
+    ); /* Kontras teks utama ditingkatkan sedikit */
+    margin-bottom: 1.5rem;
   }
 
   .blog-content h1,
@@ -127,117 +122,122 @@ const { Content } = await render(entry);
   .blog-content h3 {
     color: hsl(var(--foreground)) !important;
     font-weight: 600 !important;
-    letter-spacing: -0.02em;
-    margin-bottom: 0.75rem !important;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+    margin-bottom: 1rem !important;
   }
 
   .blog-content h2 {
-    font-size: 1.25rem !important;
-    margin-top: 2rem !important;
-    border-bottom: 1px solid hsl(var(--border) / 0.4);
-    padding-bottom: 0.35rem;
+    font-size: 1.4rem !important; /* Ukuran heading yang tegas namun pas di HP */
+    margin-top: 2.5rem !important;
+    border-bottom: 1px solid hsl(var(--border) / 0.5);
+    padding-bottom: 0.4rem;
   }
 
   .blog-content h3 {
-    font-size: 1.1rem !important;
-    margin-top: 1.5rem !important;
+    font-size: 1.2rem !important;
+    margin-top: 1.75rem !important;
   }
 
   @media (min-width: 768px) {
     .blog-content h2 {
-      font-size: 1.375rem !important;
+      font-size: 1.625rem !important;
     }
     .blog-content h3 {
-      font-size: 1.15rem !important;
+      font-size: 1.3rem !important;
     }
   }
 
   .blog-content ul,
   .blog-content ol {
-    margin-top: 0.35rem !important;
-    margin-bottom: 1.25rem !important;
-    padding-left: 1.25rem !important;
+    margin-top: 0.5rem !important;
+    margin-bottom: 1.5rem !important;
+    padding-left: 1.5rem !important;
   }
 
   .blog-content li {
-    font-size: 0.9375rem;
-    line-height: 1.6;
-    color: hsl(var(--foreground) / 0.8);
-    margin-bottom: 0.35rem !important;
-  }
-
-  @media (min-width: 768px) {
-    .blog-content li {
-      font-size: 1rem;
-    }
+    font-size: 1rem;
+    line-height: 1.7;
+    color: hsl(var(--foreground) / 0.88);
+    margin-bottom: 0.5rem !important;
   }
 
   .blog-content blockquote {
-    background-color: hsl(var(--muted) / 0.25) !important;
-    border-left: 3px solid hsl(var(--primary)) !important;
-    padding: 0.75rem 1.2rem !important;
-    margin: 1.5rem 0 !important;
-    border-radius: 0 4px 4px 0;
+    background-color: hsl(var(--muted) / 0.3) !important;
+    border-left: 4px solid hsl(var(--primary)) !important;
+    padding: 1rem 1.25rem !important;
+    margin: 1.75rem 0 !important;
+    border-radius: 0 6px 6px 0;
   }
 
   .blog-content blockquote p {
-    font-style: normal;
-    color: hsl(var(--foreground) / 0.7) !important;
-    font-size: 0.9375rem !important;
+    font-style: italic;
+    color: hsl(var(--foreground) / 0.75) !important;
+    font-size: 1rem !important;
+    line-height: 1.65;
     margin-bottom: 0 !important;
-  }
-
-  @media (min-width: 768px) {
-    .blog-content blockquote p {
-      font-size: 1rem !important;
-    }
   }
 
   .blog-content a {
     color: hsl(var(--primary)) !important;
     text-decoration: none !important;
-    border-bottom: 1px dashed hsl(var(--primary) / 0.6);
+    border-bottom: 1.5px solid hsl(var(--primary) / 0.4);
     font-weight: 500;
+    transition: border-color 0.15s ease;
+  }
+
+  .blog-content a:hover {
+    border-bottom-color: hsl(var(--primary));
   }
 
   .blog-content hr {
     border: 0;
-    border-top: 1px solid hsl(var(--border) / 0.7) !important;
-    margin: 2rem 0 !important;
+    border-top: 1px solid hsl(var(--border) / 0.8) !important;
+    margin: 2.5rem 0 !important;
   }
 
-  /* --- TOMBOL COPY CODE UX --- */
+  /* --- CODE BLOCK & UX BUTTON OPTIMIZATION --- */
   .blog-content pre {
     position: relative;
-    padding-top: 2.5rem !important; /* Beri ruang di atas agar kode tidak tertutup tombol */
+    padding-top: 3rem !important; /* Ruang ekstra di atas agar kode tidak tertimpa tombol di HP */
+    font-size: 0.875rem !important; /* 14px untuk blok kode agar muat lebih banyak karakter */
+    line-height: 1.6;
+    border-radius: 8px;
+    margin: 1.5rem 0;
   }
 
   .copy-code-btn {
     position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    padding: 0.35rem 0.6rem; /* Diperluas sedikit agar proporsional dengan ikon */
+    top: 0.6rem;
+    right: 0.6rem;
+    padding: 0.4rem 0.65rem;
     font-size: 0.75rem;
     font-weight: 500;
     line-height: 1;
 
-    /* UX FIX: Menyejajarkan Ikon dan Teks secara horizontal */
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
 
-    color: hsl(var(--foreground) / 0.6);
-    background-color: hsl(var(--muted) / 0.5);
-    border: 1px solid hsl(var(--border) / 0.5);
-    border-radius: 4px;
+    color: hsl(var(--foreground) / 0.65);
+    background-color: hsl(var(--muted) / 0.8);
+    border: 1px solid hsl(var(--border) / 0.8);
+    border-radius: 6px;
     cursor: pointer;
     transition: all 0.15s ease;
-    opacity: 0;
+
+    /* UX FIX: Di HP (Layar Sentuh) tombol harus selalu terlihat karena tidak ada state hover */
+    opacity: 1;
   }
 
-  /* Tombol hanya muncul ketika kursor user diarahkan ke dalam blok kode (Hover State) */
-  .blog-content pre:hover .copy-code-btn {
-    opacity: 1;
+  /* Di Desktop (Layar Lebar), kita kembalikan efek hover agar bersih */
+  @media (min-width: 1024px) {
+    .copy-code-btn {
+      opacity: 0;
+    }
+    .blog-content pre:hover .copy-code-btn {
+      opacity: 1;
+    }
   }
 
   .copy-code-btn:hover {
@@ -246,10 +246,9 @@ const { Content } = await render(entry);
     border-color: hsl(var(--border));
   }
 
-  /* Style tambahan saat status berubah menjadi 'Copied!' */
   .copy-code-btn.copied {
     color: hsl(var(--primary));
-    border-color: hsl(var(--primary) / 0.5);
+    border-color: hsl(var(--primary) / 0.4);
     background-color: hsl(var(--primary) / 0.1);
   }
 </style>
@@ -261,21 +260,17 @@ const { Content } = await render(entry);
     codeBlocks.forEach((block) => {
       if (block.querySelector(".copy-code-btn")) return;
 
-      block.style.position = "relative";
+      (block as HTMLElement).style.position = "relative";
 
-      // 1. Buat tombol
       const copyButton = document.createElement("button");
       copyButton.className = "copy-code-btn";
 
-      // 2. Desain Konten Tombol (Gabungan SVG Lucide Icon + Teks)
-      const copyIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
-      const checkIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>`;
+      const copyIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
+      const checkIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>`;
 
-      // Set tampilan awal (Icon + Tulisan "Copy")
       copyButton.innerHTML = `${copyIcon} <span>Copy</span>`;
       block.appendChild(copyButton);
 
-      // 3. Logika Klik
       copyButton.addEventListener("click", async () => {
         const codeElement = block.querySelector("code");
         const codeText = codeElement ? codeElement.innerText : "";
@@ -283,12 +278,10 @@ const { Content } = await render(entry);
         try {
           await navigator.clipboard.writeText(codeText);
 
-          // Ubah menjadi ikon Check + "Copied!"
           copyButton.innerHTML = `${checkIcon} <span>Copied!</span>`;
           copyButton.classList.add("copied");
 
           setTimeout(() => {
-            // Kembalikan ke format semula
             copyButton.innerHTML = `${copyIcon} <span>Copy</span>`;
             copyButton.classList.remove("copied");
           }, 2000);

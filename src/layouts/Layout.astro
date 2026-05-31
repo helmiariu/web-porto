@@ -43,16 +43,16 @@ import { ClientRouter } from "astro:transitions";
         } catch (e) {}
       })();
 
-      // Jalankan tepat saat konten halaman ditukar oleh ClientRouter
-      document.addEventListener("astro:after-swap", () => {
+      // Jalankan tepat sebelum konten halaman ditukar oleh ClientRouter
+      document.addEventListener("astro:before-swap", (e) => {
         try {
           const theme = localStorage.getItem("astro-theme");
           const isDark = theme
             ? theme === "dark"
             : window.matchMedia?.("(prefers-color-scheme: dark)").matches;
-          if (isDark) document.documentElement.classList.add("dark");
-          else document.documentElement.classList.remove("dark");
-        } catch (e) {}
+          if (isDark) e.newDocument.documentElement.classList.add("dark");
+          else e.newDocument.documentElement.classList.remove("dark");
+        } catch (err) {}
       });
     </script>
 
