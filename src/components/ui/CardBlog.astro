@@ -6,8 +6,9 @@ export interface Props {
   pubDate: Date;
   slug: string;
   image?: string;
-  layout?: "grid" | "list"; // BEST PRACTICE: Kontrol layout diserahkan ke Parent
-  featured?: boolean; // Fokus untuk styling/penanda artikel utama
+  layout?: "grid" | "list";
+  featured?: boolean;
+  isCompact?: boolean;
 }
 
 const {
@@ -16,8 +17,9 @@ const {
   pubDate,
   slug,
   image,
-  layout = "grid", // Default berbentuk kotak/vertikal agar aman di dalam grid
+  layout = "grid",
   featured = false,
+  isCompact = false,
 } = Astro.props;
 
 const fallbackImage =
@@ -29,25 +31,27 @@ const isList = layout === "list";
 <a
   href={`/blog/${slug}`}
   class:list={[
-    "bg-muted/30 group flex w-full h-full rounded-xl border border-solid bg-background text-foreground shadow-xs overflow-hidden transition-all duration-300",
-    // Efek hover & penanda jika artikel ini featured
+    "bg-muted/30 group flex w-full h-full rounded-xl border border-solid bg-background text-foreground shadow-xs overflow-hidden transition-all duration-300 hover:-translate-y-0.5",
     featured
-      ? "border-primary/50 shadow-md bg-primary/[0.02]"
-      : "border-border/60 hover:border-primary/40 hover:bg-muted/20",
-    // Pengkondisian layout berdasarkan prop `layout`
+      ? "border-border/60 hover:border-primary/30 hover:bg-muted/10"
+      : "border-border/60 hover:border-primary/30 hover:bg-muted/10",
     isList ? "flex-col sm:flex-row items-stretch" : "flex-col",
   ]}
 >
   <div
     class:list={[
-      "relative m-0 shrink-0 overflow-hidden bg-muted aspect-[16/10]",
-      // Jika mode list, gambar memanjang di kiri saat layar sm ke atas. Jika grid, penuhi lebar atas.
-      isList ? "w-full sm:w-48 md:w-56" : "w-full",
+      "relative m-0 shrink-0 overflow-hidden bg-muted",
+      "aspect-[3/2]",
+      isList
+        ? isCompact
+          ? "w-full sm:w-36 md:w-40 lg:w-44 sm:h-auto"
+          : "w-full sm:w-48 md:w-56 sm:h-auto"
+        : "w-full",
     ]}
   >
     {
       featured && (
-        <span class="absolute top-3 left-3 z-10 bg-primary text-primary-content text-[10px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-md shadow-sm">
+        <span class="absolute top-3 left-3 z-10 bg-primary text-background text-[10px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-md shadow-xs">
           Featured
         </span>
       )
@@ -55,30 +59,48 @@ const isList = layout === "list";
     <img
       src={image || fallbackImage}
       alt={title}
-      class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+      class="h-full w-full object-cover group-hover:scale-103 transition-transform duration-500 ease-out"
+      loading={featured ? "eager" : "lazy"}
     />
   </div>
 
-  <div class="flex flex-col justify-between flex-1 p-4 sm:p-5 gap-3">
-    <div class="flex flex-col justify-center flex-1 gap-2">
+  <div
+    class:list={[
+      "flex flex-col justify-between flex-1 gap-4",
+      isCompact ? "p-4 sm:p-4 lg:p-3.5 lg:gap-2" : "p-4 sm:p-5",
+    ]}
+  >
+    <div class="flex flex-col justify-center flex-1 gap-1.5">
       <h3
-        class="font-bold tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-2 text-base md:text-lg leading-snug"
+        class:list={[
+          "font-bold tracking-tight text-foreground group-hover:text-primary transition-colors leading-snug",
+          featured ? "text-lg md:text-xl" : "text-base md:text-lg",
+          isCompact && "lg:text-base",
+        ]}
       >
-        {title}
+        <span class="line-clamp-2">{title}</span>
       </h3>
 
       <p
-        class="text-[hsl(var(--foreground)/0.7)] leading-relaxed text-xs sm:text-sm line-clamp-2"
+        class:list={[
+          "text-xs sm:text-sm text-[hsl(var(--foreground)/0.7)] leading-relaxed text-primary lg:opacity-80",
+          isCompact
+            ? "line-clamp-2 lg:line-clamp-2 lg:text-xs"
+            : "line-clamp-2 md:line-clamp-3",
+        ]}
       >
         {description}
       </p>
     </div>
 
     <div
-      class="flex items-center justify-between pt-3 border-t border-border/40 w-full mt-auto"
+      class:list={[
+        "flex items-center justify-between border-t border-border/40 w-full mt-auto pt-3",
+        isCompact && "lg:pt-2",
+      ]}
     >
       <div
-        class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase text-primary tracking-wider"
+        class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase text-primary lg:opacity-80 lg:group-hover:opacity-100 pl-1 pt-2 border-t border-solid border-border/40"
       >
         Read More
         <svg
@@ -98,7 +120,7 @@ const isList = layout === "list";
 
       <time
         datetime={pubDate.toISOString()}
-        class="text-[11px] text-muted-foreground/80 font-medium"
+        class="text-[11px] text-muted-foreground/70 font-medium"
       >
         {
           pubDate.toLocaleDateString("id-ID", {

@@ -7,7 +7,7 @@ const allProjects = await getCollection("projects");
 const featuredProjects = allProjects
     .filter((project) => project.data.featured)
     .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-    .slice(0, 3);
+    .slice(0, 4);
 ---
 
 <section
@@ -26,8 +26,7 @@ const featuredProjects = allProjects
     >
         {
             featuredProjects.map((project) => (
-                /* Tambahkan class md:[&:nth-child(n+3)]:hidden di div pembungkus ini */
-                <div class="w-[85%] shrink-0 snap-center md:w-full flex flex-col self-stretch min-w-0 md:[&:nth-child(n+3)]:hidden">
+                <div class="w-[85%] shrink-0 snap-center md:w-full flex flex-col self-stretch min-w-0 md:[&:nth-child(n+3)]:hidden xl:flex xl:[&:nth-child(n+3)]:flex xl:[&:nth-child(n+4)]:hidden">
                     <CardProject
                         title={project.data.title}
                         description={project.data.description}
@@ -60,7 +59,7 @@ const featuredProjects = allProjects
         </div>
     </div>
 
-    <div class="hidden md:flex justify-center mt-8 w-full">
+    <div class="hidden md:flex justify-center mt-7 w-full">
         <a
             href="/project"
             class="inline-flex items-center justify-center gap-2 rounded-xl text-sm font-medium transition-all border border-solid border-border/60 bg-background text-foreground hover:bg-muted/40 hover:border-primary/40 h-10 px-6 shadow-xs active:scale-[0.98] duration-300"
