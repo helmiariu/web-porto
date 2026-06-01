@@ -1,0 +1,107 @@
+---
+// @components/ui/GaugeItem.astro
+interface Props {
+    id: string;
+    label: string;
+    unit: string;
+    initialValue: number;
+    maxLimit: number;
+    precision?: number;
+    class?: string;
+}
+
+const {
+    id,
+    label,
+    unit,
+    initialValue,
+    maxLimit,
+    precision = 0,
+    class: className,
+} = Astro.props;
+const initialPct = Math.min(Math.max((initialValue / maxLimit) * 100, 0), 100);
+---
+
+<div
+    class={`relative w-full h-full aspect-square gauge-container ${className || ""}`}
+    data-type={id}
+    data-max={maxLimit}
+    data-precision={precision}
+    data-target-percentage={initialPct}
+>
+    <svg class="w-full h-full" viewBox="0 0 200 200">
+        <path
+            class="fill-none stroke-[#4a4d50] stroke-[4] stroke-linecap-round"
+            d="M 40 160 A 75 75 0 1 1 160 160"></path>
+
+        <line
+            class="stroke-[#4a4d50]"
+            x1="44.6"
+            y1="156.55"
+            x2="43.4"
+            y2="154.95"
+            stroke-width="7.5"></line>
+
+        <line
+            class="tick-start stroke-white"
+            x1="44.6"
+            y1="156.55"
+            x2="43.4"
+            y2="154.95"
+            stroke-width="7.5"
+            stroke-dasharray="2"
+            stroke-dashoffset="2"></line>
+
+        <line
+            class="stroke-[#4a4d50]"
+            x1="155.4"
+            y1="156.55"
+            x2="156.6"
+            y2="154.95"
+            stroke-width="7.5"></line>
+
+        <line
+            class="tick-end stroke-white"
+            x1="155.4"
+            y1="156.55"
+            x2="156.6"
+            y2="154.95"
+            stroke-width="7.5"
+            stroke-dasharray="2"
+            stroke-dashoffset="2"></line>
+
+        <path
+            class="progress-path fill-none stroke-white stroke-[4] stroke-linecap-round"
+            d="M 40 160 A 75 75 0 1 1 160 160"></path>
+
+        <text
+            x="100"
+            y="85"
+            text-anchor="middle"
+            class="fill-[#8a8d90] font-mono font-bold tracking-[2px]"
+            font-size="10"
+        >
+            {label}
+        </text>
+
+        <text
+            x="100"
+            y="120"
+            text-anchor="middle"
+            class="fill-white font-mono font-bold value-text tracking-tight"
+            font-size="32"
+        >
+            {initialValue.toFixed(precision)}
+        </text>
+
+        <text
+            x="100"
+            y="142"
+            text-anchor="middle"
+            class="fill-[#8a8d90] font-mono font-bold tracking-wider"
+            font-size="10"
+        >
+            {unit}
+        </text>
+    </svg>
+</div>

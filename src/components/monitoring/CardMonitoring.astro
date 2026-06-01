@@ -2,7 +2,7 @@
 import MetricDashboard from "@components/ui/MatricDashboard.astro";
 
 // Sesuaikan URL ini dengan domain Cloudflare atau IP OpenWrt kamu
-const LIVE_API_URL = "https://api-status-stb1.helmiari.my.id/stream-status";
+const LIVE_API_URL = import.meta.env.PUBLIC_LIVE_API_URL;
 
 const serverMetrics = [
     {
@@ -40,7 +40,7 @@ const serverMetrics = [
 ];
 ---
 
-<main class="min-h-screen bg-[#0b0c0d] p-8 text-white">
+<main class="min-h-screen p-0">
     <h1 class="text-center text-xl font-mono mb-6 tracking-widest">
         REYRE-WRT REALTIME MONITOR
     </h1>

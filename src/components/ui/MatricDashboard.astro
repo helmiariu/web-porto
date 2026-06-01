@@ -1,7 +1,10 @@
 ---
-// src/components/MetricDashboard.astro
+// @components/ui/MatricDashboard.astro
+import GaugeItem from "@components/ui/GaugeItem.astro";
+import Card from "@components/ui/CardGauge.astro";
+
 interface MetricConfig {
-    id: string; // 'cpu', 'temp', 'download', 'upload'
+    id: string;
     label: string;
     unit: string;
     initialValue: number;
@@ -11,7 +14,7 @@ interface MetricConfig {
 
 interface Props {
     metrics: MetricConfig[];
-    apiUrl: string; // <-- Tambahan prop baru untuk URL API Online
+    apiUrl: string;
 }
 
 const { metrics, apiUrl } = Astro.props;
@@ -20,81 +23,43 @@ const { metrics, apiUrl } = Astro.props;
 <div
     id="dashboard-container"
     data-api-url={apiUrl}
-    class="flex flex-wrap gap-8 p-6 bg-[#121416] rounded-xl justify-center items-center"
+    class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 p-2 rounded-xl"
 >
     {
-        metrics.map((metric) => {
-            const initialPct = Math.min(
-                Math.max((metric.initialValue / metric.maxLimit) * 100, 0),
-                100,
-            );
-            const precision = metric.precision ?? 0;
-
-            return (
-                <div
-                    class="relative w-[220px] h-[220px] gauge-container"
-                    data-type={metric.id}
-                    data-max={metric.maxLimit}
-                    data-precision={precision}
-                    data-target-percentage={initialPct}
-                >
-                    <div class="relative w-full h-full">
-                        <svg class="w-full h-full" viewBox="0 0 200 200">
-                            <path
-                                class="fill-none stroke-[#4a4d50] stroke-[4] stroke-linecap-round"
-                                d="M 40 160 A 75 75 0 1 1 160 160"
-                            />
-                            <line
-                                class="tick-start stroke-[#4a4d50] stroke-[2] stroke-linecap-round"
-                                x1="40.7"
-                                y1="158.3"
-                                x2="46.0"
-                                y2="153.0"
-                                style="transform: rotate(7deg); transform-origin: 40.7px 158.3px;"
-                            />
-                            <line
-                                class="tick-end stroke-[#4a4d50] stroke-[2] stroke-linecap-round"
-                                x1="159.3"
-                                y1="158.3"
-                                x2="154.0"
-                                y2="153.0"
-                                style="transform: rotate(-7deg); transform-origin: 159.3px 158.3px;"
-                            />
-                            <path
-                                class="progress-path fill-none stroke-white stroke-[4] stroke-linecap-round [filter:drop-shadow(0px_0px_4px_rgba(255,255,255,0.6))]"
-                                d="M 40 160 A 75 75 0 1 1 160 160"
-                            />
-                        </svg>
-
-                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[45%] text-center w-full font-mono">
-                            <div class="text-xs font-bold tracking-[2px] text-[#8a8d90] mb-[2px]">
-                                {metric.label}
-                            </div>
-                            <div class="text-[38px] font-bold text-white leading-none tracking-tight value-text">
-                                {metric.initialValue.toFixed(precision)}
-                            </div>
-                            <div class="text-xs font-bold tracking-wider text-[#8a8d90] mt-1">
-                                {metric.unit}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-        })
+        metrics.map((metric) => (
+            /* Di sini Anda bisa membungkusnya dengan Card dan memberikan class style khusus jika dibutuhkan */
+            <Card title={`${metric.label} Monitor`}>
+                <GaugeItem
+                    id={metric.id}
+                    label={metric.label}
+                    unit={metric.unit}
+                    initialValue={metric.initialValue}
+                    maxLimit={metric.maxLimit}
+                    precision={metric.precision}
+                    class="mx-auto scale-95 hover:scale-100 transition-transform"
+                />
+            </Card>
+        ))
     }
 </div>
+
+<style>
+    .progress-path {
+        will-change: stroke-dashoffset;
+    }
+</style>
 
 <script>
     class GaugeController {
         private path: SVGPathElement;
         private tickStart: SVGLineElement;
         private tickEnd: SVGLineElement;
-        private valueText: HTMLElement;
+        private valueText: SVGTextElement;
 
         private totalLength: number;
+        private tickLength: number;
         private currentPercentage: number = 0;
         private targetPercentage: number = 0;
-        private defaultColor: string = "#4a4d50";
         private animationId: number | null = null;
 
         public maxLimit: number;
@@ -112,11 +77,21 @@ const { metrics, apiUrl } = Astro.props;
             ) as SVGLineElement;
             this.valueText = container.querySelector(
                 ".value-text",
-            ) as HTMLElement;
+            ) as SVGTextElement;
 
+            // Setup gauge utama
             this.totalLength = this.path.getTotalLength();
             this.path.style.strokeDasharray = String(this.totalLength);
             this.path.style.strokeDashoffset = String(this.totalLength);
+
+            // Setup panjang potongan untuk Tick berdasarkan ukuran fisik aslinya (2px)
+            this.tickLength = this.tickStart.getTotalLength();
+
+            this.tickStart.style.strokeDasharray = String(this.tickLength);
+            this.tickStart.style.strokeDashoffset = String(this.tickLength);
+
+            this.tickEnd.style.strokeDasharray = String(this.tickLength);
+            this.tickEnd.style.strokeDashoffset = String(this.tickLength);
 
             this.maxLimit = parseFloat(
                 container.getAttribute("data-max") || "100",
@@ -129,12 +104,12 @@ const { metrics, apiUrl } = Astro.props;
             const initialPct = parseFloat(
                 container.getAttribute("data-target-percentage") || "0",
             );
-            this.update(initialPct, this.valueText.innerText);
+            this.update(initialPct, this.valueText.textContent || "0");
         }
 
         public update(percentage: number, rawValue: string) {
             this.targetPercentage = Math.min(Math.max(percentage, 0), 100);
-            this.valueText.innerText = rawValue;
+            this.valueText.textContent = rawValue;
 
             if (!this.animationId) {
                 this.animationId = requestAnimationFrame(this.animate);
@@ -145,7 +120,7 @@ const { metrics, apiUrl } = Astro.props;
             const ease = 0.15;
             const diff = this.targetPercentage - this.currentPercentage;
 
-            if (Math.abs(diff) < 0.1) {
+            if (Math.abs(diff) < 0.05) {
                 this.currentPercentage = this.targetPercentage;
                 this.animationId = null;
             } else {
@@ -153,103 +128,59 @@ const { metrics, apiUrl } = Astro.props;
                 this.animationId = requestAnimationFrame(this.animate);
             }
 
+            // 1. Update jalannya progress bar utama
             const offset =
                 this.totalLength -
                 (this.currentPercentage / 100) * this.totalLength;
             this.path.style.strokeDashoffset = String(offset);
 
-            if (this.currentPercentage >= 0.5) {
-                this.tickStart.style.stroke = "#ffffff";
-                this.tickStart.style.filter =
-                    "drop-shadow(0px 0px 2px rgba(255,255,255,0.6))";
-            } else {
-                this.tickStart.style.stroke = this.defaultColor;
-                this.tickStart.style.filter = "none";
-            }
+            // 2. HITUNG PIKSEL AKTIF SECARA REAL-TIME (Untuk Sinkronisasi Sub-Piksel)
+            const pikselMenyala =
+                (this.currentPercentage / 100) * this.totalLength;
 
-            if (this.currentPercentage >= 99.5) {
-                this.tickEnd.style.stroke = "#ffffff";
-                this.tickEnd.style.filter =
-                    "drop-shadow(0px 0px 2px rgba(255,255,255,0.6))";
-            } else {
-                this.tickEnd.style.stroke = this.defaultColor;
-                this.tickEnd.style.filter = "none";
-            }
+            // 3. ANIMASI TICK START (Mengisi linear pixel-by-pixel dari 0px sampai 2px pertama)
+            const tickStartFilledPx = Math.min(pikselMenyala, this.tickLength);
+            this.tickStart.style.strokeDashoffset = String(
+                this.tickLength - tickStartFilledPx,
+            );
+
+            // 4. ANIMASI TICK END (Mengisi linear pixel-by-pixel pada sisa 2px terakhir sebelum 100%)
+            const jarakAwalTickEnd = this.totalLength - this.tickLength;
+            const tickEndFilledPx = Math.min(
+                Math.max(pikselMenyala - jarakAwalTickEnd, 0),
+                this.tickLength,
+            );
+            this.tickEnd.style.strokeDashoffset = String(
+                this.tickLength - tickEndFilledPx,
+            );
         };
     }
 
-    // Ambil elemen pembungkus utama
-    const mainContainer = document.getElementById(
-        "dashboard-container",
-    ) as HTMLElement;
-    const targetApiUrl = mainContainer.getAttribute("data-api-url") || "";
-
-    const gauges: Record<string, GaugeController> = {};
-    document.querySelectorAll(".gauge-container").forEach((el) => {
-        const htmlEl = el as HTMLElement;
-        const type = htmlEl.getAttribute("data-type") || "";
-        gauges[type] = new GaugeController(htmlEl);
-    });
-
-    // --- MENGGUNAKAN DYNAMIC URL DARI PROPS ---
-    if (targetApiUrl) {
-        const eventSource = new EventSource(targetApiUrl);
-
-        eventSource.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-
-                Object.keys(data).forEach((key) => {
-                    const gauge = gauges[key];
-                    if (gauge) {
-                        const rawValue = data[key];
-                        const pct = (rawValue / gauge.maxLimit) * 100;
-                        gauge.update(pct, rawValue.toFixed(gauge.precision));
-                    }
-                });
-            } catch (error) {
-                console.error("Gagal memproses data SSE:", error);
-            }
-        };
-
-        eventSource.onerror = (err) => {
-            console.error("Koneksi SSE terputus/gagal:", err);
-        };
-    }
-
-    // 💡 Taruh variabel di luar listener agar nilainya bisa diingat antar perpindahan halaman
     let eventSource: EventSource | null = null;
 
-    // 1. JALANKAN INI SETIAP KALI HALAMAN BERHASIL DI-LOAD (Astro View Transitions)
     document.addEventListener("astro:page-load", () => {
         const mainContainer = document.getElementById(
             "dashboard-container",
         ) as HTMLElement;
-        if (!mainContainer) return; // Jika di halaman ini tidak ada dashboard, stop script.
+        if (!mainContainer) return;
 
         const targetApiUrl = mainContainer.getAttribute("data-api-url") || "";
-
-        // Inisialisasi ulang semua gauge di DOM yang baru
         const gauges: Record<string, GaugeController> = {};
+
         document.querySelectorAll(".gauge-container").forEach((el) => {
             const htmlEl = el as HTMLElement;
             const type = htmlEl.getAttribute("data-type") || "";
             gauges[type] = new GaugeController(htmlEl);
         });
 
-        // Nyalakan koneksi SSE jika URL tersedia
         if (targetApiUrl) {
-            // Amankan: Jika entah bagaimana masih ada koneksi lama yang nyangkut, matikan dulu!
-            if (eventSource) {
-                eventSource.close();
-            }
-
+            if (eventSource) eventSource.close();
             eventSource = new EventSource(targetApiUrl);
 
             eventSource.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
-                    Object.keys(data).forEach((key) => {
+                    for (const key in data) {
                         const gauge = gauges[key];
                         if (gauge) {
                             const rawValue = data[key];
@@ -259,7 +190,7 @@ const { metrics, apiUrl } = Astro.props;
                                 rawValue.toFixed(gauge.precision),
                             );
                         }
-                    });
+                    }
                 } catch (error) {
                     console.error("Gagal memproses data SSE:", error);
                 }
@@ -271,13 +202,9 @@ const { metrics, apiUrl } = Astro.props;
         }
     });
 
-    // 2. JALANKAN INI TEPAT SEBELUM USER PINDAH KE HALAMAN LAIN (Pembersihan)
     document.addEventListener("astro:before-swap", () => {
         if (eventSource) {
-            console.log(
-                "[Astro] Menutup jalur SSE karena user pindah halaman...",
-            );
-            eventSource.close(); // Matikan keran data agar OpenWrt tidak kebobolan
+            eventSource.close();
             eventSource = null;
         }
     });
