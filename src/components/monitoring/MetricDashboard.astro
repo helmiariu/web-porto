@@ -1,0 +1,72 @@
+---
+// @components/monitoring/MetricDashboard.astro
+import GaugeItem from "@components/monitoring/GaugeItem.astro";
+import CardGauge from "@components/monitoring/CardGauge.astro";
+import type { MetricConfig } from "./utils/config";
+
+interface Props {
+    metrics: MetricConfig[];
+}
+
+const { metrics } = Astro.props;
+---
+
+<CardGauge title="Server Metrics">
+    <div
+        id="dashboard-container"
+        class="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full"
+    >
+        {
+            metrics.map((metric) => (
+                <GaugeItem
+                    id={metric.id}
+                    label={metric.label}
+                    unit={metric.unit}
+                    initialValue={metric.initialValue}
+                    maxLimit={metric.maxLimit}
+                    precision={metric.precision}
+                    class="mx-auto scale-95 hover:scale-100 transition-transform"
+                />
+            ))
+        }
+    </div>
+</CardGauge>
+
+<style>
+    .progress-path {
+        will-change: stroke-dashoffset;
+    }
+</style>
+
+<script>
+    import { GaugeController } from "./utils/gauge";
+    import { connectMetricsSSE, disconnectMetricsSSE } from "./utils/sse";
+
+    document.addEventListener("astro:page-load", () => {
+        const mainContainer = document.getElementById(
+            "dashboard-container",
+        ) as HTMLElement;
+        if (!mainContainer) return;
+
+        const gauges: Record<string, GaugeController> = {};
+
+        document.querySelectorAll(".gauge-container").forEach((el) => {
+            const htmlEl = el as HTMLElement;
+            const type = htmlEl.getAttribute("data-type") || "";
+            try {
+                gauges[type] = new GaugeController(htmlEl);
+            } catch (err) {
+                console.error(
+                    `Failed to initialize gauge for type: ${type}`,
+                    err,
+                );
+            }
+        });
+
+        connectMetricsSSE(gauges);
+    });
+
+    document.addEventListener("astro:before-swap", () => {
+        disconnectMetricsSSE();
+    });
+</script>

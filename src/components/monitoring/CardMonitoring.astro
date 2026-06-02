@@ -1,49 +1,17 @@
 ---
-import MetricDashboard from "@components/ui/MatricDashboard.astro";
+import MetricDashboard from "@components/monitoring/MetricDashboard.astro";
+import { serverMetrics } from "@components/monitoring/utils/config";
 
-// Sesuaikan URL ini dengan domain Cloudflare atau IP OpenWrt kamu
-const LIVE_API_URL = import.meta.env.PUBLIC_LIVE_API_URL;
-
-const serverMetrics = [
-    {
-        id: "cpu",
-        label: "CPU USAGE",
-        unit: "%",
-        initialValue: 0,
-        maxLimit: 100,
-        precision: 1,
-    },
-    {
-        id: "temp",
-        label: "CORE TEMP",
-        unit: "°C",
-        initialValue: 0,
-        maxLimit: 100,
-        precision: 0,
-    },
-    {
-        id: "download",
-        label: "DOWNLOAD",
-        unit: "KB/s",
-        initialValue: 0,
-        maxLimit: 5000,
-        precision: 1,
-    },
-    {
-        id: "upload",
-        label: "UPLOAD",
-        unit: "KB/s",
-        initialValue: 0,
-        maxLimit: 1000,
-        precision: 1,
-    },
-];
+import WatchingBadge from "@components/monitoring/WatchingBadge.astro";
 ---
 
 <main class="min-h-screen p-0">
-    <h1 class="text-center text-xl font-mono mb-6 tracking-widest">
-        REYRE-WRT REALTIME MONITOR
-    </h1>
+    <!-- Kontainer dengan grid 3 kolom agar judul benar-benar di tengah -->
+    <div class="grid grid-cols-3 items-center px-4 mb-6">
+        <div class="justify-self-start">
+            <WatchingBadge />
+        </div>
+    </div>
 
-    <MetricDashboard metrics={serverMetrics} apiUrl={LIVE_API_URL} />
+    <MetricDashboard metrics={serverMetrics} />
 </main>

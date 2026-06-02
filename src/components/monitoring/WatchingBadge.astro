@@ -1,0 +1,54 @@
+<div
+    class="inline-flex items-center gap-1.5 bg-secondary border border-border text-foreground rounded-full px-2.5 py-1 font-sans text-xs font-medium w-fit"
+>
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="text-foreground/70"
+    >
+        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+        <circle cx="12" cy="12" r="3"></circle>
+    </svg>
+
+    <span
+        id="live-users-count"
+        class="font-semibold text-foreground transition-all duration-200 ease-out"
+        >0</span
+    >
+
+    <span class="text-foreground/70">watching</span>
+</div>
+
+<script>
+    import type { SSEMetricsPayload } from "./utils/sse";
+
+    window.addEventListener("metrics-update", (event) => {
+        const customEvent = event as CustomEvent<SSEMetricsPayload>;
+        const data = customEvent.detail;
+        const liveUserElement = document.getElementById("live-users-count");
+
+        if (liveUserElement && data && typeof data.active_users === "number") {
+            const nextCountStr = String(data.active_users);
+
+            if (liveUserElement.innerText !== nextCountStr) {
+                // Efek animasi saat angka berubah menggunakan class Tailwind
+                liveUserElement.classList.add("text-primary", "scale-110");
+
+                setTimeout(() => {
+                    liveUserElement.classList.remove(
+                        "text-primary",
+                        "scale-110",
+                    );
+                }, 400);
+            }
+            liveUserElement.innerText = nextCountStr;
+        }
+    });
+</script>
