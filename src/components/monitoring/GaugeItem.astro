@@ -83,10 +83,10 @@ const initialPct = Math.min(Math.max((initialValue / maxLimit) * 100, 0), 100);
         <!-- Label -->
         <text
             x="100"
-            y="85"
+            y="82"
             text-anchor="middle"
-            class="fill-[hsl(var(--foreground)/0.5)] font-mono font-bold tracking-[2px] transition-colors duration-300"
-            font-size="10"
+            class="fill-[hsl(var(--foreground))] font-mono font-bold tracking-[2px] transition-colors duration-300"
+            font-size="14"
         >
             {label}
         </text>
@@ -94,10 +94,10 @@ const initialPct = Math.min(Math.max((initialValue / maxLimit) * 100, 0), 100);
         <!-- Value -->
         <text
             x="100"
-            y="120"
+            y="128"
             text-anchor="middle"
             class="fill-[hsl(var(--foreground))] font-mono font-bold value-text tracking-tight transition-colors duration-300"
-            font-size="32"
+            font-size="42"
         >
             {initialValue.toFixed(precision)}
         </text>
@@ -105,10 +105,10 @@ const initialPct = Math.min(Math.max((initialValue / maxLimit) * 100, 0), 100);
         <!-- Unit -->
         <text
             x="100"
-            y="142"
+            y="162"
             text-anchor="middle"
-            class="fill-[hsl(var(--foreground)/0.5)] font-mono font-bold tracking-wider transition-colors duration-300"
-            font-size="10"
+            class="fill-[hsl(var(--foreground))] font-mono font-bold tracking-wider transition-colors duration-300"
+            font-size="18"
         >
             {unit}
         </text>

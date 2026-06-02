@@ -1,0 +1,91 @@
+---
+// @components/monitoring/LoadTestButton.astro
+---
+
+<button
+    id="load-test-trigger-btn"
+    class="relative overflow-hidden inline-flex items-center justify-center gap-2 bg-[hsl(var(--primary))] text-[hsl(var(--secondary))] border border-[hsl(var(--primary)/0.2)] hover:bg-[hsl(var(--primary)/0.9)] active:scale-[0.98] transition-all duration-300 px-6 py-2.5 rounded-[var(--radius)] text-sm font-semibold shadow-lg shadow-primary/10 disabled:opacity-50 disabled:pointer-events-none group"
+>
+    <!-- Ripple / Sparkle effect container -->
+    <span
+        class="absolute inset-0 w-full h-full bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"
+    ></span>
+
+    <!-- Spinner icon (hidden by default) -->
+    <svg
+        id="btn-spinner"
+        class="animate-spin -ml-1 mr-2 h-4 w-4 text-[hsl(var(--secondary))] hidden"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+    >
+        <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"></circle>
+        <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        ></path>
+    </svg>
+
+    <span id="btn-text">Trigger Load Test</span>
+</button>
+<script>
+    const API_URL = import.meta.env.PUBLIC_TESTLOAD_API_URL || "";
+    document.addEventListener("astro:page-load", () => {
+        const btn = document.getElementById(
+            "load-test-trigger-btn",
+        ) as HTMLButtonElement;
+        const spinner = document.getElementById("btn-spinner");
+        const btnText = document.getElementById("btn-text");
+        if (!btn) return;
+        btn.addEventListener("click", async () => {
+            if (!API_URL) {
+                console.error("PUBLIC_TESTLOAD_API_URL is not defined.");
+                alert("API URL not configured.");
+                return;
+            }
+            // Set loading state
+            btn.disabled = true;
+            spinner?.classList.remove("hidden");
+            if (btnText) btnText.textContent = "Triggering...";
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ status: "loadtest_triggered" }),
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                // Show success status temporarily
+                if (btnText) btnText.textContent = "Success!";
+                btn.classList.add("bg-green-600", "hover:bg-green-700");
+
+                setTimeout(() => {
+                    if (btnText) btnText.textContent = "Trigger Load Test";
+                    btn.classList.remove("bg-green-600", "hover:bg-green-700");
+                    btn.disabled = false;
+                    spinner?.classList.add("hidden");
+                }, 2000);
+            } catch (error) {
+                console.error("Failed to trigger load test:", error);
+                if (btnText) btnText.textContent = "Failed! Try again";
+                btn.classList.add("bg-red-600", "hover:bg-red-700");
+                setTimeout(() => {
+                    if (btnText) btnText.textContent = "Trigger Load Test";
+                    btn.classList.remove("bg-red-600", "hover:bg-red-700");
+                    btn.disabled = false;
+                    spinner?.classList.add("hidden");
+                }, 2000);
+            }
+        });
+    });
+</script>
