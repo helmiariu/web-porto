@@ -5,19 +5,22 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
 
 <div class="space-y-2">
   <p
-    class="text-[10px] font-semibold uppercase tracking-[.3em] text-[hsl(var(--foreground)/0.65)] pl-3"
+    class="text-[10px] font-semibold uppercase tracking-[.3em] text-primary lg:text-muted-foreground pl-3"
   >
     THEMING
   </p>
+
   <div class="space-y-1.5">
+    <!-- STRUKTUR UTAMA SEPERTI DESAIN YANG KAMU MAU -->
     <label
       for={uniqueId}
-      class="flex items-center justify-between rounded-xl border border-transparent bg-transparent duration-150 cursor-pointer relative py-[6px] px-[12px] group text-[hsl(var(--foreground)/0.6)] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))] select-none"
+      class="flex items-center justify-between rounded-xl border border-transparent bg-transparent duration-150 cursor-pointer relative py-[6px] px-[12px] group text-primary lg:text-muted-foreground hover:bg-secondary hover:text-foreground select-none"
     >
       <span class="flex items-center gap-3">
         <span
-          class="theme-icon-container flex shrink-0 items-center justify-center w-[26px] h-[26px] text-[hsl(var(--foreground)/0.6)] group-hover:text-[hsl(var(--foreground))]"
+          class="theme-icon-container flex shrink-0 items-center justify-center w-[26px] h-[26px] text-primary lg:text-muted-foreground group-hover:text-foreground"
         >
+          <!-- Sun Icon -->
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -33,6 +36,8 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
             ></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"
             ></path><path d="m19.07 4.93-1.41 1.41"></path></svg
           >
+
+          <!-- Moon Icon -->
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -47,17 +52,28 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
         </span>
         <span class="font-medium text-[14px]">Dark Mode</span>
       </span>
-      <div class="relative inline-block w-11 h-5 shrink-0 pointer-events-none">
+
+      <!-- CONTAINER TOGGLE DI SEBELAH KANAN -->
+      <div class="relative inline-flex items-center">
+        <!-- Input disembunyikan secara visual dengan sr-only -->
         <input
           id={uniqueId}
           type="checkbox"
           aria-label="Toggle Dark Mode"
-          class="theme-switch-input peer appearance-none w-11 h-5 bg-slate-200 dark:bg-zinc-800 rounded-full checked:bg-slate-800 dark:checked:bg-emerald-500 cursor-pointer transition-[background-color] duration-150 ease-out"
+          class="theme-switch-input sr-only peer"
         />
-        <span
-          class="absolute top-0 left-0 w-5 h-5 bg-white rounded-full border border-slate-300 dark:border-zinc-700 shadow-sm transition-transform duration-150 ease-out peer-checked:translate-x-6 cursor-pointer"
-        ></span>
+        <!-- Elemen Visual Switch Menggunakan Warna Shadcn -->
+        <div
+          class="relative w-9 h-5 bg-input rounded-full
+                 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-ring/50
+                 peer-checked:bg-primary transition-all duration-150
+                 after:content-[''] after:absolute after:top-[2px] after:start-[2px]
+                 after:bg-background after:rounded-full after:h-4 after:w-4
+                 after:transition-all peer-checked:after:translate-x-full"
+        >
+        </div>
 
+        <!-- Inline Script bawaan kamu agar tidak terjadi 'flash screen' -->
         <script is:inline data-astro-rerun>
           (function () {
             try {
@@ -70,7 +86,6 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
                 el.checked = isDark;
               });
 
-              // Sinkronisasi status tampilan ikon secepat mungkin sebelum script utama selesai di-load
               document
                 .querySelectorAll(".theme-icon-container")
                 .forEach((container) => {
@@ -92,6 +107,7 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
   </div>
 </div>
 
+<!-- Script Utama untuk Event Listener (Tetap pertahankan script lama kamu di bawah ini) -->
 <script>
   document.addEventListener("astro:page-load", () => {
     const storageKey = "astro-theme";
@@ -104,7 +120,6 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
 
     const updateUI = (dark: boolean) => {
       checkboxes.forEach((checkbox) => {
-        // Hanya update jika statusnya berbeda agar tidak memicu re-render gratisan
         if (checkbox.checked !== dark) checkbox.checked = dark;
       });
 
@@ -139,11 +154,7 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
     checkboxes.forEach((checkbox) => {
       checkbox.addEventListener("change", () => {
         const nextTheme = checkbox.checked;
-
-        // Tambahkan class no-transitions ke html sebelum ganti tema
         html.classList.add("no-transitions");
-
-        // Ganti tema global
         html.classList.toggle("dark", nextTheme);
         updateUI(nextTheme);
 
@@ -151,28 +162,23 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
           localStorage.setItem(storageKey, nextTheme ? "dark" : "light");
         } catch (e) {}
 
-        // Kembalikan transisinya setelah browser selesai memproses perubahan warna dasar
         setTimeout(() => {
           html.classList.remove("no-transitions");
         }, 50);
       });
     });
 
-    // OPTIMASI MUTATION OBSERVER: Putus siklus loop tak berujung
     let isObserving = true;
     const observer = new MutationObserver((mutations) => {
       if (!isObserving) return;
-
       mutations.forEach((mutation) => {
         if (mutation.attributeName === "class") {
-          // Matikan observer sebentar agar tidak bentrok dengan event 'change' di atas
           isObserving = false;
           updateUI(html.classList.contains("dark"));
           isObserving = true;
         }
       });
     });
-
     observer.observe(html, { attributes: true });
   });
 </script>

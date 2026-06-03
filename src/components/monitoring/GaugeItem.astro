@@ -30,23 +30,23 @@ const initialPct = Math.min(Math.max((initialValue / maxLimit) * 100, 0), 100);
     data-target-percentage={initialPct}
 >
     <svg class="w-full h-full" viewBox="0 0 200 200">
-        <!-- Background Track -->
+        <!-- Background Track: Menggunakan stroke-border bawaan -->
         <path
-            class="fill-none stroke-[hsl(var(--border))] stroke-[4] stroke-linecap-round transition-colors duration-300"
+            class="fill-none stroke-border stroke-[4] stroke-linecap-round transition-colors duration-300"
             d="M 40 160 A 75 75 0 1 1 160 160"></path>
 
         <!-- Start Tick Base -->
         <line
-            class="stroke-[hsl(var(--border))] transition-colors duration-300"
+            class="stroke-border transition-colors duration-300"
             x1="44.6"
             y1="156.55"
             x2="43.4"
             y2="154.95"
             stroke-width="7.5"></line>
 
-        <!-- Start Tick Active -->
+        <!-- Start Tick Active: Menggunakan stroke-primary bawaan -->
         <line
-            class="tick-start stroke-[hsl(var(--primary))] transition-colors duration-300"
+            class="tick-start stroke-primary transition-colors duration-300"
             x1="44.6"
             y1="156.55"
             x2="43.4"
@@ -57,7 +57,7 @@ const initialPct = Math.min(Math.max((initialValue / maxLimit) * 100, 0), 100);
 
         <!-- End Tick Base -->
         <line
-            class="stroke-[hsl(var(--border))] transition-colors duration-300"
+            class="stroke-border transition-colors duration-300"
             x1="155.4"
             y1="156.55"
             x2="156.6"
@@ -66,7 +66,7 @@ const initialPct = Math.min(Math.max((initialValue / maxLimit) * 100, 0), 100);
 
         <!-- End Tick Active -->
         <line
-            class="tick-end stroke-[hsl(var(--primary))] transition-colors duration-300"
+            class="tick-end stroke-primary transition-colors duration-300"
             x1="155.4"
             y1="156.55"
             x2="156.6"
@@ -77,38 +77,38 @@ const initialPct = Math.min(Math.max((initialValue / maxLimit) * 100, 0), 100);
 
         <!-- Main Progress Path -->
         <path
-            class="progress-path fill-none stroke-[hsl(var(--primary))] stroke-[4] stroke-linecap-round transition-colors duration-300"
+            class="progress-path fill-none stroke-primary stroke-[4] stroke-linecap-round transition-colors duration-300"
             d="M 40 160 A 75 75 0 1 1 160 160"></path>
 
-        <!-- Label -->
+        <!-- Label: Menggunakan fill-foreground -->
         <text
             x="100"
             y="82"
             text-anchor="middle"
-            class="fill-[hsl(var(--foreground))] font-mono font-bold tracking-[2px] transition-colors duration-300"
+            class="fill-foreground font-mono font-bold tracking-[2px] transition-colors duration-300"
             font-size="14"
         >
             {label}
         </text>
 
-        <!-- Value -->
+        <!-- Value: Menggunakan fill-foreground -->
         <text
             x="100"
             y="128"
             text-anchor="middle"
-            class="fill-[hsl(var(--foreground))] font-mono font-bold value-text tracking-tight transition-colors duration-300"
+            class="fill-foreground font-mono font-bold value-text tracking-tight transition-colors duration-300"
             font-size="42"
         >
             {initialValue.toFixed(precision)}
         </text>
 
-        <!-- Unit -->
+        <!-- Unit: Menggunakan fill-muted-foreground untuk hierarki visual khas Shadcn -->
         <text
             x="100"
             y="162"
             text-anchor="middle"
-            class="fill-[hsl(var(--foreground))] font-mono font-bold tracking-wider transition-colors duration-300"
-            font-size="18"
+            class="fill-muted-foreground font-mono font-medium tracking-wider transition-colors duration-300"
+            font-size="16"
         >
             {unit}
         </text>

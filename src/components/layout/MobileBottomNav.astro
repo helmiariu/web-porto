@@ -6,7 +6,7 @@ const navItems = mainNavData(false);
 ---
 
 <nav
-  class="md:hidden fixed bottom-5 left-1/2 -translate-x-1/2 w-max max-w-[calc(100%-2rem)] z-[60] rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] p-1.5 shadow-lg"
+  class="md:hidden fixed bottom-5 left-1/2 -translate-x-1/2 w-max max-w-[calc(100%-2rem)] z-[60] rounded-2xl border border-border bg-background p-1.5 shadow-lg"
 >
   <div class="flex items-center gap-1.5">
     <div class="flex items-center gap-1">
@@ -19,7 +19,8 @@ const navItems = mainNavData(false);
               href={item.href}
               data-nav-link
               aria-label={item.label}
-              class="w-11 h-11 flex items-center justify-center rounded-xl transition-all duration-200 border text-[hsl(var(--foreground)/0.6)] border-transparent bg-transparent hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]"
+              /* MENGGUNAKAN text-primary SECARA DEFAULT DAN lg:text-muted-foreground SAAT LAYAR BESAR */
+              class="w-11 h-11 flex items-center justify-center rounded-xl transition-all duration-200 border text-primary lg:text-muted-foreground border-transparent bg-transparent hover:text-accent-foreground hover:bg-accent"
             >
               <span class="flex items-center justify-center h-5 w-5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block">
                 <IconComponent />
@@ -30,11 +31,11 @@ const navItems = mainNavData(false);
       }
     </div>
 
-    <div class="h-9 w-[1px] bg-[hsl(var(--border))] dark:bg-[hsl(var(--foreground))] dark:opacity-15 shrink-0 mx-1"></div>
+    <div class="h-9 w-[1px] bg-border dark:bg-muted-foreground/20 shrink-0 mx-1"></div>
 
     <button
       id="mobile-menu-trigger"
-      class="group inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] transition-colors shadow-lg"
+      class="group inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-secondary text-secondary-foreground transition-colors shadow-xs hover:bg-secondary/80"
       
       aria-label="Open menu"
       aria-expanded="false"
@@ -60,15 +61,14 @@ const navItems = mainNavData(false);
         : currentPath.startsWith(href || "");
 
       if (isActive) {
-        // Disamakan menggunakan rounded-xl agar konsisten
-        link.className = "w-11 flex h-11 items-center justify-center rounded-xl transition-all duration-200 border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] shadow-sm";
+        link.className = "w-11 flex h-11 items-center justify-center rounded-xl transition-all duration-200 border border-border bg-accent text-accent-foreground shadow-xs font-medium";
       } else {
-        // Disamakan menggunakan rounded-xl agar bentuk hover sama dengan aktif
-        link.className = "w-11 flex h-11 items-center justify-center rounded-xl transition-all duration-200 border border-transparent bg-transparent text-[hsl(var(--foreground)/0.6)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]";
+        // DI SINI JUGA DISESUAIKAN: text-muted-foreground diganti menjadi text-primary lg:text-muted-foreground
+        link.className = "w-11 flex h-11 items-center justify-center rounded-xl transition-all duration-200 border border-transparent bg-transparent text-primary lg:text-muted-foreground hover:text-accent-foreground hover:bg-accent";
       }
     });
 
-// --- 2. LOGIKA DRAWER MENU MOBILE ---
+    // --- 2. LOGIKA DRAWER MENU MOBILE ---
     const trigger = document.getElementById("mobile-menu-trigger");
     const dropdown = document.getElementById("mobile-dropdown");
     const backdrop = document.getElementById("mobile-dropdown-backdrop");
@@ -102,7 +102,6 @@ const navItems = mainNavData(false);
         document.body.classList.add("overflow-hidden");
         trigger.setAttribute("aria-expanded", "true");
         
-        // Tetap hapus class bounce saat diklik agar transisi buka menu mulus
         if (trigger.classList.contains("animate-bounce")) {
           trigger.classList.remove("animate-bounce");
         }

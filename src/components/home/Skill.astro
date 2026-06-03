@@ -33,7 +33,7 @@ const row2Skills = [
 ---
 
 <section
-  class="w-full py-0 mb-13 overflow-hidden bg-[hsl(var(--background))] text-[hsl(var(--foreground))] skill-section-contain"
+  class="w-full py-0 mb-13 overflow-hidden bg-background text-foreground skill-section-contain"
 >
   <div class="flex items-center w-full mb-4">
     <h2
@@ -45,21 +45,22 @@ const row2Skills = [
 
   <div class="flex flex-col gap-y-4 max-[426px]:gap-y-3 w-full relative">
     <div
-      class="absolute inset-y-0 left-0 w-1/6 bg-gradient-to-r from-[hsl(var(--background))] to-transparent z-10 pointer-events-none"
+      class="absolute inset-y-0 left-0 w-1/6 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none"
     >
     </div>
     <div
-      class="absolute inset-y-0 right-0 w-1/6 bg-gradient-to-l from-[hsl(var(--background))] to-transparent z-10 pointer-events-none"
+      class="absolute inset-y-0 right-0 w-1/6 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none"
     >
     </div>
 
+    {/* Baris Pertama */}
     <div class="flex overflow-hidden select-none group w-full">
       <div
         class="flex gap-4 max-[426px]:gap-2 pr-4 max-[426px]:pr-2 shrink-0 animate-marquee-left will-change-transform whitespace-nowrap group-hover:[animation-play-state:paused]"
       >
         {
           row1Skills.map((skill) => (
-            <div class="inline-flex items-center justify-center gap-3 max-[426px]:gap-2 px-6 py-3 max-[426px]:px-4 max-[426px]:py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm max-[426px]:text-xs transition-transform duration-200 ease-out hover:scale-105">
+            <div class="inline-flex items-center justify-center gap-3 max-[426px]:gap-2 px-6 py-3 max-[426px]:px-4 max-[426px]:py-2 rounded-xl border border-border bg-card text-card-foreground font-medium text-sm max-[426px]:text-xs transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground shadow-xs hover:scale-105">
               <Icon
                 name={skill.icon}
                 class={`w-5 h-5 max-[426px]:w-4 max-[426px]:h-4 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
@@ -75,7 +76,7 @@ const row2Skills = [
       >
         {
           row1Skills.map((skill) => (
-            <div class="inline-flex items-center justify-center gap-3 max-[426px]:gap-2 px-6 py-3 max-[426px]:px-4 max-[426px]:py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm max-[426px]:text-xs transition-transform duration-200 ease-out hover:scale-105">
+            <div class="inline-flex items-center justify-center gap-3 max-[426px]:gap-2 px-6 py-3 max-[426px]:px-4 max-[426px]:py-2 rounded-xl border border-border bg-card text-card-foreground font-medium text-sm max-[426px]:text-xs transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground shadow-xs hover:scale-105">
               <Icon
                 name={skill.icon}
                 class={`w-5 h-5 max-[426px]:w-4 max-[426px]:h-4 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
@@ -87,13 +88,14 @@ const row2Skills = [
       </div>
     </div>
 
+    {/* Baris Kedua */}
     <div class="flex overflow-hidden select-none group w-full">
       <div
         class="flex gap-4 max-[426px]:gap-2 pr-4 max-[426px]:pr-2 shrink-0 animate-marquee-right will-change-transform whitespace-nowrap group-hover:[animation-play-state:paused]"
       >
         {
           row2Skills.map((skill) => (
-            <div class="inline-flex items-center justify-center gap-3 max-[426px]:gap-2 px-6 py-3 max-[426px]:px-4 max-[426px]:py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm max-[426px]:text-xs transition-transform duration-200 ease-out hover:scale-105">
+            <div class="inline-flex items-center justify-center gap-3 max-[426px]:gap-2 px-6 py-3 max-[426px]:px-4 max-[426px]:py-2 rounded-xl border border-border bg-card text-card-foreground font-medium text-sm max-[426px]:text-xs transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground shadow-xs hover:scale-105">
               <Icon
                 name={skill.icon}
                 class={`w-5 h-5 max-[426px]:w-4 max-[426px]:h-4 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
@@ -109,7 +111,7 @@ const row2Skills = [
       >
         {
           row2Skills.map((skill) => (
-            <div class="inline-flex items-center justify-center gap-3 max-[426px]:gap-2 px-6 py-3 max-[426px]:px-4 max-[426px]:py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium text-sm max-[426px]:text-xs transition-transform duration-200 ease-out hover:scale-105">
+            <div class="inline-flex items-center justify-center gap-3 max-[426px]:gap-2 px-6 py-3 max-[426px]:px-4 max-[426px]:py-2 rounded-xl border border-border bg-card text-card-foreground font-medium text-sm max-[426px]:text-xs transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground shadow-xs hover:scale-105">
               <Icon
                 name={skill.icon}
                 class={`w-5 h-5 max-[426px]:w-4 max-[426px]:h-4 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
@@ -124,7 +126,7 @@ const row2Skills = [
 </section>
 
 <style>
-  /* Mengisolasi section ini agar tidak memicu render ulang elemen luar */
+  /* Tetap mempertahankan optimasi performa Anda */
   .skill-section-contain {
     content-visibility: auto;
     contain-intrinsic-size: 200px;
@@ -138,7 +140,6 @@ const row2Skills = [
     animation: marqueeRight 30s linear infinite;
   }
 
-  /* Menerapkan Hardware Acceleration murni */
   .will-change-transform {
     will-change: transform;
     transform: translate3d(0, 0, 0);

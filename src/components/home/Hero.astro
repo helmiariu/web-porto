@@ -1,6 +1,6 @@
 ---
 // src/components/Hero.astro
-import CTAButton from "@components/ui/CTAButton.astro";
+import { buttonVariants } from "@components/components/ui/button";
 import ResumeDropdown from "@components/ui/ResumeDropdown.astro";
 
 const title = "About";
@@ -12,21 +12,26 @@ const bio =
   class="mb-10 md:mb-10 pt-4 md:pt-0 py-0 md:py-0 px-0 md:px-0 bg-background text-foreground antialiased transition-colors duration-300"
 >
   <div class="flex items-center w-full mb-2">
+    <!-- Menghapus text-foreground redundan karena sudah diwariskan dari tag section di atasnya -->
     <h2
-      class="text-[clamp(1.4rem,5vw,1.75rem)] font-bold tracking-tight text-foreground relative after:w-12 after:h-[3px] after:bg-primary after:mt-1 after:rounded-full"
+      class="text-[clamp(1.4rem,5vw,1.75rem)] font-bold tracking-tight relative after:w-12 after:h-[3px] after:bg-primary after:mt-1 after:rounded-full"
     >
       {title}
     </h2>
   </div>
   <div class="w-full md:w-full md:max-w-full space-y-3">
     <p
-      class="text-[clamp(0.95rem,1.5vw,1rem)] opacity-80 font-[450] text-muted-foreground leading-relaxed md:leading-relaxed"
+      class="text-[clamp(0.95rem,1.5vw,1rem)] font-[450] text-foreground leading-relaxed md:leading-relaxed"
     >
       {bio}
     </p>
 
     <div class="flex items-center gap-3 pt-1 w-full">
-      <CTAButton text="Contact Me" link="/contact" variant="primary" />
+      <!-- Mengganti CTAButton dengan fungsi buttonVariants dari shadcn -->
+      <a href="#contact" class={buttonVariants({ variant: "default" })}>
+        Contact Me
+      </a>
+
       <ResumeDropdown />
     </div>
   </div>
