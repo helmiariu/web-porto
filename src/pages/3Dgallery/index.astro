@@ -2,6 +2,7 @@
 import Layout from "@layouts/Layout.astro";
 import { buttonVariants } from "@components/components/ui/button"; // Pastikan path ini sesuai dengan struktur proyekmu
 import { ChevronLeft, Loader2 } from "@lucide/astro"; // Menggunakan Lucide Astro agar selaras
+import { cn } from "@components/lib/utils"; // Pastikan mengimpor fungsi cn dari shadcn
 ---
 
 <Layout>
@@ -43,8 +44,14 @@ import { ChevronLeft, Loader2 } from "@lucide/astro"; // Menggunakan Lucide Astr
         Halaman ini sedang dalam proses pengembangan. Saya akan segera kembali.
       </p>
 
-      <a href="/" class={buttonVariants({ variant: "default" })}>
-        <ChevronLeft class="mr-2 h-4 w-4" />
+      <a
+        href="/"
+        class={cn(
+          buttonVariants({ variant: "default" }),
+          "h-10 px-4 text-sm font-semibold gap-2 rounded-lg",
+        )}
+      >
+        <ChevronLeft class="h-6 w-6" />
         Back
       </a>
     </div>

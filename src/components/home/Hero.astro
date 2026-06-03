@@ -2,6 +2,7 @@
 // src/components/Hero.astro
 import { buttonVariants } from "@components/components/ui/button";
 import ResumeDropdown from "@components/ui/ResumeDropdown.astro";
+import { cn } from "@components/lib/utils";
 
 const title = "About";
 const bio =
@@ -27,9 +28,14 @@ const bio =
     </p>
 
     <div class="flex items-center gap-3 pt-1 w-full">
-      <!-- Mengganti CTAButton dengan fungsi buttonVariants dari shadcn -->
-      <a href="#contact" class={buttonVariants({ variant: "default" })}>
-        Contact Me
+      <a
+        href="#contact"
+        class={cn(
+          buttonVariants({ variant: "default" }),
+          "h-10 px-4 text-sm font-semibold gap-2 rounded-lg",
+        )}
+      >
+        Contact
       </a>
 
       <ResumeDropdown />

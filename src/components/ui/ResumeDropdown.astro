@@ -1,14 +1,18 @@
 ---
 // src/components/ResumeDropdown.astro
-import { ChevronDown, Download } from "@lucide/astro";
+import { ChevronDown, ArrowRight } from "@lucide/astro";
 import { buttonVariants } from "@components/components/ui/button";
+import { cn } from "@components/lib/utils";
 ---
 
 <details class="relative inline-block text-left group" id="resume-dropdown">
     <!-- Trigger menggunakan tag <summary> yang bergaya tombol outline/secondary Shadcn -->
+
     <summary
-        class={buttonVariants({ variant: "secondary", size: "default" }) +
-            " gap-2 rounded-xl border border-border list-none cursor-pointer select-none [&::-webkit-details-marker]:hidden"}
+        class={cn(
+            buttonVariants({ variant: "outline" }),
+            "h-10 px-4 text-sm font-semibold gap-2 rounded-lg",
+        )}
     >
         <span>Resume</span>
         <ChevronDown
@@ -18,15 +22,15 @@ import { buttonVariants } from "@components/components/ui/button";
 
     <!-- Konten Dropdown Menu khas Shadcn -->
     <div
-        class="absolute left-0 mt-2 w-36 origin-top rounded-xl border border-border bg-background p-1.5 text-foreground shadow-md z-50 animate-in fade-in slide-in-from-top-1"
+        class="absolute left-0 mt-2 w-36 origin-top rounded-xl border border-border bg-background p-1.5 text-primary lg:text-foreground shadow-md z-50 animate-in fade-in slide-in-from-top-1"
     >
         <a
             href="/resume-en.pdf"
             download
-            class="group/item flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+            class="group/item flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
         >
             <span>English</span>
-            <Download
+            <ArrowRight
                 class="h-4 w-4 transition-transform group-hover/item:translate-y-[1px]"
             />
         </a>
@@ -34,10 +38,10 @@ import { buttonVariants } from "@components/components/ui/button";
         <a
             href="/resume-id.pdf"
             download
-            class="group/item flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+            class="group/item flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
         >
             <span>Indonesia</span>
-            <Download
+            <ArrowRight
                 class="h-4 w-4 transition-transform group-hover/item:translate-y-[1px]"
             />
         </a>
