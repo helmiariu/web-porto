@@ -46,12 +46,10 @@ import { cn } from "@components/lib/utils"; // Pastikan mengimpor fungsi cn dari
 
       <a
         href="/"
-        class={cn(
-          buttonVariants({ variant: "default" }),
-          "h-10 px-4 text-sm font-semibold gap-2 rounded-lg",
-        )}
+        data-icon="inline-start"
+        class={buttonVariants({ variant: "default", size: "default" })}
       >
-        <ChevronLeft class="h-6 w-6" />
+        <ChevronLeft class="h-4 w-4" />
         Back
       </a>
     </div>
