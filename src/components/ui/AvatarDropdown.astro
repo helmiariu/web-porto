@@ -44,7 +44,7 @@ const hasSlot = Astro.slots.has("default");
             class={`relative shrink-0 ${sizeClass} ${sizeClass.includes("rounded") ? "" : "rounded-full"}`}
         >
             <div
-                class="w-full h-full overflow-hidden rounded-[inherit] border border-border transition-all duration-300 group-hover:scale-105 group-open:scale-105 group-open:border-foreground/30"
+                class="w-full h-full overflow-hidden rounded-[inherit] transition-all duration-300 group-hover:scale-105 group-open:scale-105 group-open:border-foreground/30"
             >
                 <Image
                     src={avatarImage}
@@ -58,7 +58,7 @@ const hasSlot = Astro.slots.has("default");
             </div>
             {
                 showChevron && (
-                    <div class="absolute bottom-0 right-0 bg-background text-foreground p-[2px] rounded-full shadow-xs border border-border transition-all duration-300 group-hover:scale-110 group-open:scale-110 flex items-center justify-center">
+                    <div class="absolute bottom-0 right-0 bg-background text-foreground p-[2px] rounded-full shadow-xs transition-all duration-300 group-hover:scale-110 group-open:scale-110 flex items-center justify-center">
                         <ChevronDown class="w-3.5 h-3.5 stroke-[2.5] transition-transform duration-200 group-open:rotate-180" />
                     </div>
                 )

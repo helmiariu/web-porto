@@ -11,7 +11,6 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
   </p>
 
   <div class="space-y-1.5">
-    <!-- STRUKTUR UTAMA SEPERTI DESAIN YANG KAMU MAU -->
     <label
       for={uniqueId}
       class="flex items-center justify-between rounded-xl border border-transparent bg-transparent duration-150 cursor-pointer relative py-[6px] px-[12px] group text-primary lg:text-muted-foreground hover:bg-secondary hover:text-foreground select-none"
@@ -20,7 +19,6 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
         <span
           class="theme-icon-container flex shrink-0 items-center justify-center w-[26px] h-[26px] text-primary lg:text-muted-foreground group-hover:text-foreground"
         >
-          <!-- Sun Icon -->
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -37,7 +35,6 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
             ></path><path d="m19.07 4.93-1.41 1.41"></path></svg
           >
 
-          <!-- Moon Icon -->
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -53,61 +50,70 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
         <span class="font-medium text-[14px]">Dark Mode</span>
       </span>
 
-      <!-- CONTAINER TOGGLE DI SEBELAH KANAN -->
-      <div class="relative inline-flex items-center">
-        <!-- Input disembunyikan secara visual dengan sr-only -->
+      <div class="relative w-[44px] h-[20px]">
         <input
           id={uniqueId}
           type="checkbox"
           aria-label="Toggle Dark Mode"
           class="theme-switch-input sr-only peer"
         />
-        <!-- Elemen Visual Switch Menggunakan Warna Shadcn -->
+
         <div
-          class="relative w-9 h-5 bg-input rounded-full
-                 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-ring/50
-                 peer-checked:bg-primary transition-all duration-150
-                 after:content-[''] after:absolute after:top-[2px] after:start-[2px]
-                 after:bg-background after:rounded-full after:h-4 after:w-4
-                 after:transition-all peer-checked:after:translate-x-full"
+          class="absolute inset-0 bg-input rounded-full
+           peer-checked:bg-primary transition-colors duration-200 ease-in-out
+           
+           after:content-[''] after:absolute after:top-[3px] after:left-[3px]
+           after:bg-background after:shadow-sm after:rounded-full after:h-[14px] after:w-[14px]
+           after:transition-all after:duration-300 after:ease-[cubic-bezier(0.175,0.885,0.32,1.275)]
+           peer-checked:after:translate-x-[24px]"
         >
         </div>
 
-        <!-- Inline Script bawaan kamu agar tidak terjadi 'flash screen' -->
-        <script is:inline data-astro-rerun>
-          (function () {
-            try {
-              const theme = localStorage.getItem("astro-theme");
-              const isDark = theme
-                ? theme === "dark"
-                : window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+        <span
+          class="pointer-events-none absolute right-0 top-0 flex h-full items-center pr-1.5 text-[8px] font-black tracking-wider text-muted-foreground transition-opacity duration-150 peer-checked:opacity-0"
+        >
+          OFF
+        </span>
 
-              document.querySelectorAll(".theme-switch-input").forEach((el) => {
-                el.checked = isDark;
-              });
-
-              document
-                .querySelectorAll(".theme-icon-container")
-                .forEach((container) => {
-                  const sun = container.querySelector(".sun-icon");
-                  const moon = container.querySelector(".moon-icon");
-                  if (isDark) {
-                    sun?.classList.replace("block", "hidden");
-                    moon?.classList.replace("hidden", "block");
-                  } else {
-                    sun?.classList.replace("hidden", "block");
-                    moon?.classList.replace("block", "hidden");
-                  }
-                });
-            } catch (e) {}
-          })();
-        </script>
+        <span
+          class="pointer-events-none absolute left-0 top-0 flex h-full items-center pl-2 text-[8px] font-black tracking-wider text-primary-foreground opacity-0 transition-opacity duration-150 peer-checked:opacity-100"
+        >
+          ON
+        </span>
       </div>
     </label>
   </div>
 </div>
 
-<!-- Script Utama untuk Event Listener (Tetap pertahankan script lama kamu di bawah ini) -->
+<script is:inline data-astro-rerun>
+  (function () {
+    try {
+      const theme = localStorage.getItem("astro-theme");
+      const isDark = theme
+        ? theme === "dark"
+        : window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+
+      document.querySelectorAll(".theme-switch-input").forEach((el) => {
+        el.checked = isDark;
+      });
+
+      document
+        .querySelectorAll(".theme-icon-container")
+        .forEach((container) => {
+          const sun = container.querySelector(".sun-icon");
+          const moon = container.querySelector(".moon-icon");
+          if (isDark) {
+            sun?.classList.replace("block", "hidden");
+            moon?.classList.replace("hidden", "block");
+          } else {
+            sun?.classList.replace("hidden", "block");
+            moon?.classList.replace("block", "hidden");
+          }
+        });
+    } catch (e) {}
+  })();
+</script>
+
 <script>
   document.addEventListener("astro:page-load", () => {
     const storageKey = "astro-theme";

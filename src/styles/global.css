@@ -11,6 +11,7 @@
 @theme {
   --font-sans: 'Montserrat Variable', sans-serif;
   --font-heading: 'Montserrat Variable', sans-serif;
+  --font-desc: 'Geist', sans-serif;
 
   --variant-dark: (.dark &);
 
