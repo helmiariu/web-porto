@@ -1,0 +1,59 @@
+<!-- src/components/TopProgressBar.astro -->
+<div
+    id="top-progress-bar"
+    class="fixed top-0 left-0 z-9999 h-[3px] w-0 bg-primary opacity-0 pointer-events-none shadow-[0_0_10px_rgba(var(--primary),0.5)] transition-[width,opacity] duration-300 ease-out"
+>
+</div>
+
+<script>
+    let progressInterval: Astro.NodeJS.Timeout | number;
+    let currentProgress = 0;
+
+    const initProgressBar = () => {
+        const progressBar = document.getElementById("top-progress-bar");
+        if (!progressBar) return;
+
+        // 1. Saat mulai pindah halaman
+        document.addEventListener("astro:before-preparation", () => {
+            clearInterval(progressInterval);
+            currentProgress = 0;
+
+            // Kecepatan awal meluncur ke 30%
+            progressBar.style.transition =
+                "width 0.4s ease-out, opacity 0.2s ease";
+            progressBar.style.opacity = "1";
+            currentProgress = 30;
+            progressBar.style.width = `${currentProgress}%`;
+
+            // Efek Trickle: Merangkak perlahan secara acak setiap 250ms
+            progressInterval = setInterval(() => {
+                if (currentProgress < 85) {
+                    // Menambah progress secara acak antara 1% sampai 4%
+                    currentProgress += Math.random() * 3 + 1;
+                    progressBar.style.transition = "width 0.3s ease";
+                    progressBar.style.width = `${currentProgress}%`;
+                }
+            }, 250);
+        });
+
+        // 2. Saat halaman siap ditempel
+        document.addEventListener("astro:before-swap", () => {
+            clearInterval(progressInterval);
+            if (!progressBar) return;
+
+            // Meluncur cepat ke 100%
+            progressBar.style.transition =
+                "width 0.2s ease-out, opacity 0.2s ease-in 0.1s";
+            progressBar.style.width = "100%";
+            progressBar.style.opacity = "0";
+
+            setTimeout(() => {
+                progressBar.style.transition = "none";
+                progressBar.style.width = "0%";
+            }, 400);
+        });
+    };
+
+    initProgressBar();
+    document.addEventListener("astro:after-swap", initProgressBar);
+</script>

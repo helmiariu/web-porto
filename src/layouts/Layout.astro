@@ -3,6 +3,7 @@ import "@styles/global.css";
 import Sidebar from "@components/layout/Sidebar.astro";
 import MobileBottomNav from "@components/layout/MobileBottomNav.astro";
 import MobileMenuDrawer from "@components/layout/MobileMenuDrawer.astro";
+import TopProgressBar from "@components/ui/TopProgressBar.astro";
 import "@fontsource-variable/montserrat";
 
 // Mengimpor ClientRouter dari modul transitions Astro
@@ -60,6 +61,7 @@ import { ClientRouter } from "astro:transitions";
   </head>
 
   <body class="antialiased bg-background text-foreground min-h-screen">
+    <TopProgressBar />
     <div
       class="mx-auto max-w-[1250px] w-full px-6 sm:px-9 md:pl-0 md:pr-6 lg:pr-8 pt-8 pb-0 md:pt-0 flex flex-col md:grid md:grid-cols-[auto_1fr] gap-6 md:gap-6 lg:gap-7 min-h-screen"
     >
