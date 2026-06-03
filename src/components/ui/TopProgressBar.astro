@@ -9,51 +9,78 @@
     let progressInterval: Astro.NodeJS.Timeout | number;
     let currentProgress = 0;
 
-    const initProgressBar = () => {
+    // 1. Saat SEBELUM pindah halaman (Halaman Lama)
+    document.addEventListener("astro:before-preparation", () => {
         const progressBar = document.getElementById("top-progress-bar");
         if (!progressBar) return;
 
-        // 1. Saat mulai pindah halaman
-        document.addEventListener("astro:before-preparation", () => {
-            clearInterval(progressInterval);
-            currentProgress = 0;
+        // MATIKAN transisi & Sembunyikan dulu agar tidak ada efek mundur ke kiri
+        progressBar.style.transition = "none";
+        progressBar.style.opacity = "0";
+        progressBar.style.width = "0%";
 
-            // Kecepatan awal meluncur ke 30%
-            progressBar.style.transition =
-                "width 0.4s ease-out, opacity 0.2s ease";
-            progressBar.style.opacity = "1";
-            currentProgress = 30;
-            progressBar.style.width = `${currentProgress}%`;
+        // Paksa browser menerapkan reset di atas secara instan (hack reflow)
+        void progressBar.offsetWidth;
 
-            // Efek Trickle: Merangkak perlahan secara acak setiap 250ms
-            progressInterval = setInterval(() => {
-                if (currentProgress < 85) {
-                    // Menambah progress secara acak antara 1% sampai 4%
-                    currentProgress += Math.random() * 3 + 1;
-                    progressBar.style.transition = "width 0.3s ease";
-                    progressBar.style.width = `${currentProgress}%`;
-                }
-            }, 250);
-        });
+        clearInterval(progressInterval);
+        currentProgress = 0;
 
-        // 2. Saat halaman siap ditempel
-        document.addEventListener("astro:before-swap", () => {
-            clearInterval(progressInterval);
-            if (!progressBar) return;
+        // Sekarang jalankan animasi maju ke 30%
+        progressBar.style.transition = "width 0.4s ease-out, opacity 0.2s ease";
+        progressBar.style.opacity = "1";
+        currentProgress = 30;
+        progressBar.style.width = `${currentProgress}%`;
 
-            // Meluncur cepat ke 100%
-            progressBar.style.transition =
-                "width 0.2s ease-out, opacity 0.2s ease-in 0.1s";
-            progressBar.style.width = "100%";
+        // Efek merangkak pelan (Trickle)
+        progressInterval = setInterval(() => {
+            if (currentProgress < 80) {
+                currentProgress += Math.random() * 3 + 1;
+                progressBar.style.transition = "width 0.3s ease";
+                progressBar.style.width = `${currentProgress}%`;
+            }
+        }, 250);
+
+        // Catat progress terakhir tepat sebelum halaman di-swap
+        document.addEventListener(
+            "astro:before-swap",
+            () => {
+                clearInterval(progressInterval);
+                sessionStorage.setItem(
+                    "last-progress",
+                    currentProgress.toString(),
+                );
+            },
+            { once: true },
+        );
+    });
+
+    // 2. Saat SETELAH berhasil pindah halaman (Halaman Baru)
+    document.addEventListener("astro:after-swap", () => {
+        const progressBar = document.getElementById("top-progress-bar");
+        const lastProgress = sessionStorage.getItem("last-progress");
+
+        if (!progressBar || !lastProgress) return;
+
+        // Pasang posisi terakhir secara instan tanpa animasi agar tidak berkedip
+        progressBar.style.transition = "none";
+        progressBar.style.opacity = "1";
+        progressBar.style.width = `${lastProgress}%`;
+
+        // Paksa browser membaca style (reflow)
+        void progressBar.offsetWidth;
+
+        // MELUNCUR MAJU KE KANAN!
+        progressBar.style.transition =
+            "width 0.25s cubic-bezier(0.4, 0, 0.2, 1)";
+        progressBar.style.width = "100%";
+
+        // Setelah menyentuh ujung kanan, pudar hilang
+        setTimeout(() => {
+            progressBar.style.transition = "opacity 0.2s ease-out";
             progressBar.style.opacity = "0";
+        }, 250);
 
-            setTimeout(() => {
-                progressBar.style.transition = "none";
-                progressBar.style.width = "0%";
-            }, 400);
-        });
-    };
-
-    initProgressBar();
-    document.addEventListener("astro:after-swap", initProgressBar);
+        // Hapus catatan agar bersih
+        sessionStorage.removeItem("last-progress");
+    });
 </script>
