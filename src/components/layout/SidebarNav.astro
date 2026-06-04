@@ -25,7 +25,7 @@ import { Menu, ArrowRight } from "@lucide/astro";
                 data-sidebar-link
                 data-astro-prefetch="tap"
                 /* DEFAULT STATE: menggunakan text-muted-foreground dan hover:bg-accent / hover:text-accent-foreground */
-                class="flex items-center justify-between rounded-xl border transition-all duration-200 cursor-pointer relative py-[6px] px-[12px] group border-transparent bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                class="flex items-center justify-between rounded-lg border transition-all duration-200 cursor-pointer relative py-[6px] px-[12px] group border-transparent bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground"
               >
                 <span class="flex items-center gap-3">
                   <span class="sidebar-icon-span flex shrink-0 items-center justify-center transition-all duration-200 w-[26px] h-[26px] [&>svg]:block [&>svg]:w-[15px] [&>svg]:h-[15px] text-muted-foreground group-hover:text-accent-foreground">
@@ -65,7 +65,7 @@ import { Menu, ArrowRight } from "@lucide/astro";
         link.setAttribute("aria-current", "page");
         /* ACTIVE STATE: Menggunakan border-border, bg-accent, text-accent-foreground, dan bayangan tipis */
         link.className =
-          "flex items-center justify-between rounded-xl border transition-all duration-200 cursor-pointer relative py-[6px] px-[12px] group border-border bg-accent text-accent-foreground shadow-xs font-semibold";
+          "flex items-center justify-between rounded-lg border transition-all duration-200 cursor-pointer relative py-[6px] px-[12px] group border-border bg-accent text-accent-foreground shadow-xs font-semibold";
         if (iconSpan)
           iconSpan.className =
             "sidebar-icon-span flex shrink-0 items-center justify-center transition-all duration-200 w-[26px] h-[26px] [&>svg]:block [&>svg]:w-[15px] [&>svg]:h-[15px] text-accent-foreground";
@@ -76,7 +76,7 @@ import { Menu, ArrowRight } from "@lucide/astro";
         link.removeAttribute("aria-current");
         /* INACTIVE STATE RESTORATION */
         link.className =
-          "flex items-center justify-between rounded-xl border transition-all duration-200 cursor-pointer relative py-[6px] px-[12px] group border-transparent bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground";
+          "flex items-center justify-between rounded-lg border transition-all duration-200 cursor-pointer relative py-[6px] px-[12px] group border-transparent bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground";
         if (iconSpan)
           iconSpan.className =
             "sidebar-icon-span flex shrink-0 items-center justify-center transition-all duration-200 w-[26px] h-[26px] [&>svg]:block [&>svg]:w-[15px] [&>svg]:h-[15px] text-muted-foreground group-hover:text-accent-foreground";

@@ -20,9 +20,9 @@ import ThemeToggle from "@components/ui/ThemeToggle.astro";
 >
   <div class="space-y-4 pb-22">
     <AvatarDropdown
-      sizeClass="h-10.5 w-10.5 rounded-2xl"
+      sizeClass="h-10.5 w-10.5 rounded-lg"
       showChevron={false}
-      class="group-hover:scale-103 group-open:scale-103 group-open:border-foreground/10 rounded-2xl border border-border bg-muted/40 p-0 cursor-pointer hover:bg-muted block w-full transition-all duration-50 ease-out active:scale-98 active:bg-muted/80 group-open:shadow-sm group-open:bg-background"
+      class="group-hover:scale-103 group-open:scale-103 group-open:border-foreground/10 rounded-lg border border-border bg-muted/40 p-0 cursor-pointer hover:bg-muted block w-full transition-all duration-50 ease-out active:scale-98 active:bg-muted/80 group-open:shadow-sm group-open:bg-background"
     >
       <div class="flex items-center justify-between w-full pl-4 pr-3 py-1">
         <div class="flex flex-col text-left">
@@ -68,7 +68,7 @@ import ThemeToggle from "@components/ui/ThemeToggle.astro";
                     href={item.href}
                     data-drawer-link
                     data-astro-prefetch="tap"
-                    class="flex items-center justify-between rounded-xl border transition-all duration-200 cursor-pointer relative py-[6px] px-[12px] group border-transparent bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                    class="flex items-center justify-between rounded-lg border transition-all duration-200 cursor-pointer relative py-[6px] px-[12px] group border-transparent bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                   >
                     <span class="flex items-center gap-3">
                       <span class="drawer-icon-span flex shrink-0 items-center justify-center transition-all duration-200 w-[26px] h-[26px] [&>svg]:block [&>svg]:w-[15px] [&>svg]:h-[15px] text-muted-foreground group-hover:text-accent-foreground">
@@ -108,7 +108,7 @@ import ThemeToggle from "@components/ui/ThemeToggle.astro";
 
       if (isActive) {
         link.className =
-          "flex items-center justify-between rounded-xl border transition-all duration-200 cursor-pointer relative py-[6px] px-[12px] group border-border bg-accent text-accent-foreground shadow-xs font-semibold";
+          "flex items-center justify-between rounded-lg border transition-all duration-200 cursor-pointer relative py-[6px] px-[12px] group border-border bg-accent text-accent-foreground shadow-xs font-semibold";
         if (iconSpan)
           iconSpan.className =
             "drawer-icon-span flex shrink-0 items-center justify-center transition-all duration-200 w-[26px] h-[26px] [&>svg]:block [&>svg]:w-[15px] [&>svg]:h-[15px] text-accent-foreground";
@@ -117,7 +117,7 @@ import ThemeToggle from "@components/ui/ThemeToggle.astro";
             "drawer-arrow-span items-center justify-center transition-all duration-200 absolute right-[12px] w-[19px] h-[19px] text-accent-foreground [&>svg]:block [&>svg]:w-[13px] [&>svg]:h-[13px] flex";
       } else {
         link.className =
-          "flex items-center justify-between rounded-xl border transition-all duration-200 cursor-pointer relative py-[6px] px-[12px] group border-transparent bg-transparent text-primary lg:text-muted-foreground hover:bg-accent hover:text-accent-foreground";
+          "flex items-center justify-between rounded-lg border transition-all duration-200 cursor-pointer relative py-[6px] px-[12px] group border-transparent bg-transparent text-primary lg:text-muted-foreground hover:bg-accent hover:text-accent-foreground";
         if (iconSpan)
           iconSpan.className =
             "drawer-icon-span flex shrink-0 items-center justify-center transition-all duration-200 w-[26px] h-[26px] [&>svg]:block [&>svg]:w-[15px] [&>svg]:h-[15px] text-currentColor group-hover:text-accent-foreground";
