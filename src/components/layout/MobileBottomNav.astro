@@ -49,42 +49,68 @@ const navItems = mainNavData(false);
 
 
 <script>
-  document.addEventListener("astro:page-load", () => {
-    // --- 1. LOGIKA UPDATE LINK NAVIGASI AKTIF SECARA DINAMIS ---
-    const currentPath = window.location.pathname;
-    const navLinks = document.querySelectorAll("[data-nav-link]");
+  // Fungsi untuk mengecek dan memasang status bounce
+  function handleBounce() {
+    const trigger = document.getElementById("mobile-menu-trigger");
+    if (!trigger) return;
 
+    // Cek apakah di sesi ini user sudah pernah melihat/berinteraksi dengan menu
+    const isBouncedInSession = sessionStorage.getItem("menu-bounced-session");
+
+    if (!isBouncedInSession) {
+      // Jika belum pernah di sesi ini, berikan efek bounce
+      trigger.classList.add("animate-bounce");
+    } else {
+      // Jika sudah pernah (pindah halaman lewat Astro), pastikan bounce mati
+      trigger.classList.remove("animate-bounce");
+    }
+  }
+
+  // 1. Jalankan setiap kali halaman dimuat (baik via refresh maupun transisi Astro)
+  document.addEventListener("astro:page-load", () => {
+    const currentPath = window.location.pathname;
+
+    // --- 1A. LOGIKA UPDATE LINK NAVIGASI BAWAH (w-11 h-11) ---
+    const navLinks = document.querySelectorAll("[data-nav-link]");
     navLinks.forEach((link) => {
       const href = link.getAttribute("href");
-      const isActive = href === "/" 
-        ? currentPath === "/" 
-        : currentPath.startsWith(href || "");
+      const isActive = href === "/" ? currentPath === "/" : currentPath.startsWith(href || "");
 
       if (isActive) {
         link.className = "w-11 flex h-11 items-center justify-center rounded-xl transition-all duration-200 border border-border bg-accent text-accent-foreground shadow-xs font-medium";
       } else {
-        // DI SINI JUGA DISESUAIKAN: text-muted-foreground diganti menjadi text-primary lg:text-muted-foreground
         link.className = "w-11 flex h-11 items-center justify-center rounded-xl transition-all duration-200 border border-transparent bg-transparent text-primary lg:text-muted-foreground hover:text-accent-foreground hover:bg-accent";
       }
     });
 
-    // --- 2. LOGIKA DRAWER MENU MOBILE ---
+    // --- 1B. LOGIKA UPDATE LINK DI DALAM DRAWER (Memanjang/Rapi) ---
+    const drawerLinks = document.querySelectorAll("[data-drawer-link]");
+    drawerLinks.forEach((link) => {
+      const href = link.getAttribute("href");
+      const isActive = href === "/" ? currentPath === "/" : currentPath.startsWith(href || "");
+      const iconSpan = link.querySelector(".drawer-icon-span");
+      const arrowSpan = link.querySelector(".drawer-arrow-span");
+
+      if (isActive) {
+        link.className = "flex items-center justify-between rounded-lg border transition-all duration-200 cursor-pointer relative py-[6px] px-[12px] group border-border bg-accent text-accent-foreground shadow-xs font-semibold";
+        if (iconSpan) iconSpan.className = "drawer-icon-span flex shrink-0 items-center justify-center transition-all duration-200 w-[26px] h-[26px] [&>svg]:block [&>svg]:w-[15px] [&>svg]:h-[15px] text-accent-foreground";
+        if (arrowSpan) arrowSpan.className = "drawer-arrow-span items-center justify-center transition-all duration-200 absolute right-[12px] w-[19px] h-[19px] text-accent-foreground [&>svg]:block [&>svg]:w-[13px] [&>svg]:h-[13px] flex";
+      } else {
+        link.className = "flex items-center justify-between rounded-lg border transition-all duration-200 cursor-pointer relative py-[6px] px-[12px] group border-transparent bg-transparent text-primary lg:text-muted-foreground hover:bg-accent hover:text-accent-foreground";
+        if (iconSpan) iconSpan.className = "drawer-icon-span flex shrink-0 items-center justify-center transition-all duration-200 w-[26px] h-[26px] [&>svg]:block [&>svg]:w-[15px] [&>svg]:h-[15px] text-muted-foreground group-hover:text-accent-foreground";
+        if (arrowSpan) arrowSpan.className = "drawer-arrow-span items-center justify-center transition-all duration-200 absolute right-[12px] w-[19px] h-[19px] text-accent-foreground [&>svg]:block [&>svg]:w-[13px] [&>svg]:h-[13px] hidden";
+      }
+    });
+
+    // --- 2. LOGIKA UTAMA DRAWER & KUNCI SCROLL ---
     const trigger = document.getElementById("mobile-menu-trigger");
     const dropdown = document.getElementById("mobile-dropdown");
     const backdrop = document.getElementById("mobile-dropdown-backdrop");
 
+    // Jalankan pengecekan bounce untuk tombol trigger
+    handleBounce();
+
     if (trigger && dropdown && backdrop) {
-
-      // 1. INI BUAT TES (Memaksa bounce selalu aktif saat dev)
-      trigger.classList.add("animate-bounce");
-
-      // 2. KOMENTARI ATAU HAPUS BLOK INI SEMENTARA AGAR TIDAK ERROR:
-      /* const hasClicked = localStorage.getItem("menu-bounce-disabled") === "true";
-      if (!hasClicked) {
-        trigger.classList.add("animate-bounce");
-      }
-      */
-
       const closeDropdown = () => {
         dropdown.classList.add("opacity-0", "pointer-events-none", "translate-y-4");
         dropdown.classList.remove("opacity-100", "pointer-events-auto", "translate-y-0");
@@ -92,6 +118,8 @@ const navItems = mainNavData(false);
         backdrop.classList.remove("opacity-100", "pointer-events-auto");
         document.body.classList.remove("overflow-hidden");
         trigger.setAttribute("aria-expanded", "false");
+        
+        // DI SINI DIUBAH: Jangan masukkan lagi class 'animate-bounce' saat menu ditutup
       };
 
       const openDropdown = () => {
@@ -102,9 +130,12 @@ const navItems = mainNavData(false);
         document.body.classList.add("overflow-hidden");
         trigger.setAttribute("aria-expanded", "true");
         
+        // Matikan bounce karena user sudah berinteraksi klik
         if (trigger.classList.contains("animate-bounce")) {
           trigger.classList.remove("animate-bounce");
         }
+        // Tandai sesi bahwa bounce tidak perlu diulang saat pindah halaman
+        sessionStorage.setItem("menu-bounced-session", "true");
       };
 
       trigger.addEventListener("click", () => {
@@ -116,21 +147,37 @@ const navItems = mainNavData(false);
         }
       });
 
-      backdrop.addEventListener("click", () => {
-        closeDropdown();
-      });
+      backdrop.addEventListener("click", closeDropdown);
 
       dropdown.querySelectorAll("a").forEach((link) => {
         link.addEventListener("click", () => {
+          // Tandai juga di sini jika user langsung klik link internal
+          sessionStorage.setItem("menu-bounced-session", "true");
           closeDropdown();
         });
       });
     }
   });
+
+  // 2. Antisipasi bawaan Astro View Transitions agar animasi tidak bocor saat proses swap halaman
+  document.addEventListener("astro:after-swap", () => {
+    const trigger = document.getElementById("mobile-menu-trigger");
+    if (trigger && sessionStorage.getItem("menu-bounced-session")) {
+      trigger.classList.remove("animate-bounce");
+    }
+  });
 </script>
 
 
+      <!-- // 1. INI BUAT TES (Memaksa bounce selalu aktif saat dev)
+      trigger.classList.add("animate-bounce");
 
+      // 2. KOMENTARI ATAU HAPUS BLOK INI SEMENTARA AGAR TIDAK ERROR:
+      /* const hasClicked = localStorage.getItem("menu-bounce-disabled") === "true";
+      if (!hasClicked) {
+        trigger.classList.add("animate-bounce");
+      }
+      */ -->
 
 
 <!-- <script>

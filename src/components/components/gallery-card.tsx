@@ -1,4 +1,4 @@
-// src/components/components/carousel-08.tsx
+// src/components/components/gallery-card.tsx
 import { Rotate3d } from "lucide-react";
 
 "use client";
@@ -57,8 +57,12 @@ export default function CarouselWithProgress({ images, albumName }: CarouselProp
             {/* Pembungkus Carousel & Tombol Aksi agar posisi absolutnya akurat */}
             <div className="relative w-full">
 
-                {/* Tombol Aksi Melayang di Pojok Kanan Atas Carousel */}
-                <button className="absolute top-3 right-3 z-10 flex flex-col items-center justify-center bg-background/50 backdrop-blur-md text-popover-foreground border border-border/30 w-12 h-12 rounded-xl font-medium hover:bg-background/80 transition-all shrink-0 shadow-md group">
+                {/* KUNCI ASTRO TRANSITION: Tambahkan data-astro-transition-persist dan id */}
+                <button
+                    id="floating-action-360"
+                    data-astro-transition-persist="floating-action-button"
+                    className="absolute top-3 right-3 z-10 flex flex-col items-center justify-center bg-background/50 backdrop-blur-md text-popover-foreground border border-border/30 w-12 h-12 rounded-xl font-medium hover:bg-background/80 transition-all shrink-0 shadow-md group"
+                >
                     {/* Icon Lucide Rotate3d (Ukuran h-6 w-6) */}
                     <Rotate3d className="h-6 w-6 text-foreground/70 group-hover:text-foreground transition-colors" />
 

@@ -38,7 +38,7 @@ const row2Skills = [
   {/* Header Section */}
   <div class="flex flex-col gap-1 w-full mb-5">
     <h2
-      class="scroll-m20 text-xl font-semibold tracking-tight sm:text-3xl text-foreground"
+      class="scroll-m20 text-xl font-bold tracking-tight sm:text-3xl text-foreground"
     >
       Skills
     </h2>
@@ -58,17 +58,17 @@ const row2Skills = [
 
     {/* ================= BARIS PERTAMA ================= */}
     <div
-      class="flex overflow-hidden select-none group w-full py-1 items-center"
+      class="flex overflow-hidden select-none group w-full py-0.5 items-center"
     >
       <div
-        class="flex gap-3 sm:gap-5 max-[415px]:gap-2 pr-3 sm:pr-5 max-[415px]:pr-2 shrink-0 animate-marquee-left map-container will-change-transform whitespace-nowrap group-hover:[animation-play-state:paused]"
+        class="flex gap-2 sm:gap-3.5 max-[415px]:gap-1.5 pr-2 sm:pr-3.5 max-[415px]:pr-1.5 shrink-0 animate-marquee-left map-container will-change-transform whitespace-nowrap group-hover:[animation-play-state:paused]"
       >
         {
           row1Skills.map((skill) => (
-            <div class="inline-flex items-center justify-center gap-2.5 px-4 py-2.5 sm:px-6 sm:py-3 max-[415px]:px-3.5 max-[415px]:py-2 rounded-lg border border-border bg-card text-card-foreground font-medium text-sm sm:text-base max-[415px]:text-xs transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground shadow-xs hover:scale-105">
+            <div class="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 sm:px-4 sm:py-2 max-[415px]:px-2 max-[415px]:py-1 rounded-xl border border-border bg-card text-card-foreground font-desc  text-xs sm:text-sm max-[415px]:text-[11px] transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground shadow-xs hover:scale-105">
               <Icon
                 name={skill.icon}
-                class={`w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
+                class={`w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
               />
               <span>{skill.name}</span>
             </div>
@@ -78,15 +78,15 @@ const row2Skills = [
 
       {/* Duplikat Baris Pertama (Looping) */}
       <div
-        class="flex gap-3 sm:gap-5 max-[415px]:gap-2 pr-3 sm:pr-5 max-[415px]:pr-2 shrink-0 animate-marquee-left map-container will-change-transform whitespace-nowrap group-hover:[animation-play-state:paused]"
+        class="flex gap-2 sm:gap-3.5 max-[415px]:gap-1.5 pr-2 sm:pr-3.5 max-[415px]:pr-1.5 shrink-0 animate-marquee-left map-container will-change-transform whitespace-nowrap group-hover:[animation-play-state:paused]"
         aria-hidden="true"
       >
         {
           row1Skills.map((skill) => (
-            <div class="inline-flex items-center justify-center gap-2.5 px-4 py-2.5 sm:px-6 sm:py-3 max-[415px]:px-3.5 max-[415px]:py-2 rounded-lg border border-border bg-card text-card-foreground font-medium text-sm sm:text-base max-[415px]:text-xs transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground shadow-xs hover:scale-105">
+            <div class="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 sm:px-4 sm:py-2 max-[415px]:px-2 max-[415px]:py-1 rounded-xl border border-border bg-card text-card-foreground font-desc  text-xs sm:text-sm max-[415px]:text-[11px] transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground shadow-xs hover:scale-105">
               <Icon
                 name={skill.icon}
-                class={`w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
+                class={`w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
               />
               <span>{skill.name}</span>
             </div>
@@ -97,17 +97,17 @@ const row2Skills = [
 
     {/* ================= BARIS KEDUA ================= */}
     <div
-      class="flex overflow-hidden select-none group w-full py-1 items-center"
+      class="flex overflow-hidden select-none group w-full py-0.5 items-center"
     >
       <div
-        class="flex gap-3 sm:gap-5 max-[415px]:gap-2 pr-3 sm:pr-5 max-[415px]:pr-2 shrink-0 animate-marquee-right map-container will-change-transform whitespace-nowrap group-hover:[animation-play-state:paused]"
+        class="flex gap-2 sm:gap-3.5 max-[415px]:gap-1.5 pr-2 sm:pr-3.5 max-[415px]:pr-1.5 shrink-0 animate-marquee-right map-container will-change-transform whitespace-nowrap group-hover:[animation-play-state:paused]"
       >
         {
           row2Skills.map((skill) => (
-            <div class="inline-flex items-center justify-center gap-2.5 px-4 py-2.5 sm:px-6 sm:py-3 max-[415px]:px-3.5 max-[415px]:py-2 rounded-lg border border-border bg-card text-card-foreground font-medium text-sm sm:text-base max-[415px]:text-xs transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground shadow-xs hover:scale-105">
+            <div class="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 sm:px-4 sm:py-2 max-[415px]:px-2 max-[415px]:py-1 rounded-xl border border-border bg-card text-card-foreground font-desc  text-xs sm:text-sm max-[415px]:text-[11px] transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground shadow-xs hover:scale-105">
               <Icon
                 name={skill.icon}
-                class={`w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
+                class={`w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
               />
               <span>{skill.name}</span>
             </div>
@@ -117,15 +117,15 @@ const row2Skills = [
 
       {/* Duplikat Baris Kedua (Looping) */}
       <div
-        class="flex gap-3 sm:gap-5 max-[415px]:gap-2 pr-3 sm:pr-5 max-[415px]:pr-2 shrink-0 animate-marquee-right map-container will-change-transform whitespace-nowrap group-hover:[animation-play-state:paused]"
+        class="flex gap-2 sm:gap-3.5 max-[415px]:gap-1.5 pr-2 sm:pr-3.5 max-[415px]:pr-1.5 shrink-0 animate-marquee-right map-container will-change-transform whitespace-nowrap group-hover:[animation-play-state:paused]"
         aria-hidden="true"
       >
         {
           row2Skills.map((skill) => (
-            <div class="inline-flex items-center justify-center gap-2.5 px-4 py-2.5 sm:px-6 sm:py-3 max-[415px]:px-3.5 max-[415px]:py-2 rounded-lg border border-border bg-card text-card-foreground font-medium text-sm sm:text-base max-[415px]:text-xs transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground shadow-xs hover:scale-105">
+            <div class="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 sm:px-4 sm:py-2 max-[415px]:px-2 max-[415px]:py-1 rounded-xl border border-border bg-card text-card-foreground font-desc  text-xs sm:text-sm max-[415px]:text-[11px] transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground shadow-xs hover:scale-105">
               <Icon
                 name={skill.icon}
-                class={`w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
+                class={`w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
               />
               <span>{skill.name}</span>
             </div>
