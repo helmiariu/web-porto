@@ -1,8 +1,9 @@
 ---
 import Layout from "@layouts/Layout.astro";
 import { buttonVariants } from "@components/components/ui/button"; // Pastikan path ini sesuai dengan struktur proyekmu
-import { ChevronLeft, Loader2 } from "@lucide/astro"; // Menggunakan Lucide Astro agar selaras
+import { ChevronLeft } from "@lucide/astro"; // Menggunakan Lucide Astro agar selaras
 import Blog from "@components/components/blog.tsx";
+import Lottie from "@components/ui/Lottie.astro";
 ---
 
 <Layout>
@@ -21,10 +22,8 @@ import Blog from "@components/components/blog.tsx";
       class="relative z-10 text-center px-6 max-w-md mx-auto flex flex-col items-center"
     >
       <!-- Icon Spinner Minimalis menggunakan warna muted dan token radius asli -->
-      <div
-        class="mb-6 flex h-12 w-12 items-center justify-center rounded-[var(--radius)] border border-border bg-muted/50 text-foreground"
-      >
-        <Loader2 class="w-5 h-5 animate-spin text-muted-foreground" />
+      <div class="box-animasi mb-6">
+        <Lottie />
       </div>
 
       <!-- Judul -->

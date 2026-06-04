@@ -1,0 +1,29 @@
+---
+// src/components/AnimasiKeren.astro
+---
+
+<script>
+    import "@dotlottie/player-component";
+</script>
+
+<div class="flex items-center justify-center">
+    <div class="block dark:hidden">
+        <dotlottie-player
+            src="/cat.lottie"
+            background="transparent"
+            speed="1"
+            style="width: 100%; max-width: 100px; height: auto;"
+            loop
+            autoplay></dotlottie-player>
+    </div>
+
+    <div class="hidden dark:block">
+        <dotlottie-player
+            src="/catdark.json"
+            background="transparent"
+            speed="1"
+            style="width: 100%; max-width: 100px; height: auto;"
+            loop
+            autoplay></dotlottie-player>
+    </div>
+</div>
