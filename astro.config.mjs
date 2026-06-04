@@ -11,5 +11,6 @@ export default defineConfig({
   integrations: [icon(), react()],
   vite: {
     plugins: [tailwindcss()],
+    assetsInclude: ['**/*.glb'],
   },
 });

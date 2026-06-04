@@ -1,52 +1,90 @@
 ---
-// src/pages/gallery.astro
-import { getImage } from "astro:assets"; // <-- 1. Import fungsi optimasi Astro
+// src/pages/indexgallery.astro
+import { getImage } from "astro:assets";
 import Layout from "@layouts/Layout.astro";
 import Gallerycard from "@components/components/gallery-card.tsx";
 
+// 1. Ambil GAMBAR SAJA
 const allImages = import.meta.glob(
   "/src/assets/3Dgallery/**/*.{jpeg,jpg,png,gif,webp,avif,svg}",
   { eager: true },
 );
 
-// Tempat menampung data mentah gambar per album
-const rawAlbumsData: Record<string, any[]> = {};
+// 2. AMANKAN FILE 3D: Tambahkan properti query secara eksplisit di dalam opsi!
+// Jika terlewat, Vite di server production bisa bingung dan mencoba membaca file .glb sebagai modul JS.
+const allModels = import.meta.glob("/src/assets/3Dgallery/**/*.glb", {
+  eager: true,
+  query: "?url", // 👈 WAJIB DI SINI, bukan cuma di komentar komentar sebelumnya bener, kodenya lupa ditulis hhehe
+});
 
-Object.keys(allImages).forEach((path) => {
+interface AlbumRaw {
+  images: any[];
+  modelUrl?: string;
+  wireframeUrl?: string;
+}
+const rawAlbumsData: Record<string, AlbumRaw> = {};
+
+// Kelompokkan Gambar 2D (Urutkan secara alfabetis agar urutan slide tidak acak-acakan)
+Object.keys(allImages)
+  .sort()
+  .forEach((path) => {
+    const parts = path.split("/3Dgallery/");
+    if (parts.length > 1) {
+      const albumName = parts[1].split("/")[0];
+      if (!rawAlbumsData[albumName]) {
+        rawAlbumsData[albumName] = { images: [] };
+      }
+      rawAlbumsData[albumName].images.push((allImages[path] as any).default);
+    }
+  });
+
+// Kelompokkan File 3D (.glb)
+Object.keys(allModels).forEach((path) => {
   const parts = path.split("/3Dgallery/");
   if (parts.length > 1) {
     const albumName = parts[1].split("/")[0];
     if (!rawAlbumsData[albumName]) {
-      rawAlbumsData[albumName] = [];
+      rawAlbumsData[albumName] = { images: [] };
     }
-    // PENTING: Masukkan metadata objek gambar secara utuh, JANGAN hanya .src nya
-    rawAlbumsData[albumName].push((allImages[path] as any).default);
+
+    const fileUrl = (allModels[path] as any).default;
+
+    if (path.toLowerCase().includes("wireframe")) {
+      rawAlbumsData[albumName].wireframeUrl = fileUrl;
+    } else {
+      rawAlbumsData[albumName].modelUrl = fileUrl;
+    }
   }
 });
 
-// 2. Proses Optimasi Gambar secara paralel menggunakan Promise.all
+// 3. Proses Optimasi Gambar & Satukan Data Akhir
 const albumList = await Promise.all(
   Object.keys(rawAlbumsData).map(async (name) => {
+    const album = rawAlbumsData[name];
+
     const optimizedImages = await Promise.all(
-      rawAlbumsData[name].map(async (imgMetadata) => {
-        // Jika file adalah SVG, lewati optimasi karena SVG adalah vektor
+      album.images.map(async (imgMetadata) => {
         if (imgMetadata.format === "svg") return imgMetadata.src;
 
-        // Optimasi gambar di sini!
+        // OPTIMASI VISUAL: Naikkan width ke 1200
+        // Jika hanya 600, gambar akan terlihat pecah/blur saat user membuka mode MODAL FULLSCREEN di monitor desktop.
+        // Berkat format "webp", ukuran file 1200px akan tetap sangat kecil (kecerahan & ketajaman terjaga).
         const optimized = await getImage({
           src: imgMetadata,
-          width: 600, // Ukuran lebar maksimal gambar di dalam card (sesuaikan kebutuhan)
-          format: "webp", // Otomatis konversi semua gambar jadi WebP yang super ringan
-          quality: "normal", // Kualitas kompresi (low, normal, high, max atau angka 1-100)
+          width: 1200,
+          format: "webp",
+          quality: "normal",
         });
 
-        return optimized.src; // Mengembalikan URL gambar yang SUDAH DIOPTIMASI
+        return optimized.src;
       }),
     );
 
     return {
       name: name,
       images: optimizedImages,
+      modelUrl: album.modelUrl,
+      wireframeUrl: album.wireframeUrl,
     };
   }),
 );
@@ -59,18 +97,16 @@ const albumList = await Promise.all(
       Semua album ter-update secara otomatis
     </p>
 
-    <div
-      class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-10 xl:gap-6"
-    >
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       {
         albumList.map((album) => (
-          <div class="bg-card px-0 rounded-xl border overflow-hidden flex flex-col justify-start">
-            <Gallerycard
-              albumName={album.name}
-              images={album.images}
-              client:visible
-            />
-          </div>
+          <Gallerycard
+            client:visible
+            albumName={album.name}
+            images={album.images}
+            modelUrl={album.modelUrl}
+            wireframeUrl={album.wireframeUrl}
+          />
         ))
       }
     </div>
