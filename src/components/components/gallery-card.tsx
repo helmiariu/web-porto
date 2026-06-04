@@ -1,4 +1,6 @@
 // src/components/components/carousel-08.tsx
+import { Rotate3d } from "lucide-react";
+
 "use client";
 
 import * as React from "react";
@@ -43,48 +45,67 @@ export default function CarouselWithProgress({ images, albumName }: CarouselProp
     }
 
     return (
-        <div class="w-full flex flex-col justify-start pb-4 px-3">
+        <div className="w-full flex flex-col justify-start pb-4 pt-0 px-3">
 
-            {/* 3. HEADER: Judul Mepet Kiri, Tombol Mepet Kanan */}
-            <div class="w-full flex justify-between items-center px-2 py-2">
-                <h2 class="text-xl font-bold capitalize text-foreground truncate pr-2">
+            {/* 3. HEADER: Judul Mepet Kiri */}
+            <div className="w-full flex justify-center items-center px-0 py-3 mb-1">
+                <h2 className="text-xl font-semibold tracking-tight capitalize text-foreground truncate">
                     {albumName.replace(/-/g, " ")}
                 </h2>
-
-                <button className="text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-lg font-medium hover:opacity-90 transition-opacity shrink-0">
-                    Aksi
-                </button>
             </div>
 
-            {/* 4. CAROUSEL */}
-            <Carousel className="w-full" setApi={setApi}>
-                <CarouselContent>
-                    {images.map((image, index) => (
-                        <CarouselItem key={index}>
-                            <img
-                                alt={`Foto album ke-${index + 1}`}
-                                className="size-full rounded-lg object-cover aspect-square"
-                                src={image}
-                            />
-                        </CarouselItem>
-                    ))}
-                </CarouselContent>
+            {/* Pembungkus Carousel & Tombol Aksi agar posisi absolutnya akurat */}
+            <div className="relative w-full">
 
-                {/* KUNCI PERBAIKAN: 
-        Bungkus Tombol & Progress Bar di dalam satu baris flex yang sama (Normal Flow)
-      */}
-                <div class="flex items-center justify-between mt-4 px-1 gap-1">
-                    {/* Grup Tombol Navigasi */}
-                    <div class="flex items-center gap-2"> {/* Mengubah gap-2 menjadi gap-1 */}
-                        <CarouselPrevious className="relative top-auto left-auto translate-y-0" />
-                        <CarouselNext className="relative top-auto translate-y-0 right-auto" />
+                {/* Tombol Aksi Melayang di Pojok Kanan Atas Carousel */}
+                <button className="absolute top-3 right-3 z-10 flex flex-col items-center justify-center bg-background/50 backdrop-blur-md text-popover-foreground border border-border/30 w-12 h-12 rounded-xl font-medium hover:bg-background/80 transition-all shrink-0 shadow-md group">
+                    {/* Icon Lucide Rotate3d (Ukuran h-6 w-6) */}
+                    <Rotate3d className="h-6 w-6 text-foreground/70 group-hover:text-foreground transition-colors" />
+
+                    {/* Teks di bawah icon (Lebih rapat dan tegas) */}
+                    <span className="text-[10px] font-bold tracking-tight text-foreground/70 group-hover:text-foreground transition-colors -mt-0.5">
+                        360°
+                    </span>
+                </button>
+
+                {/* 4. CAROUSEL */}
+                <Carousel className="w-full" setApi={setApi}>
+                    <CarouselContent>
+                        {images.map((image, index) => {
+                            const isNearActiveSlide = Math.abs(index - (current - 1)) <= 1;
+
+                            return (
+                                <CarouselItem key={index}>
+                                    {isNearActiveSlide ? (
+                                        <img
+                                            alt={`Foto album ke-${index + 1}`}
+                                            className="size-full rounded-lg object-cover aspect-square transform-gpu backface-hidden"
+                                            src={image}
+                                            loading={index === 0 ? "eager" : "lazy"}
+                                            decoding="async"
+                                        />
+                                    ) : (
+                                        <div className="size-full rounded-lg aspect-square bg-muted/40" />
+                                    )}
+                                </CarouselItem>
+                            );
+                        })}
+                    </CarouselContent>
+
+                    {/* KUNCI PERBAIKAN NAVIGASI & PROGRESS BAR */}
+                    <div className="flex items-center justify-between mt-4 px-1 gap-1">
+                        {/* Grup Tombol Navigasi */}
+                        <div className="flex items-center gap-2">
+                            <CarouselPrevious className="relative top-auto left-auto translate-y-0" />
+                            <CarouselNext className="relative top-auto translate-y-0 right-auto" />
+                        </div>
+
+                        {/* Progress Bar */}
+                        <Progress className="w-24 m-0" value={progress} />
                     </div>
+                </Carousel>
 
-                    {/* Progress Bar (Dipindah ke dalam sini agar sejajar rapi dengan tombol) */}
-                    <Progress className="w-24 m-0" value={progress} />
-                </div>
-
-            </Carousel>
+            </div>
         </div>
     );
 }
