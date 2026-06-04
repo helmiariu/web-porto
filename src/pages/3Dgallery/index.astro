@@ -97,16 +97,20 @@ const albumList = await Promise.all(
       Semua album ter-update secara otomatis
     </p>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-10 xl:gap-6"
+    >
       {
         albumList.map((album) => (
-          <Gallerycard
-            client:visible
-            albumName={album.name}
-            images={album.images}
-            modelUrl={album.modelUrl}
-            wireframeUrl={album.wireframeUrl}
-          />
+          <div class="bg-card px-0 rounded-xl border overflow-hidden flex flex-col justify-start">
+            <Gallerycard
+              client:visible
+              albumName={album.name}
+              images={album.images}
+              modelUrl={album.modelUrl}
+              wireframeUrl={album.wireframeUrl}
+            />
+          </div>
         ))
       }
     </div>
