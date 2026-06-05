@@ -309,7 +309,7 @@ export default function SystemMonitor() {
             <motion.div
               animate={{ rotate: isExpanded ? 180 : 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="text-muted-foreground"
+              className="text-muted-foreground "
             >
               ▼
             </motion.div>
