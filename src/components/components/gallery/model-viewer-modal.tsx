@@ -19,6 +19,166 @@ interface ModelViewerModalProps {
     initialView?: "3d" | number;
 }
 
+// -------------------------------------------------------------
+// ZOOM & PAN IMAGE COMPONENT FOR DESKTOP & MOBILE
+// -------------------------------------------------------------
+interface ZoomPanProps {
+    src: string;
+    alt: string;
+}
+
+function ZoomPanImage({ src, alt }: ZoomPanProps) {
+    const [scale, setScale] = React.useState(1);
+    const [position, setPosition] = React.useState({ x: 0, y: 0 });
+    const [isDragging, setIsDragging] = React.useState(false);
+    const dragStart = React.useRef({ x: 0, y: 0 });
+    const imgRef = React.useRef<HTMLImageElement>(null);
+
+    // Mobile pinch tracking
+    const touchStartDist = React.useRef<number | null>(null);
+    const touchStartScale = React.useRef<number>(1);
+
+    // Reset zoom & pan when source changes
+    React.useEffect(() => {
+        setScale(1);
+        setPosition({ x: 0, y: 0 });
+    }, [src]);
+
+    // Calculate pan boundaries based on zoom scale
+    const getBounds = () => {
+        if (!imgRef.current) return { x: 0, y: 0 };
+        const width = imgRef.current.clientWidth;
+        const height = imgRef.current.clientHeight;
+        const boundsX = Math.max(0, (width * scale - width) / 2);
+        const boundsY = Math.max(0, (height * scale - height) / 2);
+        return { x: boundsX, y: boundsY };
+    };
+
+    // Desktop: Scroll wheel zoom
+    const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        const zoomFactor = 0.15;
+        let newScale = scale + (e.deltaY < 0 ? zoomFactor : -zoomFactor);
+        newScale = Math.max(1, Math.min(newScale, 4));
+
+        if (newScale === 1) {
+            setPosition({ x: 0, y: 0 });
+        }
+        setScale(newScale);
+    };
+
+    // Desktop: Drag to pan
+    const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (scale <= 1) return;
+        e.stopPropagation(); // Stop Embla carousel from swiping
+        setIsDragging(true);
+        dragStart.current = { x: e.clientX - position.x, y: e.clientY - position.y };
+    };
+
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (scale <= 1) return;
+        e.stopPropagation();
+        if (!isDragging) return;
+
+        const newX = e.clientX - dragStart.current.x;
+        const newY = e.clientY - dragStart.current.y;
+        const bounds = getBounds();
+
+        setPosition({
+            x: Math.max(-bounds.x, Math.min(bounds.x, newX)),
+            y: Math.max(-bounds.y, Math.min(bounds.y, newY))
+        });
+    };
+
+    const handleMouseUp = () => {
+        setIsDragging(false);
+    };
+
+    // Mobile: Touch drag & pinch zoom
+    const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+        if (scale > 1) {
+            e.stopPropagation(); // Stop Embla carousel from swiping
+        }
+
+        if (e.touches.length === 1 && scale > 1) {
+            setIsDragging(true);
+            const touch = e.touches[0];
+            dragStart.current = { x: touch.clientX - position.x, y: touch.clientY - position.y };
+        } else if (e.touches.length === 2) {
+            setIsDragging(false);
+            const t1 = e.touches[0];
+            const t2 = e.touches[1];
+            const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+            touchStartDist.current = dist;
+            touchStartScale.current = scale;
+        }
+    };
+
+    const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+        if (scale > 1 || e.touches.length === 2) {
+            e.stopPropagation(); // Stop Embla carousel from swiping
+        }
+
+        if (e.touches.length === 1 && isDragging && scale > 1) {
+            const touch = e.touches[0];
+            const newX = touch.clientX - dragStart.current.x;
+            const newY = touch.clientY - dragStart.current.y;
+            const bounds = getBounds();
+
+            setPosition({
+                x: Math.max(-bounds.x, Math.min(bounds.x, newX)),
+                y: Math.max(-bounds.y, Math.min(bounds.y, newY))
+            });
+        } else if (e.touches.length === 2 && touchStartDist.current !== null) {
+            const t1 = e.touches[0];
+            const t2 = e.touches[1];
+            const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+            const factor = dist / touchStartDist.current;
+            let newScale = touchStartScale.current * factor;
+            newScale = Math.max(1, Math.min(newScale, 4));
+
+            if (newScale === 1) {
+                setPosition({ x: 0, y: 0 });
+            }
+            setScale(newScale);
+        }
+    };
+
+    const handleTouchEnd = () => {
+        setIsDragging(false);
+        touchStartDist.current = null;
+    };
+
+    return (
+        <div
+            onWheel={handleWheel}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            className="w-full h-full flex items-center justify-center overflow-hidden touch-none"
+            style={{ cursor: scale > 1 ? (isDragging ? "grabbing" : "grab") : "zoom-in" }}
+        >
+            <img
+                ref={imgRef}
+                src={src}
+                alt={alt}
+                className="max-w-full max-h-full object-contain p-4 md:p-0 select-none pointer-events-none transition-transform duration-75 ease-out"
+                style={{
+                    transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+                }}
+                draggable="false"
+            />
+        </div>
+    );
+}
+
+// -------------------------------------------------------------
+// MAIN MODAL COMPONENT
+// -------------------------------------------------------------
 export default function ModelViewerModal({
     isOpen,
     onClose,
@@ -31,27 +191,21 @@ export default function ModelViewerModal({
     const [renderMode, setRenderMode] = React.useState<"final" | "wireframe" | "unlit">("final");
     const [activeView, setActiveView] = React.useState<"3d" | number>(initialView ?? "3d");
 
-    // 1. STATE UNTUK REAL PROGRESS BAR & CAROUSEL & ZOOM
+    // Real progress bar & Carousel API
     const [downloadProgress, setDownloadProgress] = React.useState<number>(0);
     const [carouselApi, setCarouselApi] = React.useState<CarouselApi>();
-    const [isZoomed, setIsZoomed] = React.useState(false);
 
     const thumbnailContainerRef = React.useRef<HTMLDivElement>(null);
     const modelViewerRef = React.useRef<HTMLElement>(null); // Ref untuk model-viewer
 
-    // Reset view ketika modal pertama kali dibuka
+    // Reset view ketika modal dibuka
     React.useEffect(() => {
         if (isOpen) {
             setActiveView(initialView ?? "3d");
         }
     }, [isOpen, initialView]);
 
-    // Reset zoom ketika ganti gambar
-    React.useEffect(() => {
-        setIsZoomed(false);
-    }, [activeView]);
-
-    // Kunci scroll body saat modal terbuka
+    // Kunci scroll halaman belakang
     React.useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = "hidden";
@@ -63,7 +217,7 @@ export default function ModelViewerModal({
         };
     }, [isOpen]);
 
-    // 2. LISTEN KE EVENT PROGRESS MODEL-VIEWER
+    // progress model-viewer
     React.useEffect(() => {
         const handleProgress = (event: any) => {
             const percentage = Math.floor(event.detail.totalProgress * 100);
@@ -82,7 +236,7 @@ export default function ModelViewerModal({
         };
     }, [activeView, isOpen]);
 
-    // Sinkronisasi posisi carousel ke state activeView
+    // Sync carousel scroll dengan activeView state
     React.useEffect(() => {
         if (carouselApi && typeof activeView === "number") {
             const currentSnap = carouselApi.selectedScrollSnap();
@@ -92,7 +246,7 @@ export default function ModelViewerModal({
         }
     }, [activeView, carouselApi]);
 
-    // Sinkronisasi swipe carousel ke state activeView
+    // Listen to carousel selection to sync back to activeView
     React.useEffect(() => {
         if (!carouselApi) return;
 
@@ -102,7 +256,7 @@ export default function ModelViewerModal({
         });
     }, [carouselApi]);
 
-    // Auto-scroll thumbnail agar aktif di tengah
+    // Auto-scroll thumbnail
     React.useEffect(() => {
         if (thumbnailContainerRef.current) {
             const activeElement = thumbnailContainerRef.current.querySelector('[data-active="true"]');
@@ -157,7 +311,6 @@ export default function ModelViewerModal({
         }
     };
 
-    // Close modal ketika klik backdrop (di luar area modal box)
     const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) {
             onClose();
@@ -197,7 +350,8 @@ export default function ModelViewerModal({
                 )}
 
                 {/* AREA VIEW UTAMA */}
-                <div className="flex-1 bg-muted/40 relative flex items-center justify-center overflow-hidden group select-none">
+                {/* AREA VIEW UTAMA */}
+                <div className="flex-1 min-h-0 bg-muted/40 relative flex items-center justify-center overflow-hidden group select-none">
 
                     {/* Shortcut 360° View ketika sedang melihat gambar 2D */}
                     {activeView !== "3d" && modelUrl && (
@@ -210,11 +364,13 @@ export default function ModelViewerModal({
                         </button>
                     )}
 
+                    {/* Tombol Navigasi Kiri */}
                     <button onClick={handlePrev} className="absolute left-2 md:left-4 z-30 p-3 md:p-2 rounded-full border border-border bg-background/80 backdrop-blur-sm text-foreground shadow-md transition-all opacity-60 md:opacity-0 md:group-hover:opacity-100 hover:bg-background active:scale-90 cursor-pointer">
                         <ChevronLeft className="h-5 w-5 md:h-4 md:w-4" />
                     </button>
 
-                    <div className="w-full h-full flex items-center justify-center overflow-hidden">
+                    {/* KUNCI UTAMA: Menggunakan 'absolute inset-0' dengan padding agar konten mengunci sisa ruang secara presisi */}
+                    <div className="absolute inset-0 flex items-center justify-center p-0 md:p-0 bg-card ">
                         {activeView === "3d" ? (
                             // @ts-ignore
                             <model-viewer
@@ -253,7 +409,6 @@ export default function ModelViewerModal({
                                             <p className="text-[11px] text-muted-foreground">Kucing kami sedang menyiapkan asetnya</p>
                                         </div>
 
-                                        {/* REAL PROGRESS BAR */}
                                         <div className="w-full space-y-1">
                                             <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
                                                 <div
@@ -268,9 +423,10 @@ export default function ModelViewerModal({
                                 {/* @ts-ignore */}
                             </model-viewer>
                         ) : (
+                            /* KUNCI UTAMA 2: '[&>div]:h-full' memaksa div 'hidden/viewport' milik Embla Carousel untuk ikut h-full */
                             <Carousel
                                 setApi={setCarouselApi}
-                                className="w-full h-full"
+                                className="w-full h-full [&>div]:h-full"
                                 opts={{
                                     startIndex: typeof activeView === "number" ? activeView : 0,
                                 }}
@@ -278,16 +434,7 @@ export default function ModelViewerModal({
                                 <CarouselContent className="h-full items-center">
                                     {images.map((img, idx) => (
                                         <CarouselItem key={idx} className="h-full flex items-center justify-center overflow-hidden">
-                                            <img
-                                                src={img}
-                                                alt={`${albumName} - ${idx + 1}`}
-                                                onClick={() => setIsZoomed(!isZoomed)}
-                                                className={`max-w-full max-h-full object-contain p-4 md:p-6 select-none transition-transform duration-300 ease-out ${isZoomed && activeView === idx
-                                                    ? "scale-150 md:scale-[2.5] cursor-zoom-out"
-                                                    : "scale-100 cursor-zoom-in"
-                                                    }`}
-                                                draggable="false"
-                                            />
+                                            <ZoomPanImage src={img} alt={`${albumName} - ${idx + 1}`} />
                                         </CarouselItem>
                                     ))}
                                 </CarouselContent>
@@ -295,13 +442,14 @@ export default function ModelViewerModal({
                         )}
                     </div>
 
+                    {/* Tombol Navigasi Kanan */}
                     <button onClick={handleNext} className="absolute right-2 md:right-4 z-30 p-3 md:p-2 rounded-full border border-border bg-background/80 backdrop-blur-sm text-foreground shadow-md transition-all opacity-60 md:opacity-0 md:group-hover:opacity-100 hover:bg-background active:scale-90 cursor-pointer">
                         <ChevronRight className="h-5 w-5 md:h-4 md:w-4" />
                     </button>
                 </div>
 
                 {/* BARIS THUMBNAIL BAWAH */}
-                <div ref={thumbnailContainerRef} className="h-24 bg-card border-t border-border p-3 flex gap-3 overflow-x-auto items-center w-full">
+                <div ref={thumbnailContainerRef} className="h-26 bg-card border-t border-border p-3 flex gap-3 overflow-x-auto items-center w-full">
                     {modelUrl && (
                         <button onClick={() => setActiveView("3d")} data-active={activeView === "3d"} className={`h-16 w-16 rounded-lg flex flex-col items-center justify-center gap-1 border transition-all shrink-0 select-none cursor-pointer ${activeView === "3d" ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20" : "border-input bg-background hover:bg-accent text-muted-foreground"}`}>
                             <Rotate3d className="h-7 w-7 shrink-0" />
