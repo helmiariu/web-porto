@@ -2,6 +2,12 @@
 
 import * as React from "react";
 import { X, Layers, Sun, Eye, Rotate3d, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+    Carousel,
+    type CarouselApi,
+    CarouselContent,
+    CarouselItem,
+} from "@components/components/gallery/carousel";
 
 interface ModelViewerModalProps {
     isOpen: boolean;
@@ -10,6 +16,7 @@ interface ModelViewerModalProps {
     albumName: string;
     modelUrl?: string;
     wireframeUrl?: string;
+    initialView?: "3d" | number;
 }
 
 export default function ModelViewerModal({
@@ -18,32 +25,47 @@ export default function ModelViewerModal({
     images,
     albumName,
     modelUrl,
-    wireframeUrl
+    wireframeUrl,
+    initialView
 }: ModelViewerModalProps) {
     const [renderMode, setRenderMode] = React.useState<"final" | "wireframe" | "unlit">("final");
-    const [activeView, setActiveView] = React.useState<"3d" | number>("3d");
+    const [activeView, setActiveView] = React.useState<"3d" | number>(initialView ?? "3d");
 
-    // 1. STATE UNTUK REAL PROGRESS BAR
+    // 1. STATE UNTUK REAL PROGRESS BAR & CAROUSEL & ZOOM
     const [downloadProgress, setDownloadProgress] = React.useState<number>(0);
-
-    const [touchStart, setTouchStart] = React.useState<number | null>(null);
-    const [touchEnd, setTouchEnd] = React.useState<number | null>(null);
+    const [carouselApi, setCarouselApi] = React.useState<CarouselApi>();
+    const [isZoomed, setIsZoomed] = React.useState(false);
 
     const thumbnailContainerRef = React.useRef<HTMLDivElement>(null);
     const modelViewerRef = React.useRef<HTMLElement>(null); // Ref untuk model-viewer
 
-    // Load Lottie Web Component secara aman di Client-Side
+    // Reset view ketika modal pertama kali dibuka
     React.useEffect(() => {
-        if (typeof window !== "undefined") {
-            // @ts-ignore
-            import("@dotlottie/player-component");
+        if (isOpen) {
+            setActiveView(initialView ?? "3d");
         }
-    }, []);
+    }, [isOpen, initialView]);
+
+    // Reset zoom ketika ganti gambar
+    React.useEffect(() => {
+        setIsZoomed(false);
+    }, [activeView]);
+
+    // Kunci scroll body saat modal terbuka
+    React.useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
+        return () => {
+            document.body.style.overflow = "";
+        };
+    }, [isOpen]);
 
     // 2. LISTEN KE EVENT PROGRESS MODEL-VIEWER
     React.useEffect(() => {
         const handleProgress = (event: any) => {
-            // event.detail.totalProgress mengembalikan angka dari 0 sampai 1
             const percentage = Math.floor(event.detail.totalProgress * 100);
             setDownloadProgress(percentage);
         };
@@ -58,9 +80,29 @@ export default function ModelViewerModal({
                 currentModel.removeEventListener("progress", handleProgress);
             }
         };
-    }, [activeView, isOpen]); // Re-bind jika mode 3D aktif
+    }, [activeView, isOpen]);
 
-    // Auto-scroll thumbnail
+    // Sinkronisasi posisi carousel ke state activeView
+    React.useEffect(() => {
+        if (carouselApi && typeof activeView === "number") {
+            const currentSnap = carouselApi.selectedScrollSnap();
+            if (currentSnap !== activeView) {
+                carouselApi.scrollTo(activeView);
+            }
+        }
+    }, [activeView, carouselApi]);
+
+    // Sinkronisasi swipe carousel ke state activeView
+    React.useEffect(() => {
+        if (!carouselApi) return;
+
+        carouselApi.on("select", () => {
+            const currentIdx = carouselApi.selectedScrollSnap();
+            setActiveView(currentIdx);
+        });
+    }, [carouselApi]);
+
+    // Auto-scroll thumbnail agar aktif di tengah
     React.useEffect(() => {
         if (thumbnailContainerRef.current) {
             const activeElement = thumbnailContainerRef.current.querySelector('[data-active="true"]');
@@ -86,8 +128,15 @@ export default function ModelViewerModal({
             if (images.length > 0) setActiveView(0);
         } else {
             const nextIdx = activeView + 1;
-            if (nextIdx < images.length) setActiveView(nextIdx);
-            else setActiveView("3d");
+            if (nextIdx < images.length) {
+                if (carouselApi) {
+                    carouselApi.scrollNext();
+                } else {
+                    setActiveView(nextIdx);
+                }
+            } else {
+                setActiveView("3d");
+            }
         }
     };
 
@@ -96,32 +145,30 @@ export default function ModelViewerModal({
             if (images.length > 0) setActiveView(images.length - 1);
         } else {
             const prevIdx = activeView - 1;
-            if (prevIdx >= 0) setActiveView(prevIdx);
-            else setActiveView("3d");
+            if (prevIdx >= 0) {
+                if (carouselApi) {
+                    carouselApi.scrollPrev();
+                } else {
+                    setActiveView(prevIdx);
+                }
+            } else {
+                setActiveView("3d");
+            }
         }
     };
 
-    const handleTouchStart = (e: React.TouchEvent) => {
-        if (activeView === "3d") return;
-        setTouchStart(e.targetTouches[0].clientX);
-    };
-
-    const handleTouchMove = (e: React.TouchEvent) => {
-        if (activeView === "3d") return;
-        setTouchEnd(e.targetTouches[0].clientX);
-    };
-
-    const handleTouchEnd = () => {
-        if (activeView === "3d" || !touchStart || !touchEnd) return;
-        const distance = touchStart - touchEnd;
-        if (distance > 60) handleNext();
-        if (distance < -60) handlePrev();
-        setTouchStart(null);
-        setTouchEnd(null);
+    // Close modal ketika klik backdrop (di luar area modal box)
+    const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (e.target === e.currentTarget) {
+            onClose();
+        }
     };
 
     return (
-        <div className="fixed inset-0 z-[70] md:z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-2 md:p-4 animate-in fade-in duration-200">
+        <div
+            onClick={handleBackdropClick}
+            className="fixed inset-0 z-[70] md:z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-2 md:p-4 animate-in fade-in duration-200"
+        >
             <div className="relative w-full max-w-4xl h-[90vh] md:h-[85vh] bg-card border border-border rounded-xl flex flex-col overflow-hidden shadow-lg text-card-foreground">
 
                 {/* HEADER MODAL */}
@@ -129,43 +176,51 @@ export default function ModelViewerModal({
                     <h3 className="text-base md:text-lg font-semibold tracking-tight capitalize truncate max-w-[70%]">
                         {albumName.replace(/-/g, " ")} — {activeView === "3d" ? "3D Viewer" : `Detail #${(activeView as number) + 1}`}
                     </h3>
-                    <button onClick={onClose} className="p-2 rounded-md opacity-70 hover:opacity-100 hover:bg-accent">
+                    <button onClick={onClose} className="p-2 rounded-md opacity-70 hover:opacity-100 hover:bg-accent cursor-pointer">
                         <X className="h-4 w-4" />
                     </button>
                 </div>
 
-                {/* FLOATING CONTROLS */}
+                {/* FLOATING CONTROLS (Hanya 3D Mode) */}
                 {activeView === "3d" && (
                     <div className="absolute top-16 right-2 md:top-20 md:right-4 z-20 flex flex-row md:flex-col gap-1 md:gap-2 bg-background/80 p-1 backdrop-blur-md rounded-lg border border-border shadow-sm max-w-[calc(100%-1rem)] overflow-x-auto">
-                        <button onClick={() => setRenderMode("final")} className={`p-1.5 md:p-2 rounded-md flex items-center gap-1.5 text-[11px] md:text-xs font-medium whitespace-nowrap ${renderMode === "final" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent"}`}>
+                        <button onClick={() => setRenderMode("final")} className={`p-1.5 md:p-2 rounded-md flex items-center gap-1.5 text-[11px] md:text-xs font-medium whitespace-nowrap cursor-pointer ${renderMode === "final" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent"}`}>
                             <Sun className="h-3.5 w-3.5" /> Final
                         </button>
-                        <button onClick={() => setRenderMode("unlit")} className={`p-1.5 md:p-2 rounded-md flex items-center gap-1.5 text-[11px] md:text-xs font-medium whitespace-nowrap ${renderMode === "unlit" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent"}`}>
+                        <button onClick={() => setRenderMode("unlit")} className={`p-1.5 md:p-2 rounded-md flex items-center gap-1.5 text-[11px] md:text-xs font-medium whitespace-nowrap cursor-pointer ${renderMode === "unlit" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent"}`}>
                             <Eye className="h-3.5 w-3.5" /> No Light
                         </button>
-                        <button onClick={() => wireframeUrl && setRenderMode("wireframe")} disabled={!wireframeUrl} className={`p-1.5 md:p-2 rounded-md flex items-center gap-1.5 text-[11px] md:text-xs font-medium whitespace-nowrap ${!wireframeUrl ? "opacity-30 cursor-not-allowed" : renderMode === "wireframe" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent"}`}>
+                        <button onClick={() => wireframeUrl && setRenderMode("wireframe")} disabled={!wireframeUrl} className={`p-1.5 md:p-2 rounded-md flex items-center gap-1.5 text-[11px] md:text-xs font-medium whitespace-nowrap cursor-pointer ${!wireframeUrl ? "opacity-30 cursor-not-allowed" : renderMode === "wireframe" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent"}`}>
                             <Layers className="h-3.5 w-3.5" /> Wireframe
                         </button>
                     </div>
                 )}
 
                 {/* AREA VIEW UTAMA */}
-                <div
-                    onTouchStart={handleTouchStart}
-                    onTouchMove={handleTouchMove}
-                    onTouchEnd={handleTouchEnd}
-                    className="flex-1 bg-muted/40 relative flex items-center justify-center overflow-hidden group select-none"
-                >
-                    <button onClick={handlePrev} className="absolute left-2 md:left-4 z-30 p-3 md:p-2 rounded-full border border-border bg-background/80 backdrop-blur-sm text-foreground shadow-md transition-all opacity-60 md:opacity-0 md:group-hover:opacity-100 hover:bg-background active:scale-90">
+                <div className="flex-1 bg-muted/40 relative flex items-center justify-center overflow-hidden group select-none">
+
+                    {/* Shortcut 360° View ketika sedang melihat gambar 2D */}
+                    {activeView !== "3d" && modelUrl && (
+                        <button
+                            onClick={() => setActiveView("3d")}
+                            className="absolute top-4 right-4 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/90 hover:bg-background border border-border text-foreground text-xs font-semibold shadow-md transition-all active:scale-95 cursor-pointer"
+                        >
+                            <Rotate3d className="h-4 w-4 text-primary animate-pulse" />
+                            <span>360° View</span>
+                        </button>
+                    )}
+
+                    <button onClick={handlePrev} className="absolute left-2 md:left-4 z-30 p-3 md:p-2 rounded-full border border-border bg-background/80 backdrop-blur-sm text-foreground shadow-md transition-all opacity-60 md:opacity-0 md:group-hover:opacity-100 hover:bg-background active:scale-90 cursor-pointer">
                         <ChevronLeft className="h-5 w-5 md:h-4 md:w-4" />
                     </button>
 
-                    <div className="w-full h-full flex items-center justify-center">
+                    <div className="w-full h-full flex items-center justify-center overflow-hidden">
                         {activeView === "3d" ? (
                             // @ts-ignore
                             <model-viewer
-                                ref={modelViewerRef} // Pasang Ref di sini
+                                ref={modelViewerRef}
                                 src={getModelSrc()}
+                                poster={images[0]}
                                 camera-controls
                                 auto-rotate
                                 loading="lazy"
@@ -176,21 +231,17 @@ export default function ModelViewerModal({
                                 variant-name={renderMode === "unlit" ? "unlit" : "default"}
                                 style={{ width: '100%', height: '100%' } as React.CSSProperties}
                             >
-                                {/* CUSTOM POSTER SLOT (Otomatis hilang lewat fade-out bawaan model-viewer) */}
+                                {/* CUSTOM POSTER SLOT */}
                                 {/* @ts-ignore */}
                                 <div slot="poster" className="absolute inset-0 flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm transition-opacity duration-500">
                                     <img src={images[0]} alt="Loading preview" className="absolute inset-0 w-full h-full object-contain opacity-20 blur-[2px] p-4 pointer-events-none" />
 
                                     <div className="relative z-10 flex flex-col items-center gap-3 p-5 rounded-xl bg-card/90 border border-border shadow-md max-w-xs text-center">
-
-                                        {/* LOGIKA INTEGRASI LOTTIE KUCING ANDA */}
                                         <div className="w-28 h-28 flex items-center justify-center">
-                                            {/* Mode Terang */}
                                             <div className="block dark:hidden">
                                                 {/* @ts-ignore */}
                                                 <dotlottie-player src="/cat.lottie" background="transparent" speed="1" style={{ width: '100%', height: '100%' }} loop autoplay />
                                             </div>
-                                            {/* Mode Gelap */}
                                             <div className="hidden dark:block">
                                                 {/* @ts-ignore */}
                                                 <dotlottie-player src="/catdark.json" background="transparent" speed="1" style={{ width: '100%', height: '100%' }} loop autoplay />
@@ -212,30 +263,54 @@ export default function ModelViewerModal({
                                             </div>
                                             <span className="text-[10px] font-mono text-muted-foreground">{downloadProgress}%</span>
                                         </div>
-
                                     </div>
                                 </div>
                                 {/* @ts-ignore */}
                             </model-viewer>
                         ) : (
-                            <img src={images[activeView]} alt={`Detail ${activeView}`} className="max-w-full max-h-full object-contain p-4 md:p-6 animate-in zoom-in-95 duration-200" draggable="false" />
+                            <Carousel
+                                setApi={setCarouselApi}
+                                className="w-full h-full"
+                                opts={{
+                                    startIndex: typeof activeView === "number" ? activeView : 0,
+                                }}
+                            >
+                                <CarouselContent className="h-full items-center">
+                                    {images.map((img, idx) => (
+                                        <CarouselItem key={idx} className="h-full flex items-center justify-center overflow-hidden">
+                                            <img
+                                                src={img}
+                                                alt={`${albumName} - ${idx + 1}`}
+                                                onClick={() => setIsZoomed(!isZoomed)}
+                                                className={`max-w-full max-h-full object-contain p-4 md:p-6 select-none transition-transform duration-300 ease-out ${isZoomed && activeView === idx
+                                                    ? "scale-150 md:scale-[2.5] cursor-zoom-out"
+                                                    : "scale-100 cursor-zoom-in"
+                                                    }`}
+                                                draggable="false"
+                                            />
+                                        </CarouselItem>
+                                    ))}
+                                </CarouselContent>
+                            </Carousel>
                         )}
                     </div>
 
-                    <button onClick={handleNext} className="absolute right-2 md:right-4 z-30 p-3 md:p-2 rounded-full border border-border bg-background/80 backdrop-blur-sm text-foreground shadow-md transition-all opacity-60 md:opacity-0 md:group-hover:opacity-100 hover:bg-background active:scale-90">
+                    <button onClick={handleNext} className="absolute right-2 md:right-4 z-30 p-3 md:p-2 rounded-full border border-border bg-background/80 backdrop-blur-sm text-foreground shadow-md transition-all opacity-60 md:opacity-0 md:group-hover:opacity-100 hover:bg-background active:scale-90 cursor-pointer">
                         <ChevronRight className="h-5 w-5 md:h-4 md:w-4" />
                     </button>
                 </div>
 
                 {/* BARIS THUMBNAIL BAWAH */}
                 <div ref={thumbnailContainerRef} className="h-24 bg-card border-t border-border p-3 flex gap-3 overflow-x-auto items-center w-full">
-                    <button onClick={() => setActiveView("3d")} data-active={activeView === "3d"} className={`h-16 w-16 rounded-lg flex flex-col items-center justify-center gap-1 border transition-all shrink-0 select-none ${activeView === "3d" ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20" : "border-input bg-background hover:bg-accent text-muted-foreground"}`}>
-                        <Rotate3d className="h-7 w-7 shrink-0" />
-                        <span className="text-[11px] font-bold tracking-wide leading-none shrink-0">360°</span>
-                    </button>
+                    {modelUrl && (
+                        <button onClick={() => setActiveView("3d")} data-active={activeView === "3d"} className={`h-16 w-16 rounded-lg flex flex-col items-center justify-center gap-1 border transition-all shrink-0 select-none cursor-pointer ${activeView === "3d" ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20" : "border-input bg-background hover:bg-accent text-muted-foreground"}`}>
+                            <Rotate3d className="h-7 w-7 shrink-0" />
+                            <span className="text-[11px] font-bold tracking-wide leading-none shrink-0">360°</span>
+                        </button>
+                    )}
 
                     {images.map((img, idx) => (
-                        <button key={idx} onClick={() => setActiveView(idx)} data-active={activeView === idx} className={`h-16 w-16 rounded-lg overflow-hidden border transition-all shrink-0 bg-muted flex items-center justify-center ${activeView === idx ? "border-primary ring-2 ring-primary/20 scale-95" : "border-input"}`}>
+                        <button key={idx} onClick={() => setActiveView(idx)} data-active={activeView === idx} className={`h-16 w-16 rounded-lg overflow-hidden border transition-all shrink-0 bg-muted flex items-center justify-center cursor-pointer ${activeView === idx ? "border-primary ring-2 ring-primary/20 scale-95" : "border-input"}`}>
                             <img src={img} alt={`Thumbnail ${idx}`} className="w-full h-full object-cover" draggable="false" />
                         </button>
                     ))}

@@ -28,6 +28,7 @@ export default function CarouselWithProgress({ images, albumName, modelUrl, wire
     const [current, setCurrent] = React.useState(0);
     const [count, setCount] = React.useState(0);
     const [isModalOpen, setIsModalOpen] = React.useState(false);
+    const [initialView, setInitialView] = React.useState<"3d" | number>("3d");
     const progress = (current * 100) / count;
 
     React.useEffect(() => {
@@ -55,59 +56,51 @@ export default function CarouselWithProgress({ images, albumName, modelUrl, wire
                 </h2>
             </div>
 
-            {/* Pembungkus Carousel & Tombol Aksi */}
-            <div className="relative w-full">
+            <Carousel setApi={setApi} className="w-full">
+                <CarouselContent>
+                    {images.map((src, index) => (
+                        <CarouselItem key={index}>
+                            <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-muted">
+                                <img
+                                    src={src}
+                                    alt={`${albumName} - ${index + 1}`}
+                                    className="h-full w-full object-cover cursor-pointer"
+                                    onClick={() => {
+                                        setInitialView(index === 0 ? "3d" : index);
+                                        setIsModalOpen(true);
+                                    }}
+                                    loading={index === 0 ? "eager" : "lazy"}
+                                    decoding="async"
+                                />
+                                {index === 0 && modelUrl && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setInitialView("3d");
+                                            setIsModalOpen(true);
+                                        }}
+                                        className="absolute top-3 right-3 z-10 flex flex-col items-center justify-center bg-background/50 backdrop-blur-md text-popover-foreground border border-border/30 w-12 h-12 rounded-xl font-medium hover:bg-background/80 transition-all shrink-0 shadow-md group"
+                                    >
+                                        <Rotate3d className="h-6 w-6 text-foreground/70 group-hover:text-foreground transition-colors" />
+                                        <span className="text-[10px] font-bold tracking-tight text-foreground/70 group-hover:text-foreground transition-colors -mt-0.5">
+                                            360°
+                                        </span>
+                                    </button>
+                                )}
+                            </div>
+                        </CarouselItem>
+                    ))}
+                </CarouselContent>
 
-                {/* TOMBOL PEMICU MODAL */}
-                {modelUrl && (
-                    <button
-                        id="floating-action-360"
-                        onClick={() => setIsModalOpen(true)}
-                        data-astro-transition-persist="floating-action-button"
-                        className="absolute top-3 right-3 z-10 flex flex-col items-center justify-center bg-background/50 backdrop-blur-md text-popover-foreground border border-border/30 w-12 h-12 rounded-xl font-medium hover:bg-background/80 transition-all shrink-0 shadow-md group"
-                    >
-                        <Rotate3d className="h-6 w-6 text-foreground/70 group-hover:text-foreground transition-colors" />
-                        <span className="text-[10px] font-bold tracking-tight text-foreground/70 group-hover:text-foreground transition-colors -mt-0.5">
-                            360°
-                        </span>
-                    </button>
-                )}
-
-                {/* CAROUSEL */}
-                <Carousel className="w-full" setApi={setApi}>
-                    <CarouselContent>
-                        {images.map((image, index) => {
-                            const isNearActiveSlide = Math.abs(index - (current - 1)) <= 1;
-
-                            return (
-                                <CarouselItem key={index}>
-                                    {isNearActiveSlide ? (
-                                        <img
-                                            alt={`Foto album ke-${index + 1}`}
-                                            className="size-full rounded-lg object-cover aspect-square transform-gpu backface-hidden"
-                                            src={image}
-                                            loading={index === 0 ? "eager" : "lazy"}
-                                            decoding="async"
-                                        />
-                                    ) : (
-                                        <div className="size-full rounded-lg aspect-square bg-muted/40" />
-                                    )}
-                                </CarouselItem>
-                            );
-                        })}
-                    </CarouselContent>
-
-                    {/* NAVIGASI & PROGRESS BAR */}
-                    <div className="flex items-center justify-between mt-4 px-1 gap-1">
-                        <div className="flex items-center gap-2">
-                            <CarouselPrevious className="relative top-auto left-auto translate-y-0" />
-                            <CarouselNext className="relative top-auto translate-y-0 right-auto" />
-                        </div>
-                        <Progress className="w-24 m-0" value={progress} />
+                {/* NAVIGASI & PROGRESS BAR */}
+                <div className="flex items-center justify-between mt-4 px-1 gap-1">
+                    <div className="flex items-center gap-2">
+                        <CarouselPrevious className="relative top-auto left-auto translate-y-0" />
+                        <CarouselNext className="relative top-auto translate-y-0 right-auto" />
                     </div>
-                </Carousel>
-
-            </div>
+                    <Progress className="w-24 m-0" value={progress} />
+                </div>
+            </Carousel>
 
             {/* 2. SINKRONISASI OPTIMASI: 
                  Bungkus dengan React.Suspense & berikan kondisi hulu {isModalOpen && ...}
@@ -122,6 +115,7 @@ export default function CarouselWithProgress({ images, albumName, modelUrl, wire
                         albumName={albumName}
                         modelUrl={modelUrl}
                         wireframeUrl={wireframeUrl}
+                        initialView={initialView}
                     />
                 </React.Suspense>
             )}
