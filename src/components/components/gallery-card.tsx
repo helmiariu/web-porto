@@ -10,11 +10,11 @@ import {
     CarouselItem,
     CarouselNext,
     CarouselPrevious,
-} from "@components/components/ui/carousel";
-import { Progress } from "@components/components/ui/progress";
+} from "@components/components/gallery/carousel";
+import { Progress } from "@components/components/gallery/progress";
 
 // 1. OPTIMASI UTAMA: Hapus import statis, ubah menjadi DYNAMIC IMPORT (Lazy Loading)
-const ModelViewerModal = React.lazy(() => import("@components/components/model-viewer-modal.tsx"));
+const ModelViewerModal = React.lazy(() => import("@components/components/gallery/model-viewer-modal"));
 
 interface CarouselProps {
     images: string[];

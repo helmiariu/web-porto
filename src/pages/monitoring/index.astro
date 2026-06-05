@@ -1,10 +1,14 @@
 ---
 import Layout from "@layouts/Layout.astro";
 import CardMonitoring from "@components/monitoring/CardMonitoring.astro";
+import SystemMonitor from "@components/components/system-monitor.tsx";
 ---
 
 <Layout>
-  <CardMonitoring />
+  <CardMonitoring class="mb-10" />
+  <div class="pt-6 w-full">
+    <SystemMonitor client:visible />
+  </div>
   <!-- Main container menggunakan variabel tema shadcn Anda (mendukung Light/Dark Mode) -->
   <main
     class="pb-200 pt-200 relative min-h-[400px] flex items-center justify-center bg-[hsl(var(--background))] text-[hsl(var(--foreground))] antialiased overflow-hidden transition-colors duration-300"

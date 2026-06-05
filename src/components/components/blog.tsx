@@ -1,6 +1,6 @@
 
-import { Badge } from "@components/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@components/components/ui/card";
+import { Badge } from "@components/components/monitoring/badge";
+import { Card, CardContent, CardHeader } from "@components/components/monitoring/card";
 import {
   Select,
   SelectContent,
