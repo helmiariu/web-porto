@@ -9,6 +9,8 @@ import {
     CarouselContent,
     CarouselItem,
 } from "@components/components/gallery/carousel";
+import { Button } from "@components/components/ui/button";
+import { cn } from "@components/lib/utils";
 
 interface ModelViewerModalProps {
     isOpen: boolean;
@@ -382,15 +384,15 @@ export default function ModelViewerModal({
     return (
         <div
             onClick={handleBackdropClick}
-            className="fixed inset-0 z-[70] md:z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-2 md:p-4 animate-in fade-in duration-200"
+            className="fixed inset-0 z-[70] md:z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-2 md:p-4 animate-in fade-in duration-200"
         >
             <div
                 onClick={(e) => e.stopPropagation()}
-                className="relative w-full max-w-4xl h-[90vh] md:h-[85vh] bg-card border border-border rounded-xl flex flex-col overflow-hidden shadow-lg text-card-foreground"
+                className="relative w-full max-w-6xl h-[90vh] md:h-[85vh] lg:h-[95vh] bg-background  border border-border rounded-xl flex flex-col overflow-hidden shadow-lg text-card-foreground"
             >
 
                 {/* HEADER MODAL */}
-                <div className="flex items-center justify-between p-4 border-b border-border">
+                <div className="bg-muted/40 flex items-center justify-between p-4 border-b border-border">
                     <h3 className="text-base md:text-lg font-semibold tracking-tight capitalize truncate max-w-[70%]">
                         {albumName.replace(/-/g, " ")} — {activeView === "3d" ? "3D Viewer" : `Detail #${(activeView as number) + 1}`}
                     </h3>
@@ -415,16 +417,19 @@ export default function ModelViewerModal({
                 )}
 
                 {/* AREA VIEW UTAMA */}
-                <div className="flex-1 min-h-0 bg-muted/40 relative flex items-center justify-center overflow-hidden group select-none">
+                <div className="flex-1 min-h-0 bg-muted/20 relative flex items-center justify-center overflow-hidden group select-none">
 
                     {activeView !== "3d" && modelUrl && (
-                        <button
+                        <Button
+                            variant="secondary"
+                            className={cn(
+                                "absolute top-4 right-4 z-30 touch-manipulation rounded-full px-3 py-1.5 h-auto flex items-center gap-1.5  border border-input shadow-lg transition-all active:scale-95"
+                            )}
                             onClick={() => setActiveView("3d")}
-                            className="absolute top-4 right-4 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/90 hover:bg-background border border-border text-foreground text-xs font-semibold shadow-md transition-all active:scale-95 cursor-pointer"
                         >
-                            <Rotate3d className="h-4 w-4 text-primary animate-pulse" />
-                            <span>360° View</span>
-                        </button>
+                            <Rotate3d className="h-4 w-4 animate-pulse" />
+                            <span className="text-xs font-semibold tracking-tight">360° View</span>
+                        </Button>
                     )}
 
                     <button
@@ -434,7 +439,7 @@ export default function ModelViewerModal({
                         <ChevronLeft className="h-3 w-3 md:h-4 md:w-4" />
                     </button>
 
-                    <div className="absolute inset-0 flex items-center justify-center p-0 md:p-0 bg-card">
+                    <div className="absolute inset-0 flex items-center justify-center p-0 md:p-0 bg-transparent">
                         {activeView === "3d" ? (
                             !blobUrl || isDownloading ? (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm transition-opacity duration-500">
@@ -533,7 +538,7 @@ export default function ModelViewerModal({
                 </div>
 
                 {/* BARIS THUMBNAIL BAWAH */}
-                <div ref={thumbnailContainerRef} className="h-22 lg:h-26 bg-card border-t border-border p-3 flex gap-3 overflow-x-auto items-center w-full">
+                <div ref={thumbnailContainerRef} className="h-22 lg:h-26 bg-muted/40 border-t border-border p-3 flex gap-3 overflow-x-auto items-center w-full">
                     {modelUrl && (
                         <button onClick={() => setActiveView("3d")} data-active={activeView === "3d"} className={`h-16 w-16 rounded-lg flex flex-col items-center justify-center gap-1 border transition-all shrink-0 select-none cursor-pointer ${activeView === "3d" ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20" : "border-input bg-background hover:bg-accent text-muted-foreground"}`}>
                             <Rotate3d className="h-7 w-7 shrink-0" />
