@@ -1,3 +1,4 @@
+// @components/components/gallery/model-viewer-modal.tsx
 "use client";
 
 import * as React from "react";
@@ -34,17 +35,14 @@ function ZoomPanImage({ src, alt }: ZoomPanProps) {
     const dragStart = React.useRef({ x: 0, y: 0 });
     const imgRef = React.useRef<HTMLImageElement>(null);
 
-    // Mobile pinch tracking
     const touchStartDist = React.useRef<number | null>(null);
     const touchStartScale = React.useRef<number>(1);
 
-    // Reset zoom & pan when source changes
     React.useEffect(() => {
         setScale(1);
         setPosition({ x: 0, y: 0 });
     }, [src]);
 
-    // Calculate pan boundaries based on zoom scale
     const getBounds = () => {
         if (!imgRef.current) return { x: 0, y: 0 };
         const width = imgRef.current.clientWidth;
@@ -54,7 +52,6 @@ function ZoomPanImage({ src, alt }: ZoomPanProps) {
         return { x: boundsX, y: boundsY };
     };
 
-    // Desktop: Scroll wheel zoom
     const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
         e.preventDefault();
         const zoomFactor = 0.15;
@@ -67,10 +64,9 @@ function ZoomPanImage({ src, alt }: ZoomPanProps) {
         setScale(newScale);
     };
 
-    // Desktop: Drag to pan
     const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
         if (scale <= 1) return;
-        e.stopPropagation(); // Stop Embla carousel from swiping
+        e.stopPropagation();
         setIsDragging(true);
         dragStart.current = { x: e.clientX - position.x, y: e.clientY - position.y };
     };
@@ -94,10 +90,9 @@ function ZoomPanImage({ src, alt }: ZoomPanProps) {
         setIsDragging(false);
     };
 
-    // Mobile: Touch drag & pinch zoom
     const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
         if (scale > 1) {
-            e.stopPropagation(); // Stop Embla carousel from swiping
+            e.stopPropagation();
         }
 
         if (e.touches.length === 1 && scale > 1) {
@@ -116,7 +111,7 @@ function ZoomPanImage({ src, alt }: ZoomPanProps) {
 
     const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
         if (scale > 1 || e.touches.length === 2) {
-            e.stopPropagation(); // Stop Embla carousel from swiping
+            e.stopPropagation();
         }
 
         if (e.touches.length === 1 && isDragging && scale > 1) {
@@ -191,21 +186,24 @@ export default function ModelViewerModal({
     const [renderMode, setRenderMode] = React.useState<"final" | "wireframe" | "unlit">("final");
     const [activeView, setActiveView] = React.useState<"3d" | number>(initialView ?? "3d");
 
-    // Real progress bar & Carousel API
-    const [downloadProgress, setDownloadProgress] = React.useState<number>(0);
+    const [blobUrl, setBlobUrl] = React.useState<string | null>(null);
+    const [isDownloading, setIsDownloading] = React.useState(false);
+
     const [carouselApi, setCarouselApi] = React.useState<CarouselApi>();
 
     const thumbnailContainerRef = React.useRef<HTMLDivElement>(null);
-    const modelViewerRef = React.useRef<HTMLElement>(null); // Ref untuk model-viewer
+    const modelViewerRef = React.useRef<HTMLElement>(null);
+    const progressBarRef = React.useRef<HTMLDivElement>(null);
+    const progressTextRef = React.useRef<HTMLSpanElement>(null);
 
-    // Reset view ketika modal dibuka
+    // 1. Hook useEffect untuk registrasi Lottie sebelumnya SUDAH DIHAPUS agar menghemat memori
+
     React.useEffect(() => {
         if (isOpen) {
             setActiveView(initialView ?? "3d");
         }
     }, [isOpen, initialView]);
 
-    // Kunci scroll halaman belakang
     React.useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = "hidden";
@@ -217,26 +215,79 @@ export default function ModelViewerModal({
         };
     }, [isOpen]);
 
-    // progress model-viewer
+    // Pembersihan Blob URL (Hanya dipanggil saat unmount atau saat url model berubah)
     React.useEffect(() => {
-        const handleProgress = (event: any) => {
-            const percentage = Math.floor(event.detail.totalProgress * 100);
-            setDownloadProgress(percentage);
-        };
-
-        const currentModel = modelViewerRef.current;
-        if (currentModel) {
-            currentModel.addEventListener("progress", handleProgress);
-        }
-
         return () => {
-            if (currentModel) {
-                currentModel.removeEventListener("progress", handleProgress);
+            if (blobUrl) {
+                URL.revokeObjectURL(blobUrl);
             }
         };
-    }, [activeView, isOpen]);
+    }, [blobUrl]);
 
-    // Sync carousel scroll dengan activeView state
+    // Logika download & pembersihan internal useEffect
+    React.useEffect(() => {
+        if (!isOpen || activeView !== "3d" || !modelUrl || blobUrl) return;
+
+        let active = true;
+
+        const downloadModel = async () => {
+            setIsDownloading(true);
+            try {
+                const response = await fetch(modelUrl);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const contentLength = response.headers.get("content-length");
+                const totalBytes = contentLength ? parseInt(contentLength, 10) : 0;
+
+                const reader = response.body?.getReader();
+                if (!reader) throw new Error("ReadableStream not supported");
+
+                let loadedBytes = 0;
+                const chunks: Uint8Array[] = [];
+
+                if (progressBarRef.current) progressBarRef.current.style.width = "0%";
+                if (progressTextRef.current) progressTextRef.current.innerText = "0%";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    if (!active) return;
+
+                    chunks.push(value);
+                    loadedBytes += value.length;
+
+                    if (totalBytes > 0) {
+                        const percentage = Math.floor((loadedBytes / totalBytes) * 100);
+                        if (progressBarRef.current) {
+                            progressBarRef.current.style.width = `${percentage}%`;
+                        }
+                        if (progressTextRef.current) {
+                            progressTextRef.current.innerText = `${percentage}%`;
+                        }
+                    }
+                }
+
+                if (!active) return;
+
+                const blob = new Blob(chunks);
+                const objectUrl = URL.createObjectURL(blob);
+                setBlobUrl(objectUrl);
+            } catch (error) {
+                console.error("Failed to download 3D model:", error);
+            } finally {
+                if (active) {
+                    setIsDownloading(false);
+                }
+            }
+        };
+
+        downloadModel();
+
+        return () => {
+            active = false;
+        };
+    }, [activeView, modelUrl, blobUrl, isOpen]);
+
     React.useEffect(() => {
         if (carouselApi && typeof activeView === "number") {
             const currentSnap = carouselApi.selectedScrollSnap();
@@ -246,7 +297,6 @@ export default function ModelViewerModal({
         }
     }, [activeView, carouselApi]);
 
-    // Listen to carousel selection to sync back to activeView
     React.useEffect(() => {
         if (!carouselApi) return;
 
@@ -256,7 +306,6 @@ export default function ModelViewerModal({
         });
     }, [carouselApi]);
 
-    // Auto-scroll thumbnail
     React.useEffect(() => {
         if (thumbnailContainerRef.current) {
             const activeElement = thumbnailContainerRef.current.querySelector('[data-active="true"]');
@@ -271,11 +320,6 @@ export default function ModelViewerModal({
     }, [activeView]);
 
     if (!isOpen) return null;
-
-    const getModelSrc = () => {
-        if (renderMode === "wireframe") return wireframeUrl || modelUrl;
-        return modelUrl;
-    };
 
     const handleNext = () => {
         if (activeView === "3d") {
@@ -334,7 +378,7 @@ export default function ModelViewerModal({
                     </button>
                 </div>
 
-                {/* FLOATING CONTROLS (Hanya 3D Mode) */}
+                {/* FLOATING CONTROLS */}
                 {activeView === "3d" && (
                     <div className="absolute top-16 right-2 md:top-20 md:right-4 z-20 flex flex-row md:flex-col gap-1 md:gap-2 bg-background/80 p-1 backdrop-blur-md rounded-lg border border-border shadow-sm max-w-[calc(100%-1rem)] overflow-x-auto">
                         <button onClick={() => setRenderMode("final")} className={`p-1.5 md:p-2 rounded-md flex items-center gap-1.5 text-[11px] md:text-xs font-medium whitespace-nowrap cursor-pointer ${renderMode === "final" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent"}`}>
@@ -350,10 +394,8 @@ export default function ModelViewerModal({
                 )}
 
                 {/* AREA VIEW UTAMA */}
-                {/* AREA VIEW UTAMA */}
                 <div className="flex-1 min-h-0 bg-muted/40 relative flex items-center justify-center overflow-hidden group select-none">
 
-                    {/* Shortcut 360° View ketika sedang melihat gambar 2D */}
                     {activeView !== "3d" && modelUrl && (
                         <button
                             onClick={() => setActiveView("3d")}
@@ -364,44 +406,33 @@ export default function ModelViewerModal({
                         </button>
                     )}
 
-                    {/* Tombol Navigasi Kiri */}
                     <button onClick={handlePrev} className="absolute left-2 md:left-4 z-30 p-3 md:p-2 rounded-full border border-border bg-background/80 backdrop-blur-sm text-foreground shadow-md transition-all opacity-60 md:opacity-0 md:group-hover:opacity-100 hover:bg-background active:scale-90 cursor-pointer">
                         <ChevronLeft className="h-5 w-5 md:h-4 md:w-4" />
                     </button>
 
-                    {/* KUNCI UTAMA: Menggunakan 'absolute inset-0' dengan padding agar konten mengunci sisa ruang secara presisi */}
-                    <div className="absolute inset-0 flex items-center justify-center p-0 md:p-0 bg-card ">
+                    <div className="absolute inset-0 flex items-center justify-center p-0 md:p-0 bg-card">
                         {activeView === "3d" ? (
-                            // @ts-ignore
-                            <model-viewer
-                                ref={modelViewerRef}
-                                src={getModelSrc()}
-                                poster={images[0]}
-                                camera-controls
-                                auto-rotate
-                                loading="lazy"
-                                reveal="auto"
-                                shadow-intensity="1.5"
-                                shadow-softness="1"
-                                exposure={renderMode === "unlit" ? "2" : "1"}
-                                variant-name={renderMode === "unlit" ? "unlit" : "default"}
-                                style={{ width: '100%', height: '100%' } as React.CSSProperties}
-                            >
-                                {/* CUSTOM POSTER SLOT */}
-                                {/* @ts-ignore */}
-                                <div slot="poster" className="absolute inset-0 flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm transition-opacity duration-500">
+                            !blobUrl || isDownloading ? (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm transition-opacity duration-500">
                                     <img src={images[0]} alt="Loading preview" className="absolute inset-0 w-full h-full object-contain opacity-20 blur-[2px] p-4 pointer-events-none" />
 
                                     <div className="relative z-10 flex flex-col items-center gap-3 p-5 rounded-xl bg-card/90 border border-border shadow-md max-w-xs text-center">
+
+                                        {/* 2. BAGIAN BARU: Memanggil Kucing dalam format Animated SVG (Support Light/Dark Mode) */}
                                         <div className="w-28 h-28 flex items-center justify-center">
-                                            <div className="block dark:hidden">
-                                                {/* @ts-ignore */}
-                                                <dotlottie-player src="/cat.lottie" background="transparent" speed="1" style={{ width: '100%', height: '100%' }} loop autoplay />
-                                            </div>
-                                            <div className="hidden dark:block">
-                                                {/* @ts-ignore */}
-                                                <dotlottie-player src="/catdark.json" background="transparent" speed="1" style={{ width: '100%', height: '100%' }} loop autoplay />
-                                            </div>
+                                            {/* Kucing Mode Terang (Light Mode) */}
+                                            <img
+                                                src="/cat.svg"
+                                                alt="Loading Kucing"
+                                                className="w-full h-full object-contain pointer-events-none block dark:hidden"
+                                            />
+
+                                            {/* Kucing Mode Gelap (Dark Mode) */}
+                                            <img
+                                                src="/catdark.svg"
+                                                alt="Loading Kucing Dark"
+                                                className="w-full h-full object-contain pointer-events-none hidden dark:block"
+                                            />
                                         </div>
 
                                         <div className="space-y-1">
@@ -412,18 +443,34 @@ export default function ModelViewerModal({
                                         <div className="w-full space-y-1">
                                             <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
                                                 <div
+                                                    ref={progressBarRef}
                                                     className="h-full bg-primary rounded-full transition-all duration-300 ease-out"
-                                                    style={{ width: `${downloadProgress}%` }}
+                                                    style={{ width: "0%" }}
                                                 />
                                             </div>
-                                            <span className="text-[10px] font-mono text-muted-foreground">{downloadProgress}%</span>
+                                            <span ref={progressTextRef} className="text-[10px] font-mono text-muted-foreground">0%</span>
                                         </div>
                                     </div>
                                 </div>
-                                {/* @ts-ignore */}
-                            </model-viewer>
+                            ) : (
+                                // @ts-ignore
+                                <model-viewer
+                                    ref={modelViewerRef}
+                                    src={blobUrl}
+                                    poster={images[0]}
+                                    camera-controls
+                                    auto-rotate
+                                    loading="lazy"
+                                    reveal="auto"
+                                    shadow-intensity="1.5"
+                                    shadow-softness="1"
+                                    exposure={renderMode === "unlit" ? "2" : "1"}
+                                    variant-name={renderMode === "unlit" ? "unlit" : "default"}
+                                    style={{ width: '100%', height: '100%' }}
+                                >
+                                </model-viewer>
+                            )
                         ) : (
-                            /* KUNCI UTAMA 2: '[&>div]:h-full' memaksa div 'hidden/viewport' milik Embla Carousel untuk ikut h-full */
                             <Carousel
                                 setApi={setCarouselApi}
                                 className="w-full h-full [&>div]:h-full"
@@ -442,7 +489,6 @@ export default function ModelViewerModal({
                         )}
                     </div>
 
-                    {/* Tombol Navigasi Kanan */}
                     <button onClick={handleNext} className="absolute right-2 md:right-4 z-30 p-3 md:p-2 rounded-full border border-border bg-background/80 backdrop-blur-sm text-foreground shadow-md transition-all opacity-60 md:opacity-0 md:group-hover:opacity-100 hover:bg-background active:scale-90 cursor-pointer">
                         <ChevronRight className="h-5 w-5 md:h-4 md:w-4" />
                     </button>

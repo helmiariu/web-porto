@@ -1,5 +1,5 @@
 // src/components/components/gallery-card.tsx
-"use client"; // Pastikan directive ini berada di baris paling atas
+"use client";
 
 import * as React from "react";
 import { Rotate3d } from "lucide-react";
@@ -13,7 +13,10 @@ import {
 } from "@components/components/gallery/carousel";
 import { Progress } from "@components/components/gallery/progress";
 
-// 1. OPTIMASI UTAMA: Hapus import statis, ubah menjadi DYNAMIC IMPORT (Lazy Loading)
+// IMPORT KEDUA ELEMEN INI AGAR TIDAK REFERENCE ERROR
+import { Button } from "@components/components/ui/button";
+import { cn } from "@components/lib/utils";
+
 const ModelViewerModal = React.lazy(() => import("@components/components/gallery/model-viewer-modal"));
 
 interface CarouselProps {
@@ -49,7 +52,7 @@ export default function CarouselWithProgress({ images, albumName, modelUrl, wire
     return (
         <div className="w-full flex flex-col justify-start pb-4 pt-0 px-3">
 
-            {/* HEADER: Judul Mepet Kiri */}
+            {/* HEADER */}
             <div className="w-full flex justify-center items-center px-0 py-3 mb-1">
                 <h2 className="text-xl font-semibold tracking-tight capitalize text-foreground truncate">
                     {albumName.replace(/-/g, " ")}
@@ -66,46 +69,66 @@ export default function CarouselWithProgress({ images, albumName, modelUrl, wire
                                     alt={`${albumName} - ${index + 1}`}
                                     className="h-full w-full object-cover cursor-pointer"
                                     onClick={() => {
-                                        setInitialView(index === 0 ? "3d" : index);
+                                        if (index === 0 && modelUrl) {
+                                            setInitialView("3d");
+                                        } else {
+                                            setInitialView(index);
+                                        }
                                         setIsModalOpen(true);
                                     }}
                                     loading={index === 0 ? "eager" : "lazy"}
                                     decoding="async"
                                 />
                                 {index === 0 && modelUrl && (
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
+                                    <div
+                                        onClick={() => {
                                             setInitialView("3d");
                                             setIsModalOpen(true);
                                         }}
-                                        className="absolute top-3 right-3 z-10 flex flex-col items-center justify-center bg-background/50 backdrop-blur-md text-popover-foreground border border-border/30 w-12 h-12 rounded-xl font-medium hover:bg-background/80 transition-all shrink-0 shadow-md group"
+                                        className="absolute inset-0 flex flex-col items-center justify-center bg-black/25 hover:bg-black/35 transition-all cursor-pointer"
                                     >
-                                        <Rotate3d className="h-6 w-6 text-foreground/70 group-hover:text-foreground transition-colors" />
-                                        <span className="text-[10px] font-bold tracking-tight text-foreground/70 group-hover:text-foreground transition-colors -mt-0.5">
-                                            360°
-                                        </span>
-                                    </button>
+                                        <div className="flex flex-col items-center gap-1 bg-background/40 backdrop-blur-md text-foreground/90 border border-border/20 px-4 py-2 rounded-xl font-semibold shadow-md hover:scale-105 active:scale-95 transition-all">
+                                            <Rotate3d className="h-5 w-5 text-primary/90 animate-pulse" />
+                                            <span className="text-[10px] font-bold tracking-wider uppercase">
+                                                360°
+                                            </span>
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         </CarouselItem>
                     ))}
                 </CarouselContent>
 
-                {/* NAVIGASI & PROGRESS BAR */}
-                <div className="flex items-center justify-between mt-4 px-1 gap-1">
+                {/* NAVIGASI, PROGRESS BAR, & TOMBOL AKSI */}
+                <div className="flex flex-col gap-4 mt-4 px-1">
+                    {/* Baris Atas: Progress Bar */}
+                    <Progress className="w-full m-0" value={progress} />
+
+                    {/* Baris Bawah: Kelompok tombol-tombol aksi */}
                     <div className="flex items-center gap-2">
-                        <CarouselPrevious className="relative top-auto left-auto translate-y-0" />
-                        <CarouselNext className="relative top-auto translate-y-0 right-auto" />
+                        <CarouselPrevious className="relative top-auto left-auto translate-y-0 h-10 w-10 md:h-9 md:w-9" />
+                        <CarouselNext className="relative top-auto translate-y-0 right-auto h-10 w-10 md:h-9 md:w-9" />
+
+                        {modelUrl && (
+                            <Button
+                                variant="outline"
+                                // Tambahkan class h-10 md:h-9 di bawah ini:
+                                className={cn("touch-manipulation rounded-full px-4 flex items-center gap-2 ml-auto h-10 md:h-9")}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setInitialView("3d");
+                                    setIsModalOpen(true);
+                                }}
+                            >
+                                <Rotate3d className="h-4 w-4" />
+                                <span className="text-xs font-semibold tracking-tight">360° View</span>
+                            </Button>
+                        )}
                     </div>
-                    <Progress className="w-24 m-0" value={progress} />
                 </div>
             </Carousel>
 
-            {/* 2. SINKRONISASI OPTIMASI: 
-                 Bungkus dengan React.Suspense & berikan kondisi hulu {isModalOpen && ...}
-                 File modal 3D seberat ratusan KB hanya akan diunduh jika baris ini aktif (di-klik).
-            */}
             {isModalOpen && (
                 <React.Suspense fallback={null}>
                     <ModelViewerModal

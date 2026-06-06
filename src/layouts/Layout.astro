@@ -88,8 +88,6 @@ import { ClientRouter } from "astro:transitions";
 </html>
 
 <script>
-import "@dotlottie/player-component";
-
   // ==========================================
   // 1. SINKRONISASI TEMA ANTAR-TAB
   // ==========================================
@@ -134,17 +132,6 @@ import "@dotlottie/player-component";
   document.addEventListener("astro:page-load", () => {
     handleSidebarScroll();
     syncThemeAcrossTabs();
-
-    // Play all lottie players on transition/load
-    document.querySelectorAll("dotlottie-player").forEach((player: any) => {
-      if (player && typeof player.play === "function") {
-        player.play();
-      } else if (player) {
-        player.addEventListener("ready", () => {
-          player.play();
-        });
-      }
-    });
   });
 
   document.addEventListener("astro:before-swap", () => {

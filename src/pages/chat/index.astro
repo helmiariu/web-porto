@@ -2,31 +2,35 @@
 import Layout from "@layouts/Layout.astro";
 import { buttonVariants } from "@components/components/ui/button"; // Pastikan path ini sesuai dengan struktur proyekmu
 import { ChevronLeft, Loader2 } from "@lucide/astro"; // Menggunakan Lucide Astro agar selaras
-import Lottie from "@components/ui/Lottie.astro";
 import Blog from "@components/components/blog.tsx";
 ---
 
 <Layout>
-  <!-- Main container menggunakan utilitas warna bersih bawaan Tailwind v4 -->
   <main
     class="relative min-h-[400px] flex items-center justify-center bg-background text-foreground font-sans antialiased overflow-hidden transition-colors duration-300"
   >
-    <!-- Efek Grid Halus yang menyesuaikan dengan warna border tema secara native -->
     <div
       class="absolute inset-0 bg-[linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30 pointer-events-none"
     >
     </div>
 
-    <!-- Konten Box -->
     <div
       class="relative z-10 text-center px-6 max-w-md mx-auto flex flex-col items-center"
     >
-      <!-- Icon Spinner Minimalis menggunakan warna muted dan token radius asli -->
-      <div class="box-animasi mb-6">
-        <Lottie />
+      <div class="w-28 h-28 flex items-center justify-center mb-4">
+        <img
+          src="/cat.svg"
+          alt="Loading Kucing"
+          class="w-full h-full object-contain pointer-events-none block dark:hidden"
+        />
+
+        <img
+          src="/catdark.svg"
+          alt="Loading Kucing Dark"
+          class="w-full h-full object-contain pointer-events-none hidden dark:block"
+        />
       </div>
 
-      <!-- Judul -->
       <h1 class="text-3xl font-bold tracking-tight sm:text-4xl mb-1">Chat</h1>
       <h2
         class="text-xl font-medium tracking-tight text-muted-foreground sm:text-2xl mb-5"
@@ -34,7 +38,6 @@ import Blog from "@components/components/blog.tsx";
         Under Development
       </h2>
 
-      <!-- Deskripsi menggunakan text-muted-foreground -->
       <p
         class="text-sm text-muted-foreground mb-8 leading-relaxed max-w-[320px]"
       >
