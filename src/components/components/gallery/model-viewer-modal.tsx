@@ -392,12 +392,15 @@ export default function ModelViewerModal({
             >
 
                 {/* HEADER MODAL */}
-                <div className="bg-muted/40 flex items-center justify-between p-4 border-b border-border">
+                <div className="bg-muted/40 flex items-center justify-between px-4 py-2.5 md:py-3 border-b border-border">
                     <h3 className="text-base md:text-lg font-semibold tracking-tight capitalize truncate max-w-[70%]">
                         {albumName.replace(/-/g, " ")} — {activeView === "3d" ? "3D Viewer" : `Detail #${(activeView as number) + 1}`}
                     </h3>
-                    <button onClick={onClose} className="p-2 rounded-md opacity-70 hover:opacity-100 hover:bg-accent cursor-pointer">
-                        <X className="h-4 w-4" />
+                    <button
+                        onClick={onClose}
+                        className="flex items-center justify-center h-8 w-8 md:h-9 md:w-9 rounded-lg opacity-70 hover:opacity-100 hover:bg-accent transition-all active:scale-95 cursor-pointer shrink-0"
+                    >
+                        <X className="h-4 w-4 md:h-4.5 md:w-4.5" />
                     </button>
                 </div>
 
@@ -538,7 +541,7 @@ export default function ModelViewerModal({
                 </div>
 
                 {/* BARIS THUMBNAIL BAWAH */}
-                <div ref={thumbnailContainerRef} className="h-22 lg:h-26 bg-muted/40 border-t border-border p-3 flex gap-3 overflow-x-auto items-center w-full">
+                <div ref={thumbnailContainerRef} className="h-20 lg:h-22 bg-muted/40 border-t border-border p-3 flex gap-3 overflow-x-auto overflow-y-hidden items-center w-full">
                     {modelUrl && (
                         <button onClick={() => setActiveView("3d")} data-active={activeView === "3d"} className={`h-16 w-16 rounded-lg flex flex-col items-center justify-center gap-1 border transition-all shrink-0 select-none cursor-pointer ${activeView === "3d" ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20" : "border-input bg-background hover:bg-accent text-muted-foreground"}`}>
                             <Rotate3d className="h-7 w-7 shrink-0" />
