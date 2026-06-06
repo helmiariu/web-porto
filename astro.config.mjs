@@ -13,4 +13,12 @@ export default defineConfig({
     plugins: [tailwindcss()],
     assetsInclude: ['**/*.glb'],
   },
+  image: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'cdn.pixabay.com',
+      },
+    ],
+  },
 });
