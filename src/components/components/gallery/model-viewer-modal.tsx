@@ -206,14 +206,18 @@ export default function ModelViewerModal({
 
     React.useEffect(() => {
         if (isOpen) {
+            document.documentElement.style.overflow = "hidden";
             document.body.style.overflow = "hidden";
         } else {
+            document.documentElement.style.overflow = "";
             document.body.style.overflow = "";
         }
         return () => {
+            document.documentElement.style.overflow = "";
             document.body.style.overflow = "";
         };
     }, [isOpen]);
+
 
     // Pembersihan Blob URL (Hanya dipanggil saat unmount atau saat url model berubah)
     React.useEffect(() => {
