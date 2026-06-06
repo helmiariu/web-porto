@@ -5,7 +5,7 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
 
 <div class="space-y-2">
   <p
-    class="text-[10px] font-semibold uppercase tracking-[.3em] text-primary text-primary/85 lg:text-foreground/70 pl-3"
+    class="text-[10px] font-semibold uppercase tracking-[.3em] text-primary/85 lg:text-foreground/70 pl-3"
   >
     THEMING
   </p>
@@ -13,12 +13,33 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
   <div class="space-y-1.5">
     <label
       for={uniqueId}
-      class="flex items-center justify-between rounded-xl border border-transparent bg-transparent duration-150 cursor-pointer relative py-[6px] px-[12px] group text-primary/85 lg:text-foreground/70 hover:bg-secondary hover:text-foreground select-none"
+      *
+      PERBAIKAN
+      1:
+      Ganti
+      py-[6px]
+      dengan
+      h-10
+      untuk
+      mengunci
+      tinggi
+      tombol
+      tepat
+      40px
+      (sejajar
+      dengan
+      menu
+      navigation)
+      *
+      class="flex items-center justify-between rounded-xl border border-transparent bg-transparent duration-150 cursor-pointer relative h-10 px-[12px] group text-primary/85 lg:text-foreground/70 hover:bg-secondary hover:text-foreground select-none"
     >
       <span class="flex items-center gap-3">
         <span
           class="theme-icon-container flex shrink-0 items-center justify-center w-[26px] h-[26px] text-primary/85 lg:text-foreground/70 group-hover:text-foreground"
         >
+          {
+            /* PERBAIKAN 2: Ubah ukuran kedua SVG dari 15px ke 16px (26px - 16px = 10px, pas dibagi 2 untuk centering tanpa desimal) */
+          }
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -27,7 +48,7 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
-            class="sun-icon w-[15px] h-[15px] block"
+            class="sun-icon w-[16px] h-[16px] block"
             ><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"
             ></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"
             ></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"
@@ -43,14 +64,20 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
-            class="moon-icon w-[15px] h-[15px] hidden"
+            class="moon-icon w-[16px] h-[16px] hidden"
             ><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg
           >
         </span>
-        <span class="font-medium text-[14px]">Dark Mode</span>
+        {
+          /* PERBAIKAN 3: Tambahkan leading-[26px] agar tinggi baris teks mengunci sempurna setinggi icon container */
+        }
+        <span class="font-medium text-[14px] leading-[26px]">Dark Mode</span>
       </span>
 
-      <div class="relative w-[44px] h-[20px]">
+      {
+        /* PERBAIKAN 4: Tambahkan shrink-0 agar tidak bergeser horizontal saat ditekan */
+      }
+      <div class="relative w-[44px] h-[20px] shrink-0">
         <input
           id={uniqueId}
           type="checkbox"
@@ -60,12 +87,12 @@ const uniqueId = "theme-switch-" + Math.random().toString(36).substr(2, 9);
 
         <div
           class="absolute inset-0 bg-input rounded-full
-           peer-checked:bg-primary transition-colors duration-200 ease-in-out
-           
-           after:content-[''] after:absolute after:top-[3px] after:left-[3px]
-           after:bg-background after:shadow-sm after:rounded-full after:h-[14px] after:w-[14px]
-           after:transition-all after:duration-300 after:ease-[cubic-bezier(0.175,0.885,0.32,1.275)]
-           peer-checked:after:translate-x-[24px]"
+            peer-checked:bg-primary transition-colors duration-200 ease-in-out
+            
+            after:content-[''] after:absolute after:top-[3px] after:left-[3px]
+            after:bg-background after:shadow-sm after:rounded-full after:h-[14px] after:w-[14px]
+            after:transition-all after:duration-300 after:ease-[cubic-bezier(0.175,0.885,0.32,1.275)]
+            peer-checked:after:translate-x-[24px]"
         >
         </div>
 
