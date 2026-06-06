@@ -449,6 +449,8 @@ export default function ModelViewerModal({
                                                 src="/cat.svg"
                                                 alt="Loading Kucing"
                                                 className="w-full h-full object-contain pointer-events-none block dark:hidden"
+                                                loading="eager"
+                                                fetchPriority="high"
                                             />
 
                                             {/* Kucing Mode Gelap (Dark Mode) */}
@@ -456,6 +458,8 @@ export default function ModelViewerModal({
                                                 src="/catdark.svg"
                                                 alt="Loading Kucing Dark"
                                                 className="w-full h-full object-contain pointer-events-none hidden dark:block"
+                                                loading="eager"
+                                                fetchPriority="high"
                                             />
                                         </div>
 
