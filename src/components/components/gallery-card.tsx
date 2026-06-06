@@ -122,7 +122,7 @@ export default function CarouselWithProgress({ images, albumName, modelUrl, wire
                                 }}
                             >
                                 <Rotate3d className="h-4 w-4" />
-                                <span className="text-xs font-semibold tracking-tight">360° View</span>
+                                <span className="text-xs font-semibold tracking-tight text-primary ">360° View</span>
                             </Button>
                         )}
                     </div>

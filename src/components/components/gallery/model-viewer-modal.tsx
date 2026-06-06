@@ -26,9 +26,10 @@ interface ModelViewerModalProps {
 interface ZoomPanProps {
     src: string;
     alt: string;
+    onZoomChange: (zoomed: boolean) => void;
 }
 
-function ZoomPanImage({ src, alt }: ZoomPanProps) {
+function ZoomPanImage({ src, alt, onZoomChange }: ZoomPanProps) {
     const [scale, setScale] = React.useState(1);
     const [position, setPosition] = React.useState({ x: 0, y: 0 });
     const [isDragging, setIsDragging] = React.useState(false);
@@ -42,6 +43,11 @@ function ZoomPanImage({ src, alt }: ZoomPanProps) {
         setScale(1);
         setPosition({ x: 0, y: 0 });
     }, [src]);
+
+    React.useEffect(() => {
+        onZoomChange(scale > 1);
+    }, [scale]);
+
 
     const getBounds = () => {
         if (!imgRef.current) return { x: 0, y: 0 };
@@ -190,6 +196,7 @@ export default function ModelViewerModal({
     const [isDownloading, setIsDownloading] = React.useState(false);
 
     const [carouselApi, setCarouselApi] = React.useState<CarouselApi>();
+    const [isZoomed, setIsZoomed] = React.useState(false);
 
     const thumbnailContainerRef = React.useRef<HTMLDivElement>(null);
     const modelViewerRef = React.useRef<HTMLElement>(null);
@@ -217,6 +224,12 @@ export default function ModelViewerModal({
             document.body.style.overflow = "";
         };
     }, [isOpen]);
+
+    // Nonaktifkan drag/swipe pada Embla secara dinamis:
+    React.useEffect(() => {
+        if (!carouselApi) return;
+        carouselApi.reInit({ watchDrag: !isZoomed });
+    }, [carouselApi, isZoomed]);
 
 
     // Pembersihan Blob URL (Hanya dipanggil saat unmount atau saat url model berubah)
@@ -323,6 +336,7 @@ export default function ModelViewerModal({
         }
     }, [activeView]);
 
+
     if (!isOpen) return null;
 
     const handleNext = () => {
@@ -370,7 +384,10 @@ export default function ModelViewerModal({
             onClick={handleBackdropClick}
             className="fixed inset-0 z-[70] md:z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-2 md:p-4 animate-in fade-in duration-200"
         >
-            <div className="relative w-full max-w-4xl h-[90vh] md:h-[85vh] bg-card border border-border rounded-xl flex flex-col overflow-hidden shadow-lg text-card-foreground">
+            <div
+                onClick={(e) => e.stopPropagation()}
+                className="relative w-full max-w-4xl h-[90vh] md:h-[85vh] bg-card border border-border rounded-xl flex flex-col overflow-hidden shadow-lg text-card-foreground"
+            >
 
                 {/* HEADER MODAL */}
                 <div className="flex items-center justify-between p-4 border-b border-border">
@@ -410,8 +427,11 @@ export default function ModelViewerModal({
                         </button>
                     )}
 
-                    <button onClick={handlePrev} className="absolute left-2 md:left-4 z-30 p-3 md:p-2 rounded-full border border-border bg-background/80 backdrop-blur-sm text-foreground shadow-md transition-all opacity-60 md:opacity-0 md:group-hover:opacity-100 hover:bg-background active:scale-90 cursor-pointer">
-                        <ChevronLeft className="h-5 w-5 md:h-4 md:w-4" />
+                    <button
+                        onClick={handlePrev}
+                        className="absolute left-1 md:left-4 z-30 p-1.5 md:p-2 rounded-full md:border md:border-border bg-background/40 md:bg-background/80 backdrop-blur-[1px] md:backdrop-blur-sm text-foreground/70 md:text-foreground md:shadow-md transition-all opacity-30 md:opacity-0 md:group-hover:opacity-100 hover:bg-background active:scale-90 cursor-pointer"
+                    >
+                        <ChevronLeft className="h-3 w-3 md:h-4 md:w-4" />
                     </button>
 
                     <div className="absolute inset-0 flex items-center justify-center p-0 md:p-0 bg-card">
@@ -420,10 +440,10 @@ export default function ModelViewerModal({
                                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm transition-opacity duration-500">
                                     <img src={images[0]} alt="Loading preview" className="absolute inset-0 w-full h-full object-contain opacity-20 blur-[2px] p-4 pointer-events-none" />
 
-                                    <div className="relative z-10 flex flex-col items-center gap-3 p-5 rounded-xl bg-card/90 border border-border shadow-md max-w-xs text-center">
+                                    <div className="relative z-10 flex flex-col items-center gap-2.5 sm:gap-3.5 p-4 sm:p-5 rounded-xl bg-card/90 border border-border shadow-md w-64 sm:w-72 text-center transition-all">
 
                                         {/* 2. BAGIAN BARU: Memanggil Kucing dalam format Animated SVG (Support Light/Dark Mode) */}
-                                        <div className="w-28 h-28 flex items-center justify-center">
+                                        <div className="w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center transition-all">
                                             {/* Kucing Mode Terang (Light Mode) */}
                                             <img
                                                 src="/cat.svg"
@@ -440,19 +460,25 @@ export default function ModelViewerModal({
                                         </div>
 
                                         <div className="space-y-1">
-                                            <p className="text-sm font-semibold text-foreground">Memuat Model 3D...</p>
-                                            <p className="text-[11px] text-muted-foreground">Kucing kami sedang menyiapkan asetnya</p>
+                                            {/* Judul naik sedikit ke 13px di HP agar lebih tegas */}
+                                            <p className="text-[13px] sm:text-sm font-semibold text-foreground tracking-tight">
+                                                Memuat Model 3D...
+                                            </p>
+                                            {/* Subjudul naik ke 11px di HP agar lebih ramah di mata */}
+                                            <p className="text-[11px] sm:text-[11px] text-muted-foreground leading-tight">
+                                                Kucing kami sedang menyiapkan asetnya
+                                            </p>
                                         </div>
 
-                                        <div className="w-full space-y-1">
-                                            <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                                        <div className="w-full space-y-1.5 mt-0.5">
+                                            <div className="w-full h-1.5 sm:h-2 bg-muted rounded-full overflow-hidden">
                                                 <div
                                                     ref={progressBarRef}
                                                     className="h-full bg-primary rounded-full transition-all duration-300 ease-out"
                                                     style={{ width: "0%" }}
                                                 />
                                             </div>
-                                            <span ref={progressTextRef} className="text-[10px] font-mono text-muted-foreground">0%</span>
+                                            <span ref={progressTextRef} className="text-[9px] sm:text-[10px] font-mono text-muted-foreground block">0%</span>
                                         </div>
                                     </div>
                                 </div>
@@ -480,12 +506,13 @@ export default function ModelViewerModal({
                                 className="w-full h-full [&>div]:h-full"
                                 opts={{
                                     startIndex: typeof activeView === "number" ? activeView : 0,
+                                    watchDrag: !isZoomed, // <-- Kunci drag awal
                                 }}
                             >
                                 <CarouselContent className="h-full items-center">
                                     {images.map((img, idx) => (
                                         <CarouselItem key={idx} className="h-full flex items-center justify-center overflow-hidden">
-                                            <ZoomPanImage src={img} alt={`${albumName} - ${idx + 1}`} />
+                                            <ZoomPanImage src={img} alt={`${albumName} - ${idx + 1}`} onZoomChange={setIsZoomed} />
                                         </CarouselItem>
                                     ))}
                                 </CarouselContent>
@@ -493,13 +520,16 @@ export default function ModelViewerModal({
                         )}
                     </div>
 
-                    <button onClick={handleNext} className="absolute right-2 md:right-4 z-30 p-3 md:p-2 rounded-full border border-border bg-background/80 backdrop-blur-sm text-foreground shadow-md transition-all opacity-60 md:opacity-0 md:group-hover:opacity-100 hover:bg-background active:scale-90 cursor-pointer">
-                        <ChevronRight className="h-5 w-5 md:h-4 md:w-4" />
+                    <button
+                        onClick={handleNext}
+                        className="absolute right-1 md:right-4 z-30 p-1.5 md:p-2 rounded-full md:border md:border-border bg-background/40 md:bg-background/80 backdrop-blur-[1px] md:backdrop-blur-sm text-foreground/70 md:text-foreground md:shadow-md transition-all opacity-30 md:opacity-0 md:group-hover:opacity-100 hover:bg-background active:scale-90 cursor-pointer"
+                    >
+                        <ChevronRight className="h-3 w-3 md:h-4 md:w-4" />
                     </button>
                 </div>
 
                 {/* BARIS THUMBNAIL BAWAH */}
-                <div ref={thumbnailContainerRef} className="h-26 bg-card border-t border-border p-3 flex gap-3 overflow-x-auto items-center w-full">
+                <div ref={thumbnailContainerRef} className="h-22 lg:h-26 bg-card border-t border-border p-3 flex gap-3 overflow-x-auto items-center w-full">
                     {modelUrl && (
                         <button onClick={() => setActiveView("3d")} data-active={activeView === "3d"} className={`h-16 w-16 rounded-lg flex flex-col items-center justify-center gap-1 border transition-all shrink-0 select-none cursor-pointer ${activeView === "3d" ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20" : "border-input bg-background hover:bg-accent text-muted-foreground"}`}>
                             <Rotate3d className="h-7 w-7 shrink-0" />
