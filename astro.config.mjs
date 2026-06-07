@@ -5,10 +5,12 @@ import icon from "astro-icon"; // 1. Impor astro-icon di sini
 
 import react from "@astrojs/react";
 
+import mdx from "@astrojs/mdx";
+
 // https://astro.build/config
 export default defineConfig({
   // 2. Daftarkan astro-icon di dalam array integrations
-  integrations: [icon(), react()],
+  integrations: [icon(), react(), mdx()],
   vite: {
     plugins: [tailwindcss()],
     assetsInclude: ['**/*.glb'],

@@ -1,8 +1,11 @@
 ---
+// src/pages/blog/index.astro
 import Layout from "@layouts/Layout.astro";
-import CardBlog from "@components/ui/CardBlog.astro";
 import { getCollection } from "astro:content";
-import Blog from "@components/components/blog.tsx";
+import { CategoryDropdown } from "@components/components/ui/blog-dropdown.tsx";
+
+// 1. KITA HANYA MENGIMPOR VERSI REACT (.tsx) DENGAN KURUNG KURAWAL { }
+import { CardBlog } from "@components/components/blog-card.tsx";
 
 const allPosts = await getCollection("blogs");
 const sortedPosts = allPosts.sort(
@@ -10,71 +13,33 @@ const sortedPosts = allPosts.sort(
 );
 ---
 
-<Layout>
-  <Blog />
-  <div
-    class="max-w-6xl mx-auto space-y-6 px-4 py-8 sm:px-6 lg:px-8 animate-fade-in-up mb-10"
-  >
-    <div class="space-y-1">
-      <h1
-        class="text-[clamp(1.3rem,6vw,1.4rem)] font-bold tracking-tight text-foreground"
-      >
-        Blog
-      </h1>
-      <p class="text-sm text-[hsl(var(--foreground)/0.7)]">
-        Tulisan tentang teknologi, pemrograman, dan kehidupan sehari-hari.
-      </p>
+<Layout title="Blog">
+  <div class="w-full space-y-8 max-w-5xl mx-auto px-4">
+    <div
+      class="sticky top-0 z-40 flex items-center justify-between border-b bg-background/95 pb-4 pt-4 backdrop-blur-sm"
+    >
+      <div>
+        <h2 class="text-xl font-semibold tracking-tight">Articles</h2>
+        <p class="text-muted-foreground text-xs sm:text-sm">
+          Explore our latest insights and tutorials
+        </p>
+      </div>
+
+      <CategoryDropdown client:load />
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div class="mb-10"></div>
+
+    <div class="space-y-10">
       {
         sortedPosts.map((post) => (
           /* Menggunakan class `blog-card-lazy` untuk optimasi performa & `flex` agar tinggi card sejajar */
           <div class="blog-card-lazy flex">
-            <CardBlog
-              title={post.data.title}
-              description={post.data.description}
-              pubDate={post.data.pubDate}
-              slug={post.id}
-              image={post.data.image}
-              layout="grid"
-            />
+            {/* 2. PROPS DIUBAH MENJADI postData={post.data} AGAR TERBACA OLEH REACT */}
+            <CardBlog postData={post.data} />
           </div>
         ))
       }
     </div>
   </div>
 </Layout>
-
-<style>
-  /* 1. Optimasi Animasi (Disamakan persis dengan halaman Project) */
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .animate-fade-in-up {
-    animation: fadeInUp 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-    will-change: transform, opacity;
-  }
-
-  /* 2. LAZY RENDERING: Menjaga stabilitas tata letak saat di-scroll */
-  .blog-card-lazy {
-    content-visibility: auto;
-    contain-intrinsic-size: 0 380px; /* Estimasi tinggi kartu blog pada layout grid */
-  }
-
-  /* Mematikan animasi jika pengguna mengaktifkan mode hemat daya/baterai */
-  @media (prefers-reduced-motion: reduce) {
-    .animate-fade-in-up {
-      animation: none;
-      will-change: auto;
-    }
-  }
-</style>
