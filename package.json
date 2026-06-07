@@ -19,6 +19,7 @@
     "@fontsource/montserrat": "^5.2.8",
     "@iconify-json/logos": "^1.2.11",
     "@lucide/astro": "^1.16.0",
+    "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.0.0",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",

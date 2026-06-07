@@ -3,8 +3,6 @@
 import Layout from "@layouts/Layout.astro";
 import { getCollection } from "astro:content";
 import { CategoryDropdown } from "@components/components/ui/blog-dropdown.tsx";
-
-// 1. KITA HANYA MENGIMPOR VERSI REACT (.tsx) DENGAN KURUNG KURAWAL { }
 import { CardBlog } from "@components/components/blog-card.tsx";
 
 const allPosts = await getCollection("blogs");
@@ -14,9 +12,9 @@ const sortedPosts = allPosts.sort(
 ---
 
 <Layout title="Blog">
-  <div class="w-full space-y-8 max-w-5xl mx-auto px-4">
+  <div class="w-full space-y-8 max-w-4xl">
     <div
-      class="sticky top-0 z-40 flex items-center justify-between border-b bg-background/95 pb-4 pt-4 backdrop-blur-sm"
+      class="sticky top-0 z-40 flex items-center justify-between bg-background border-b pb-4 pt-4 backdrop-blur-sm"
     >
       <div>
         <h2 class="text-xl font-semibold tracking-tight">Articles</h2>
@@ -25,19 +23,74 @@ const sortedPosts = allPosts.sort(
         </p>
       </div>
 
-      <CategoryDropdown client:load />
+      <CategoryDropdown client:visible />
     </div>
 
     <div class="mb-10"></div>
 
     <div class="space-y-10">
       {
-        sortedPosts.map((post) => (
-          /* Menggunakan class `blog-card-lazy` untuk optimasi performa & `flex` agar tinggi card sejajar */
-          <div class="blog-card-lazy flex">
-            {/* 2. PROPS DIUBAH MENJADI postData={post.data} AGAR TERBACA OLEH REACT */}
-            <CardBlog postData={post.data} />
-          </div>
+        sortedPosts.map((post, index) => (
+          /* Menggunakan Fragment <> untuk menggabungkan card dan sisipan news */
+          <>
+            {/* CARD ARTIKEL UTAMA */}
+            <div class="blog-card-lazy flex w-full ">
+              {post.slug || post.id ? (
+                <CardBlog
+                  postData={post.data}
+                  url={`/blog/${post.slug ?? post.id}`}
+                />
+              ) : null}
+            </div>
+
+            {/* SISIPAN BREAKING NEWS: Muncul tepat setelah Artikel Pertama (index === 0) */}
+            {index === 0 && (
+              <div class=" my-4  pb-6 -mx-4 px-4 sm:mx-0 sm:px-0 rounded-none sm:rounded-xl ">
+                {/* Header Section News */}
+                <div class="flex items-center gap-2 mb-4">
+                  <h4 class="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Breaking News
+                  </h4>
+                  <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                </div>
+
+                {/* KONTEN BERITA SUPER COMPACT */}
+                {/* Di HP: Menjadi baris horizontal yang bisa di-scroll kesamping */}
+                {/* Di Desktop (sm ke atas): Otomatis berjajar rapi 3 kolom memenuhi layar */}
+                <div class="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-2 scrollbar-none sm:grid sm:grid-cols-3 sm:overflow-x-visible sm:pb-0">
+                  {[1, 2, 3].map((item) => (
+                    <div
+                      key={item}
+                      class="w-[85%] shrink-0 snap-center rounded-md border bg-card p-0 pr-2.5 transition-hover hover:border-primary/50 sm:w-full flex gap-2 items-center overflow-hidden"
+                    >
+                      {/* Gambar Berita */}
+                      <img
+                        alt="News"
+                        class="w-12 h-12 sm:w-14 sm:h-14 shrink-0 object-cover"
+                        src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=60"
+                        loading="lazy"
+                      />
+
+                      {/* Teks Berita */}
+                      <div class="flex-1 min-w-0 py-0.5">
+                        <div class="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground mb-0.5">
+                          <span class="text-primary font-semibold">
+                            TechCrunch
+                          </span>
+                          <span>•</span>
+                          <span>5m ago</span>
+                        </div>
+                        <h5 class="font-medium text-[11px] sm:text-xs text-foreground mb-1 line-clamp-2 leading-tight hover:text-primary cursor-pointer">
+                          OpenAI Announces New Advanced AI Models for Everyday
+                          Developers
+                        </h5>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         ))
       }
     </div>

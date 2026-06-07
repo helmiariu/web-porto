@@ -1,0 +1,45 @@
+---
+title: "Membangun Masa Depan Web dengan Astro v5 dan Tailwind CSS"
+subtitle: "Eksplorasi performa mutakhir, arsitektur island, dan integrasi Content Layer yang revolusioner."
+summary: "Pelajari bagaimana Astro v5 mengubah paradigma pengembangan web modern dengan optimasi performa tanpa mengorbankan pengalaman interaktivitas dinamis."
+description: "Panduan lengkap mengeksplorasi performa mutakhir Astro v5, Islands Architecture, dan integrasi Content Layer baru."
+pubDate: 2026-06-07
+image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200&auto=format&fit=crop&q=80"
+category: "Technology"
+---
+
+Dunia pengembangan web bergerak sangat cepat. Ketika kita berpikir bahwa optimasi performa *Client-Side Rendering* (CSR) sudah mencapai batasnya, **Astro** datang membawa pendekatan yang berbeda: *Server-First Architecture* dengan konsep **Islands Architecture**. 
+
+Di versi v5 ini, Astro memperkenalkan sistem manajemen data yang jauh lebih cepat dan terstruktur. Mari kita bedah mengapa kombinasi ini sangat digemari oleh para pengembang profesional saat ini.
+
+---
+
+## Mengapa Memilih Astro v5?
+
+Astro tidak mengirimkan JavaScript seberat puluhan kilobita ke browser pengguna secara cuma-cuma. Semua komponen dirender menjadi HTML murni di sisi server (*static by default*). 
+
+### 1. Zero JavaScript by Default
+Jika Anda membuat komponen menggunakan React, Vue, atau Svelte, Astro akan mengekstrak kode tersebut dan hanya mengirimkan kerangka HTML statis ke klien. JavaScript baru akan dimuat secara dinamis hanya jika Anda memberikan instruksi khusus seperti `client:load` atau `client:visible`.
+
+### 2. Content Layer yang Super Cepat
+Pada versi terbaru ini, Astro mendesain ulang cara membaca berkas Markdown lokal maupun API eksternal. Hasilnya? Waktu *build* berkurang hingga **40%** dibandingkan versi pendahulunya.
+
+> "Astro membuat Anda kembali fokus menulis konten dan kode esensial, tanpa perlu pusing memikirkan konfigurasi bundler yang rumit."
+
+---
+
+## Eksplorasi Fitur Kode Modern
+
+Sebagai pengembang, menampilkan potongan kode yang rapi adalah hal wajib di sebuah blog teknologi. Mari kita tes bagaimana komponen `prose` menangani tag preformat teks:
+
+```typescript
+// Mengambil data artikel secara aman di Astro v5
+import { getCollection, render } from "astro:content";
+
+export async function AmbilArtikelPopuler() {
+  const semuaArtikel = await getCollection("blogs");
+  
+  return semuaArtikel
+    .filter(artikel => artikel.data.category === "Technology")
+    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+}

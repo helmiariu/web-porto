@@ -1,0 +1,182 @@
+---
+title: "Porto‑Astro – Portofolio Blog Modern dengan Astro & TailwindCSS"
+pubDate: "2026-06-07"
+description: "Deskripsi lengkap tentang proyek Porto‑Astro, sebuah blog‑portofolio modern yang dibangun dengan Astro, TailwindCSS, dan Bun."
+author: "Helmi"
+image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200&auto=format&fit=crop&q=80"
+tags: ["Astro", "TailwindCSS", "Bun", "MDX", "Portofolio"]
+---
+
+
+## Ringkasan
+Porto‑Astro adalah sebuah **portofolio blog** yang dibangun menggunakan **Astro**, **TailwindCSS**, dan **Bun**. Proyek ini menampilkan cara membuat situs statik yang cepat, SEO‑friendly, dan mudah dikelola dengan konten berbasis **MDX**. Semua halaman dirender secara statik (SSG) dengan opsi untuk rendering dinamis bila diperlukan.
+
+## Latar Belakang & Motivasi
+- **Tujuan:** Menyajikan portofolio kerja serta artikel teknis dalam satu situs yang ringan dan responsif.
+- **Masalah yang dipecahkan:** Kebanyakan portofolio menggunakan framework SPA yang mengirimkan JavaScript berlebih. Astro memungkinkan menghasilkan HTML statik dengan hanya menambahkan JavaScript bila dibutuhkan, sehingga performa lebih optimal.
+- **Target audiens:** Developer web, desainer UI/UX, serta siapa pun yang ingin melihat contoh implementasi blog modern.
+
+## Teknologi yang Digunakan
+- **Astro** – framework rendering hybrid (SSR/SSG) dengan dukungan komponen dari berbagai ekosistem (React, Vue, Svelte, dll.).
+- **TailwindCSS** – utility‑first CSS framework untuk styling cepat dan konsisten.
+- **Bun** – runtime JavaScript modern yang menyediakan package manager, bundler, dan server dev yang sangat cepat.
+- **TypeScript & TSX** – penulisan komponen UI yang tipe‑safety‑nya terjamin.
+- **MDX** – Markdown dengan kemampuan menanamkan JSX/TSX di dalam konten.
+- **GitHub Pages / Vercel (opsional)** – platform deploy statik.
+
+## Arsitektur Proyek
+```
+web-porto/
+├─ src/
+│   ├─ pages/
+│   │   └─ blog/
+│   │        ├─ index.astro          # Daftar semua postingan blog
+│   │        └─ [...slug].astro       # Halaman detail postingan (dynamic route)
+│   ├─ components/
+│   │   └─ blog-card.tsx            # Komponen kartu blog yang reusable
+│   ├─ layouts/
+│   │   └─ Layout.astro              # Layout utama situs
+│   └─ content/
+│       └─ blogs/
+│           ├─ porto-astro-deskripsi-proyek.mdx   # <--- **File yang dibuat**
+│           └─ belajar-astro-v5.mdx   # Contoh postingan lain
+├─ public/           # aset statis (gambar, favicon, dll.)
+├─ tailwind.config.mjs
+└─ package.json
+```
+
+## Fitur Utama
+- **Daftar blog dinamis** – memanfaatkan `import.meta.glob` untuk mengambil semua file MDX di folder `content/blogs`.
+- **Komponen `BlogCard`** – kartu responsif dengan Tailwind, menampilkan judul, excerpt, dan thumbnail.
+- **Konten MDX** – penulisan artikel dengan Markdown dan kemampuan menyisipkan komponen React/TSX secara langsung.
+- **Dark mode** – konfigurasi Tailwind untuk tema gelap yang otomatis mengikuti preferensi pengguna.
+- **Optimasi performa** – gambar lazy‑loaded, minimal JavaScript, dan prefetching link.
+
+## Implementasi Detail
+### Routing
+- **`src/pages/blog/index.astro`** mengekspor sebuah halaman yang memetakan setiap file MDX menjadi objek postingan dan menampilkannya dalam grid `BlogCard`.
+- **`src/pages/blog/[...slug].astro`** menangani rute dinamis; Astro mengekstrak slug dari URL, memuat file MDX terkait, dan merendernya dengan layout `Layout.astro`.
+
+### Komponen `BlogCard`
+```tsx
+// src/components/components/blog-card.tsx
+import type { ComponentProps } from "react";
+import { Link } from "astro/router";
+
+interface BlogCardProps extends ComponentProps<'article'> {
+  title: string;
+  excerpt: string;
+  slug: string;
+  thumbnail?: string;
+}
+
+export default function BlogCard({title, excerpt, slug, thumbnail}: BlogCardProps) {
+  return (
+    <article className="rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow">
+      {thumbnail && (
+        <img src={thumbnail} alt={title} className="w-full h-48 object-cover" />
+      )}
+      <div className="p-4">
+        <h2 className="text-xl font-semibold mb-2">{title}</h2>
+        <p className="text-gray-600 mb-4 line-clamp-3">{excerpt}</p>
+        <Link href={`/blog/${slug}`} className="text-indigo-600 hover:underline">
+          Baca selengkapnya →
+        </Link>
+      </div>
+    </article>
+  );
+}
+```
+
+### Konten MDX
+File MDX dimulai dengan front‑matter yang berisi metadata:
+```mdx
+---
+title: "Porto‑Astro – Deskripsi Proyek"
+date: "2026-06-07"
+description: "Artikel yang menjelaskan arsitektur dan fitur utama proyek Porto‑Astro."
+image: "/hero.jpg"
+tags: ["Astro", "Tailwind", "Bun"]
+---
+```
+Setelah itu Anda dapat menulis Markdown seperti biasa dan menyisipkan komponen TSX, misalnya:
+```mdx
+<BlogCard title="Contoh" excerpt="Ini contoh" slug="contoh" />
+```
+
+### Styling dengan Tailwind
+`tailwind.config.mjs` berisi konfigurasi dark mode dan custom color palette yang dipilih untuk tampilan premium.
+```js
+export default {
+  content: ["./src/**/*.{astro,js,ts,tsx,mdx}"],
+  darkMode: "media",
+  theme: {
+    extend: {
+      colors: {
+        primary: "hsl(220, 90%, 56%)",
+        accent: "hsl(340, 80%, 60%)",
+      },
+    },
+  },
+  plugins: [],
+};
+```
+
+### Pengembangan Lokal
+```bash
+# Instal dependensi
+bun i
+# Jalankan server dev (sudah berjalan pada proyek Anda)
+bun run dev
+# Build untuk produksi
+bun run build
+```
+
+### Deploy
+Anda dapat men-deploy hasil build (`dist/`) ke platform static hosting seperti Vercel, Netlify, atau GitHub Pages. Contoh dengan Vercel:
+```bash
+vercel --prod
+```
+
+## Instruksi Penggunaan
+1. **Clone repo**
+   ```bash
+   git clone https://github.com/helmiariu/web-porto.git
+   cd web-porto
+   ```
+2. **Instalasi**
+   ```bash
+   bun i
+   ```
+3. **Menjalankan lokal**
+   ```bash
+   bun run dev
+   ```
+4. **Menambahkan postingan baru**
+   - Buat file MDX di `src/content/blogs/` dengan front‑matter seperti contoh di atas.
+   - Tuliskan konten, commit, dan push.
+5. **Build & Deploy**
+   ```bash
+   bun run build
+   # Deploy hasil `dist/` ke hosting pilihan Anda
+   ```
+
+## Kustomisasi & Pengembangan Selanjutnya
+- **Penambahan tag & kategori** – extend front‑matter dan buat halaman filter.
+- **Pagination** – gunakan `astro:pagination` untuk membagi daftar blog.
+- **Integrasi CMS** – hubungkan dengan Netlify CMS atau Storyblok untuk mengelola konten tanpa menulis file.
+- **SEO tambahan** – tambahkan meta tag Open Graph, Twitter Card, dan schema.org di `Layout.astro`.
+- **Testing** – tambahkan unit test untuk komponen TSX dengan Vitest.
+
+## Kesimpulan
+Porto‑Astro menunjukkan bagaimana memanfaatkan kekuatan Astro dan Tailwind untuk membangun situs portofolio yang **ringan**, **responsif**, dan **SEO‑friendly**. Dengan struktur konten berbasis MDX, menambah postingan baru menjadi sangat mudah, sementara komponen reusable memastikan konsistensi UI.
+
+## Referensi
+- https://astro.build
+- https://tailwindcss.com
+- https://bun.sh
+- https://mdxjs.com
+- https://vercel.com
+
+---
+*Artikel ini ditulis menggunakan MDX sehingga dapat langsung diproses oleh Astro pada tahap build.*

@@ -1,268 +1,271 @@
 ---
+// src/pages/blog/[...slug].astro
 import Layout from "@layouts/Layout.astro";
 import { getCollection, render } from "astro:content";
-import { ArrowLeft, ExternalLink } from "@lucide/astro";
+import { formatDate } from "/utils/formatDate";
 
 export async function getStaticPaths() {
   const blogEntries = await getCollection("blogs");
   return blogEntries.map((entry) => ({
-    params: { slug: entry.id },
+    params: { slug: entry.slug || entry.id },
     props: { entry },
   }));
 }
 
 const { entry } = Astro.props;
-const { Content } = await render(entry);
+const { title, description, summary, subtitle, publishedAt, pubDate, image } =
+  entry.data;
+const { Content, headings } = await render(entry);
+
+const person = {
+  name: "Author Name",
+  avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100",
+};
+
+const baseURL = Astro.site || "http://localhost:4321";
+const currentURL = new URL(Astro.url.pathname, baseURL).href;
+
+const allPosts = await getCollection("blogs");
+const recentPosts = allPosts
+  .filter((p) => (p.slug || p.id) !== (entry.slug || entry.id))
+  .slice(0, 2);
+
+const rawDate = publishedAt || pubDate || new Date();
+const dateParam = rawDate instanceof Date ? rawDate.toISOString() : rawDate;
+const displayDate = formatDate
+  ? formatDate(dateParam)
+  : new Date(rawDate).toLocaleDateString("en-US");
 ---
 
-<Layout>
-  <article class="space-y-8 max-w-3xl px-0 pb-10 md:pb-0 sm:px-4">
-    <div class="space-y-3.5">
-      <h1
-        class="text-2xl md:text-4xl font-bold tracking-tight text-[hsl(var(--foreground))] leading-tight"
-      >
-        {entry.data.title}
-      </h1>
-      <div
-        class="text-xs font-medium tracking-wide text-[hsl(var(--foreground)/0.5)] uppercase"
-      >
-        <time datetime={entry.data.pubDate.toISOString()}>
-          {
-            entry.data.pubDate.toLocaleDateString("id-ID", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })
-          }
-        </time>
-      </div>
-      <p
-        class="text-base md:text-lg text-[hsl(var(--foreground)/0.75)] leading-relaxed"
-      >
-        {entry.data.description}
-      </p>
+<Layout
+  title={title}
+  description={summary || description}
+  image={image || `/api/og/generate?title=${encodeURIComponent(title)}`}
+>
+  <script
+    type="application/ld+json"
+    is:inline
+    set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: title,
+      description: summary || description,
+      datePublished: publishedAt || pubDate,
+      image:
+        image ||
+        `${baseURL}/api/og/generate?title=${encodeURIComponent(title)}`,
+      author: {
+        "@type": "Person",
+        name: person.name,
+        image: person.avatar,
+      },
+    })}
+  />
 
-      <div class="flex flex-wrap gap-1.5 pt-1">
+  {
+    /* 
+    PERBAIKAN 1: Menghapus max-w-5xl, mx-auto, dan px-4. 
+    Sekarang grid ini mentok 100% mengikuti lebar tag <main> milik layout Anda.
+  */
+  }
+  <div
+    class="w-full grid grid-cols-1 lg:grid-cols-[1fr_180px] gap-10 xl:gap-10 items-start"
+  >
+    {/* ================= KOLOM UTAMA (KIRI) ================= */}
+    {/* Mengubah items-center menjadi items-start agar konten rapat kiri */}
+    <div class="w-full flex flex-col items-start gap-8 overflow-hidden">
+      {/* HEADER ARTIKEL */}
+      {/* Menghapus max-w-2xl dan mengubah text-center menjadi text-left */}
+      <div class="w-full flex flex-col items-start text-left gap-2.5">
+        <a
+          href="/blog"
+          class="text-[11px] font-bold uppercase tracking-wider text-primary hover:underline"
+        >
+          Blog
+        </a>
+
+        <h1
+          class="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-foreground leading-snug"
+        >
+          {title}
+        </h1>
+
         {
-          entry.data.tags.map((tag: string) => (
-            <span class="rounded bg-[hsl(var(--secondary))] px-2.5 py-0.5 text-[12px] font-medium text-[hsl(var(--foreground)/0.75)] border border-[hsl(var(--border))]">
-              {tag}
-            </span>
-          ))
+          /* PERUBAHAN: Ukuran disederhanakan menjadi text-base hingga sm:text-lg */
         }
+        {
+          subtitle && (
+            <p class="text-base sm:text-lg text-muted-foreground italic font-normal content-slide">
+              {subtitle}
+            </p>
+          )
+        }
+      </div>
+
+      {/* METADATA & AVATAR PENULIS */}
+      <div
+        class="flex items-center gap-3 border-y py-3 w-full border-border/60 text-xs text-muted-foreground"
+      >
+        <img
+          src={person.avatar}
+          alt={person.name}
+          class="w-6 h-6 rounded-full object-cover border"
+        />
+        <span class="font-medium text-foreground">{person.name}</span>
+        <span>•</span>
+        <span>{displayDate}</span>
+      </div>
+
+      {/* GAMBAR UTAMA (BANNER) */}
+      {
+        image && (
+          <div class="w-full aspect-video overflow-hidden rounded-xl border bg-muted shadow-xs">
+            <img
+              src={image}
+              alt={title}
+              class="w-full h-full object-cover"
+              loading="eager"
+            />
+          </div>
+        )
+      }
+
+      {/* ================= ISI ARTIKEL MDX / MARKDOWN ================= */}
+      {
+        /* 
+        PERBAIKAN 2: 
+        - Menggunakan `max-w-none` agar teks memanfaatkan 100% ruang kolom grid kiri.
+        - Mempertahankan skala `prose-base md:prose-lg` agar tipografi Markdown otomatis estetik.
+      */
+      }
+      <article
+        class="w-full max-w-none prose prose-neutral dark:prose-invert prose-base md:prose-lg tracking-normal leading-relaxed
+        prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground
+        prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+        prose-strong:text-foreground prose-code:text-foreground
+        prose-img:rounded-xl prose-img:border"
+      >
+        <Content />
+      </article>
+
+      {/* ================= RECENT POSTS SECTION ================= */}
+      {
+        /* Menghapus max-w-2xl agar section rekomendasi ikut melebar rata kanan-kiri */
+      }
+      <div class="w-full border-t pt-10 mt-6 flex flex-col items-start gap-6">
+        <h2
+          id="recent-posts"
+          class="text-lg font-bold tracking-tight text-foreground"
+        >
+          Recent posts
+        </h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
+          {
+            recentPosts.map((post) => (
+              <a
+                href={`/blog/${post.slug || post.id}/`}
+                class="group flex flex-col gap-3 w-full"
+              >
+                {post.data.image && (
+                  <div class="aspect-video w-full rounded-lg overflow-hidden border bg-muted">
+                    <img
+                      src={post.data.image}
+                      alt={post.data.title}
+                      class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-103"
+                    />
+                  </div>
+                )}
+                <h3 class="font-semibold text-base text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                  {post.data.title}
+                </h3>
+              </a>
+            ))
+          }
+        </div>
       </div>
     </div>
 
     {
-      entry.data.image && (
-        <div class="aspect-video w-full overflow-hidden rounded-xl border border-[hsl(var(--border))] bg-muted shadow-xs">
-          <img
-            src={entry.data.image}
-            alt={entry.data.title}
-            class="h-full w-full object-cover"
-            loading="eager"
-          />
-        </div>
-      )
+      /* ================= SIDEBAR NAVIGASI KANAN (TABLE OF CONTENTS) ================= */
     }
-
-    {/* Ditambahkan class blog-content untuk sinkronisasi CSS */}
-    <div class="blog-content prose dark:prose-invert max-w-none">
-      <Content />
-    </div>
-  </article>
+    <aside
+      class="hidden lg:flex flex-col sticky top-32 max-h-[calc(100vh-160px)] overflow-y-auto pr-4 pb-4 gap-4 w-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      {/* 💡 PERUBAHAN DI ATAS:
+    1. [scrollbar-width:none] -> Menghilangkan scrollbar di Firefox
+    2. [&::-webkit-scrollbar]:hidden -> Menghilangkan scrollbar di Chrome, Safari, dan Edge
+    3. Mengubah pr-2 menjadi pr-4 & menambah pb-4 -> Memberi ruang napas tambahan agar efek membal tidak terpotong (clipped)
+  */}
+    >
+      <h3
+        class="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80"
+      >
+        On This Page
+      </h3>
+      <nav
+        class="flex flex-col gap-2.5 text-xs border-l border-border relative py-1"
+      >
+        {
+          headings.map((heading) => (
+            <a
+              href={`#${heading.slug}`}
+              class={`block text-muted-foreground hover:text-primary transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] leading-normal border-l-2 border-transparent -ml-[1px] font-medium whitespace-normal break-words pb-0.5 origin-left ${
+                heading.depth === 3 ? "pl-6 text-[11px]" : "pl-3"
+              }`}
+            >
+              {heading.text}
+            </a>
+          ))
+        }
+      </nav>
+    </aside>
+  </div>
 </Layout>
 
-<style is:global>
-  .blog-content {
-    width: 100%;
-    margin-top: 2rem;
-  }
-
-  /* --- UX TYPOGRAPHY OPTIMIZATION (GEMINI STYLE) --- */
-
-  .blog-content p {
-    font-size: 1rem; /* 16px standar kenyamanan membaca teks panjang */
-    line-height: 1.75; /* Spasi antar baris yang lega agar mata tidak lelah */
-    color: hsl(var(--foreground) / 0.88); /* Kontras tinggi untuk layar HP */
-    margin-bottom: 1.5rem;
-  }
-
-  .blog-content h1,
-  .blog-content h2,
-  .blog-content h3 {
-    color: hsl(var(--foreground)) !important;
-    font-weight: 600 !important;
-    letter-spacing: -0.015em;
-    line-height: 1.3;
-    margin-bottom: 1rem !important;
-  }
-
-  .blog-content h2 {
-    font-size: 1.4rem !important; /* Proporsional dan tegas di HP */
-    margin-top: 2.5rem !important;
-    border-bottom: 1px solid hsl(var(--border) / 0.5);
-    padding-bottom: 0.4rem;
-  }
-
-  .blog-content h3 {
-    font-size: 1.2rem !important;
-    margin-top: 1.75rem !important;
-  }
-
-  @media (min-width: 768px) {
-    .blog-content h2 {
-      font-size: 1.625rem !important;
-    }
-    .blog-content h3 {
-      font-size: 1.3rem !important;
-    }
-  }
-
-  .blog-content ul,
-  .blog-content ol {
-    margin-top: 0.5rem !important;
-    margin-bottom: 1.5rem !important;
-    padding-left: 1.5rem !important;
-  }
-
-  .blog-content li {
-    font-size: 1rem;
-    line-height: 1.7;
-    color: hsl(var(--foreground) / 0.88);
-    margin-bottom: 0.5rem !important;
-  }
-
-  .blog-content blockquote {
-    background-color: hsl(var(--muted) / 0.3) !important;
-    border-left: 4px solid hsl(var(--primary)) !important;
-    padding: 1rem 1.25rem !important;
-    margin: 1.75rem 0 !important;
-    border-radius: 0 6px 6px 0;
-  }
-
-  .blog-content blockquote p {
-    font-style: italic;
-    color: hsl(var(--foreground) / 0.75) !important;
-    font-size: 1rem !important;
-    line-height: 1.65;
-    margin-bottom: 0 !important;
-  }
-
-  .blog-content a {
-    color: #10b981 !important; /* Mempertahankan preferensi warna emerald-500 Anda */
-    text-decoration: none !important;
-    border-bottom: 1.5px solid rgba(16, 185, 129, 0.4);
-    font-weight: 500;
-    transition: border-color 0.15s ease;
-  }
-
-  .blog-content a:hover {
-    border-bottom-color: #10b981;
-  }
-
-  .blog-content hr {
-    border: 0;
-    border-top: 1px solid hsl(var(--border) / 0.8) !important;
-    margin: 2.5rem 0 !important;
-  }
-
-  /* --- CODE BLOCK & UX BUTTON OPTIMIZATION --- */
-  .blog-content pre {
-    position: relative;
-    padding-top: 3rem !important; /* Jarak aman di atas agar teks kode tidak tertutup tombol */
-    font-size: 0.875rem !important; /* 14px untuk font mono agar tidak terlalu lebar ke samping */
-    line-height: 1.6;
-    border-radius: 8px;
-    margin: 1.5rem 0;
-  }
-
-  .copy-code-btn {
-    position: absolute;
-    top: 0.6rem;
-    right: 0.6rem;
-    padding: 0.4rem 0.65rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    line-height: 1;
-
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-
-    color: hsl(var(--foreground) / 0.65);
-    background-color: hsl(var(--muted) / 0.8);
-    border: 1px solid hsl(var(--border) / 0.8);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-
-    /* Selalu tampil di HP karena perangkat sentuh tidak mendeteksi hover */
-    opacity: 1;
-  }
-
-  /* Di Desktop, tombol disembunyikan dan baru muncul saat kursor diarahkan */
-  @media (min-width: 1024px) {
-    .copy-code-btn {
-      opacity: 0;
-    }
-    .blog-content pre:hover .copy-code-btn {
-      opacity: 1;
-    }
-  }
-
-  .copy-code-btn:hover {
-    color: hsl(var(--foreground));
-    background-color: hsl(var(--muted));
-    border-color: hsl(var(--border));
-  }
-
-  .copy-code-btn.copied {
-    color: #10b981;
-    border-color: rgba(16, 185, 129, 0.4);
-    background-color: rgba(16, 185, 129, 0.1);
-  }
-</style>
-
 <script>
-  function attachCopyButtons() {
-    const codeBlocks = document.querySelectorAll("div.blog-content pre");
+  function initScrollSpy() {
+    const headings = document.querySelectorAll("article h2, article h3");
+    const tocLinks = document.querySelectorAll("aside nav a");
 
-    codeBlocks.forEach((block) => {
-      if (block.querySelector(".copy-code-btn")) return;
+    if (headings.length === 0 || tocLinks.length === 0) return;
 
-      (block as HTMLElement).style.position = "relative";
+    const options = {
+      root: null,
+      rootMargin: "0px 0px -80% 0px",
+      threshold: 0,
+    };
 
-      const copyButton = document.createElement("button");
-      copyButton.className = "copy-code-btn";
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute("id");
 
-      const copyIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
-      const checkIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>`;
+          tocLinks.forEach((link) => {
+            const href = link.getAttribute("href")?.substring(1);
 
-      copyButton.innerHTML = `${copyIcon} <span>Copy</span>`;
-      block.appendChild(copyButton);
-
-      copyButton.addEventListener("click", async () => {
-        const codeElement = block.querySelector("code");
-        const codeText = codeElement ? codeElement.innerText : "";
-
-        try {
-          await navigator.clipboard.writeText(codeText);
-
-          copyButton.innerHTML = `${checkIcon} <span>Copied!</span>`;
-          copyButton.classList.add("copied");
-
-          setTimeout(() => {
-            copyButton.innerHTML = `${copyIcon} <span>Copy</span>`;
-            copyButton.classList.remove("copied");
-          }, 2000);
-        } catch (err) {
-          console.error("Gagal menyalin kode: ", err);
-          copyButton.innerHTML = "Error";
+            if (href === id) {
+              // 💡 SUNTIKKAN: scale-105 dipadukan dengan cubic-bezier akan menghasilkan efek membal yang elastis
+              link.classList.add("text-primary", "border-primary", "scale-105");
+              link.classList.remove(
+                "text-muted-foreground",
+                "border-transparent",
+              );
+            } else {
+              link.classList.remove(
+                "text-primary",
+                "border-primary",
+                "scale-105",
+              );
+              link.classList.add("text-muted-foreground", "border-transparent");
+            }
+          });
         }
       });
-    });
+    }, options);
+
+    headings.forEach((heading) => observer.observe(heading));
   }
 
-  document.addEventListener("astro:page-load", attachCopyButtons);
+  // Menjamin script berjalan saat pertama dimuat maupun setelah transisi Astro selesai
+  document.addEventListener("astro:page-load", initScrollSpy);
 </script>
