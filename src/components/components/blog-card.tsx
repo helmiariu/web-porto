@@ -36,65 +36,61 @@ export function CardBlog({ postData, url }: CardBlogProps) {
     });
 
     return (
-        /* 
-          PERBAIKAN 1: Bungkus dengan tag <a> dan beri kelas 'group' 
-          agar kita bisa mendeteksi hover pada seluruh area kartu.
-        */
-        <a href={url} className="block group w-full cursor-pointer ">
+        <a href={url} className="block group w-full cursor-pointer">
             <Card
-                className="flex flex-col overflow-hidden rounded-md border-none bg-card py-0 shadow-none sm:flex-row sm:items-center transition-transform duration-300 group-hover:scale-103"
+                className="flex flex-col overflow-hidden rounded-xl border border-border/50 bg-card py-0 shadow-sm sm:flex-row sm:items-stretch transition-all duration-300 hover:shadow-md"
                 key={title}
             >
                 {/* --- WADAH GAMBAR --- */}
-                <div className="relative aspect-video shrink-0 grow overflow-hidden rounded-lg sm:aspect-square sm:w-56">
-                    {/* 
-                      PERBAIKAN 2: Tambahkan efek zoom-in pada gambar saat kartu di-hover 
-                      (transition-transform duration-300 group-hover:scale-103)
-                    */}
+                {/* PERBAIKAN: 
+              1. Hapus 'grow'.
+              2. Tambah 'w-full' agar di HP gambarnya full margin.
+              3. Atur lebar fixed untuk tablet (sm:w-48) dan desktop (lg:w-64).
+            */}
+                <div className="relative aspect-video w-full shrink-0 overflow-hidden sm:w-48 sm:aspect-[4/3] lg:w-64 lg:aspect-video">
                     <img
                         alt={title}
-                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-103"
+                        /* Ubah scale-103 jadi scale-105 karena Tailwind bawaan tidak punya scale-103 */
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                         src={image}
                         loading="lazy"
                     />
 
                     {/* BADGE KHUSUS HP (Sembunyi di layar sm ke atas) */}
-                    <Badge className="absolute top-3 left-3 sm:hidden bg-background/90 dark:bg-background/80 text-foreground backdrop-blur-xs border-none shadow-xs text-[10px] font-medium py-1 px-2">
+                    <Badge className="absolute top-3 left-3 sm:hidden bg-background/90 dark:bg-background/80 text-foreground backdrop-blur-md border-none shadow-sm text-[10px] font-medium py-1 px-2 rounded-md">
                         {category}
                     </Badge>
                 </div>
 
                 {/* --- WADAH KONTEN TEKS --- */}
-                <CardContent className="flex flex-col px-4 sm:px-0 pt-3 sm:pt-0 pb-1 sm:p-0 sm:px-4 sm:pr-8">
+                <CardContent className="flex flex-col flex-1 p-4 sm:p-5 lg:p-6 gap-2 sm:gap-3">
 
                     {/* BADGE KHUSUS LAPTOP/DESKTOP (Sembunyi di HP) */}
-                    <div className="hidden sm:flex items-center gap-6">
-                        <Badge className="bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 shadow-[0_0_12px_rgba(6,182,212,0.1)] hover:bg-cyan-500/20 text-[10px] sm:text-xs font-semibold">
+                    <div className="hidden sm:flex items-center">
+                        <Badge className="bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 shadow-[0_0_12px_rgba(6,182,212,0.1)] hover:bg-cyan-500/20 text-xs font-semibold px-2.5 py-0.5 rounded-md">
                             {category}
                         </Badge>
                     </div>
 
                     {/* OPTIMASI JUDUL ARTIKEL */}
-                    {/* 
-                      PERBAIKAN 3: Tambahkan efek perubahan warna teks judul saat kartu di-hover 
-                      (transition-colors group-hover:text-primary)
-                    */}
-                    <h3 className="-mt-2 sm:mt-0 sm:mt-2 lg:mt-2 xl:mt-2   font-semibold tracking-tight leading-snug text-foreground text-lg lg:text-xl xl:text-[1.5rem] transition-colors group-hover:text-primary">
+                    <h3 className="font-semibold tracking-tight leading-snug text-foreground text-lg sm:text-xl lg:text-2xl transition-colors group-hover:text-primary">
                         {title}
                     </h3>
 
                     {/* OPTIMASI DESKRIPSI ARTIKEL */}
-                    <p className="mt-2 lg:mt-1.5 text-muted-foreground leading-relaxed text-sm xl:text-base line-clamp-2 xl:line-clamp-3 text-ellipsis">
+                    <p className="text-muted-foreground leading-relaxed text-sm lg:text-base line-clamp-2 lg:line-clamp-3">
                         {description}
                     </p>
 
                     {/* OPTIMASI METADATA (WAKTU & TANGGAL) */}
-                    <div className="pb-3 mt-3 lg:mt-3 xl:mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 font-medium text-muted-foreground text-xs xl:text-sm">
+                    <div className="mt-auto pt-2 flex flex-wrap items-center gap-x-4 gap-y-2 font-medium text-muted-foreground text-xs sm:text-sm">
                         <div className="flex items-center gap-1.5">
-                            <ClockIcon className="h-3.5 w-3.5 shrink-0" /> {readTime}
+                            <ClockIcon className="h-3.5 w-3.5 shrink-0" />
+                            <span>{readTime}</span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                            <Calendar className="h-3.5 w-3.5 shrink-0" /> {formattedDate}
+                            <Calendar className="h-3.5 w-3.5 shrink-0" />
+                            <span>{formattedDate}</span>
                         </div>
                     </div>
 

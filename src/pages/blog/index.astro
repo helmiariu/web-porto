@@ -12,7 +12,7 @@ const sortedPosts = allPosts.sort(
 ---
 
 <Layout title="Blog">
-  <div class="w-full space-y-8 max-w-4xl">
+  <div class="w-full space-y-8 max-w-[52rem]">
     <div
       class="sticky top-0 z-40 flex items-center justify-between bg-background border-b pb-4 pt-4 backdrop-blur-sm"
     >
@@ -57,35 +57,40 @@ const sortedPosts = allPosts.sort(
                 {/* KONTEN BERITA SUPER COMPACT */}
                 {/* Di HP: Menjadi baris horizontal yang bisa di-scroll kesamping */}
                 {/* Di Desktop (sm ke atas): Otomatis berjajar rapi 3 kolom memenuhi layar */}
-                <div class="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-2 scrollbar-none sm:grid sm:grid-cols-3 sm:overflow-x-visible sm:pb-0">
+                <div class="flex overflow-x-auto snap-x snap-mandatory gap-3 sm:gap-4 pb-3 scrollbar-none sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:overflow-visible sm:pb-0">
                   {[1, 2, 3].map((item) => (
-                    <div
-                      key={item}
-                      class="w-[85%] shrink-0 snap-center rounded-md border bg-card p-0 pr-2.5 transition-hover hover:border-primary/50 sm:w-full flex gap-2 items-center overflow-hidden"
+                    <a
+                      href="#"
+                      class="group w-[85vw] shrink-0 snap-start rounded-lg border border-border/50 bg-card p-1.5 transition-all hover:border-primary/40 hover:shadow-sm sm:w-full flex gap-3 items-center"
                     >
-                      {/* Gambar Berita */}
-                      <img
-                        alt="News"
-                        class="w-12 h-12 sm:w-14 sm:h-14 shrink-0 object-cover"
-                        src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=60"
-                        loading="lazy"
-                      />
+                      {/* --- GAMBAR BERITA --- */}
+                      <div class="relative shrink-0 w-14 h-14 sm:w-16 sm:h-16 overflow-hidden rounded-md bg-muted">
+                        <img
+                          alt="News Thumbnail"
+                          class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=60"
+                          loading="lazy"
+                        />
+                      </div>
 
-                      {/* Teks Berita */}
-                      <div class="flex-1 min-w-0 py-0.5">
-                        <div class="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground mb-0.5">
+                      {/* --- TEKS BERITA --- */}
+                      <div class="flex-1 min-w-0 flex flex-col justify-center pr-2">
+                        {/* METADATA */}
+                        <div class="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-medium text-muted-foreground mb-1">
                           <span class="text-primary font-semibold">
                             TechCrunch
                           </span>
                           <span>•</span>
                           <span>5m ago</span>
                         </div>
-                        <h5 class="font-medium text-[11px] sm:text-xs text-foreground mb-1 line-clamp-2 leading-tight hover:text-primary cursor-pointer">
+
+                        {/* JUDUL */}
+                        <h5 class="font-medium text-xs sm:text-sm text-foreground line-clamp-2 leading-snug transition-colors group-hover:text-primary">
                           OpenAI Announces New Advanced AI Models for Everyday
                           Developers
                         </h5>
                       </div>
-                    </div>
+                    </a>
                   ))}
                 </div>
               </div>
