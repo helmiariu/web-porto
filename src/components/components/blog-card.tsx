@@ -69,7 +69,7 @@ export function CardBlog({ postData, url }: CardBlogProps) {
 
                     {/* BADGE KHUSUS LAPTOP/DESKTOP (Sembunyi di HP) */}
                     <div className="hidden sm:flex items-center gap-6">
-                        <Badge className="bg-primary/5 text-primary shadow-none hover:bg-primary/5 text-[10px] sm:text-xs">
+                        <Badge className="bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 shadow-[0_0_12px_rgba(6,182,212,0.1)] hover:bg-cyan-500/20 text-[10px] sm:text-xs font-semibold">
                             {category}
                         </Badge>
                     </div>
