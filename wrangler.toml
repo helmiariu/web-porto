@@ -1,0 +1,18 @@
+# Example Cloudflare Wrangler configuration for Astro.js
+
+name = "porto-astro-web"
+compatibility_date = "2024-09-23"
+compatibility_flags = [ "nodejs_compat_v2" ]
+
+# KV namespaces required for rate limiting and Astro sessions
+[[kv_namespaces]]
+binding = "CHAT_LIMITS"
+id = "04c9777038034e108b1f7a4ec90f156a"
+
+[[kv_namespaces]]
+binding = "SESSION"
+id = "04c9777038034e108b1f7a4ec90f156a" # Gunakan ID KV Anda agar lolos validasi wrangler
+
+# Enable Cloudflare Workers AI binding
+[ai]
+binding = "AI"

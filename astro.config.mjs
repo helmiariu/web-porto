@@ -7,8 +7,12 @@ import react from "@astrojs/react";
 
 import mdx from "@astrojs/mdx";
 
+import cloudflare from "@astrojs/cloudflare";
+
 // https://astro.build/config
 export default defineConfig({
+  output: "server",
+  adapter: cloudflare({}),
   // 2. Daftarkan astro-icon di dalam array integrations
   integrations: [icon(), react(), mdx()],
   vite: {
