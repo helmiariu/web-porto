@@ -8,16 +8,21 @@ import react from "@astrojs/react";
 import mdx from "@astrojs/mdx";
 
 import cloudflare from "@astrojs/cloudflare";
+import { sharpImageService } from 'astro/config';
 
 
-const isCloudflarePages = process.env.CF_PAGES === 'true' || !!process.env.CF_PAGES;
 // https://astro.build/config
 export default defineConfig({
-  output: "server",
+  output: 'static',
+
+  image: {
+    service: sharpImageService(),
+  },
+
   adapter: cloudflare({
-    configPath: isCloudflarePages ? 'wrangler.prod.toml' : 'wrangler.toml',
+    configPath: 'wrangler.toml',
     platformProxy: {
-      enabled: false
+      enabled: process.argv.includes('dev') || process.argv.includes('start')
     }
   }),
 
