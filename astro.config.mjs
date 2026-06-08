@@ -9,10 +9,13 @@ import mdx from "@astrojs/mdx";
 
 import cloudflare from "@astrojs/cloudflare";
 
+
+const isCloudflarePages = process.env.CF_PAGES === 'true' || !!process.env.CF_PAGES;
 // https://astro.build/config
 export default defineConfig({
   output: "server",
   adapter: cloudflare({
+    configPath: isCloudflarePages ? 'wrangler.prod.toml' : 'wrangler.toml',
     platformProxy: {
       enabled: false
     }
