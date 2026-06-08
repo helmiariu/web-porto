@@ -7,25 +7,8 @@ import react from "@astrojs/react";
 
 import mdx from "@astrojs/mdx";
 
-import cloudflare from "@astrojs/cloudflare";
-import { sharpImageService } from 'astro/config';
-
-
 // https://astro.build/config
 export default defineConfig({
-  output: 'static',
-
-  image: {
-    service: sharpImageService(),
-  },
-
-  adapter: cloudflare({
-    configPath: 'wrangler.toml',
-    platformProxy: {
-      enabled: isLocalDev && !isCloudflareCI
-    }
-  }),
-
   // 2. Daftarkan astro-icon di dalam array integrations
   integrations: [icon(), react(), mdx()],
   vite: {
