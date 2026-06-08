@@ -22,7 +22,7 @@ export default defineConfig({
   adapter: cloudflare({
     configPath: 'wrangler.toml',
     platformProxy: {
-      enabled: process.argv.includes('dev') || process.argv.includes('start')
+      enabled: isLocalDev && !isCloudflareCI
     }
   }),
 
