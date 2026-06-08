@@ -1,0 +1,56 @@
+---
+import Layout from "@layouts/Layout.astro";
+import { buttonVariants } from "@components/components/ui/button"; // Pastikan path ini sesuai dengan struktur proyekmu
+import { ChevronLeft, Loader2 } from "@lucide/astro"; // Menggunakan Lucide Astro agar selaras
+---
+
+<Layout>
+  <main
+    class="relative min-h-[400px] flex items-center justify-center bg-background text-foreground font-sans antialiased overflow-hidden transition-colors duration-300"
+  >
+    <div
+      class="absolute inset-0 bg-[linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30 pointer-events-none"
+    >
+    </div>
+
+    <div
+      class="relative z-10 text-center px-6 max-w-md mx-auto flex flex-col items-center"
+    >
+      <div class="w-28 h-28 flex items-center justify-center mb-4">
+        <img
+          src="/cat.svg"
+          alt="Loading Kucing"
+          class="w-full h-full object-contain pointer-events-none block dark:hidden"
+        />
+
+        <img
+          src="/catdark.svg"
+          alt="Loading Kucing Dark"
+          class="w-full h-full object-contain pointer-events-none hidden dark:block"
+        />
+      </div>
+
+      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl mb-1">My AI</h1>
+      <h2
+        class="text-xl font-medium tracking-tight text-muted-foreground sm:text-2xl mb-5"
+      >
+        Under Development
+      </h2>
+
+      <p
+        class="text-sm text-muted-foreground mb-8 leading-relaxed max-w-[320px]"
+      >
+        Halaman ini sedang dalam proses pengembangan. Saya akan segera kembali.
+      </p>
+
+      <a
+        href="/"
+        data-icon="inline-start"
+        class={buttonVariants({ variant: "default", size: "default" })}
+      >
+        <ChevronLeft class="h-4 w-4" />
+        Back
+      </a>
+    </div>
+  </main>
+</Layout>
