@@ -1,3 +1,4 @@
+// @component/myAI/ChatMessage
 import * as React from "react";
 import { motion } from "framer-motion";
 import { Bot, User, Copy, Check, Sparkles } from "lucide-react";
@@ -40,64 +41,60 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
+      // 1. Hapus background box global, ganti flex alignment berdasarkan role
       className={cn(
-        "flex w-full gap-4 p-4 rounded-2xl transition-all duration-300",
-        isAi
-          ? "bg-muted/30 dark:bg-card/25 border border-border/40 hover:border-border/80"
-          : "bg-primary/[0.03] dark:bg-primary/[0.01] border border-primary/10 hover:border-primary/20 flex-row-reverse"
+        "flex w-full gap-3 sm:gap-4 py-3 sm:py-4 transition-all duration-300 group",
+        isAi ? "justify-start" : "justify-end"
       )}
     >
-      <Avatar className={cn("size-9 border shadow-xs select-none shrink-0")}>
-        {isAi ? (
-          <>
-            <AvatarImage src="/ai-avatar.png" alt="AI Assistant" />
-            <AvatarFallback className="bg-primary text-primary-foreground">
-              <Bot className="size-4" />
-            </AvatarFallback>
-          </>
-        ) : (
-          <>
-            <AvatarFallback className="bg-secondary text-secondary-foreground border">
-              <User className="size-4" />
-            </AvatarFallback>
-          </>
+      {/* 2. Avatar AI di kiri (Gemini tidak menampilkan avatar User di kanan) */}
+      {isAi && (
+        <Avatar className="size-8 sm:size-9 border shadow-sm select-none shrink-0 mt-0.5">
+          <AvatarImage src="/ai-avatar.png" alt="AI Assistant" />
+          <AvatarFallback className="bg-primary text-primary-foreground">
+            <Sparkles className="size-4" /> {/* Menggunakan Sparkles khas AI */}
+          </AvatarFallback>
+        </Avatar>
+      )}
+
+      {/* 3. Container Pembungkus Pesan */}
+      <div
+        className={cn(
+          "flex flex-col gap-1 min-w-0 max-w-[90%] md:max-w-[85%]",
+          isAi ? "items-start" : "items-end"
         )}
-      </Avatar>
+      >
 
-      <div className="flex-1 flex flex-col gap-1.5 min-w-0">
-        <div className={cn("flex items-center gap-2", isAi ? "justify-start" : "justify-end")}>
-          <span className="text-xs font-semibold tracking-wide uppercase text-muted-foreground/80">
-            {isAi ? "AI Assistant" : "You"}
-          </span>
-          {isAi && (
-            <span className="flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium bg-primary/10 text-primary rounded-full dark:bg-primary/20">
-              <Sparkles className="size-2.5" />
-              Pro
-            </span>
-          )}
-          <span className="text-[10px] text-muted-foreground/60">{formattedTime}</span>
-        </div>
-
+        {/* 4. Teks Konten Utama */}
         <div
           className={cn(
-            "text-sm leading-relaxed whitespace-pre-wrap break-words font-desc text-foreground/90",
-            !isAi && "text-right"
+            "text-[15px] sm:text-base whitespace-pre-wrap break-words font-desc text-foreground/90",
+            isAi
+              ? "leading-relaxed sm:leading-7 pt-1" // Gaya AI: Teks polos renggang, menyatu background
+              : "leading-relaxed bg-muted/60 dark:bg-muted/30 px-5 py-3 rounded-3xl rounded-tr-sm text-foreground" // Gaya User: Gelembung membulat abu-abu
           )}
         >
           {message.content}
         </div>
 
-        <div className={cn("flex mt-1", isAi ? "justify-start" : "justify-end")}>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleCopy}
-            className="size-7 text-muted-foreground/50 hover:text-foreground hover:bg-muted/80 rounded-md transition-colors"
-            title="Copy message"
-          >
-            {copied ? <Check className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5" />}
-          </Button>
+        {/* 5. Aksi Copy & Waktu (Hanya muncul saat hover untuk antarmuka yang bersih) */}
+        <div className="flex items-center gap-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          {isAi && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleCopy}
+              className="size-7 text-muted-foreground/60 hover:text-foreground hover:bg-muted/80 rounded-md transition-colors"
+              title="Copy message"
+            >
+              {copied ? <Check className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5" />}
+            </Button>
+          )}
+          <span className="text-[10px] text-muted-foreground/40 font-medium px-1">
+            {formattedTime}
+          </span>
         </div>
+
       </div>
     </motion.div>
   );

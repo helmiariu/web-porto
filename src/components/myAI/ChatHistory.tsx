@@ -25,25 +25,10 @@ export const ChatHistory: React.FC<ChatHistoryProps> = ({
   bottomRef,
   isLoading,
 }) => {
-
-  // 1. KONDISI KOSONG: Render div biasa agar Flexbox bekerja 100% sempurna
-  if (messages.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-end flex-1 w-full h-full pb-2 mt-auto">
-        <div className="w-full max-w-2xl text-center animate-in fade-in slide-in-from-bottom-2 duration-500 ease-out">
-          <p className="text-xl font-medium text-muted-foreground/60 tracking-wide">
-            Ask me anything about Helmi.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // 2. KONDISI ADA PESAN: Gunakan ScrollArea
+  // Hanya gunakan ScrollArea, tidak perlu if(empty) lagi di sini
   return (
     <ScrollArea className="flex-1 w-full pr-1.5 min-h-0">
       <div className="flex flex-col gap-6 py-4 px-1 min-h-full">
-
         {messages.map((message) => (
           <ChatMessage key={message.id} message={message} />
         ))}

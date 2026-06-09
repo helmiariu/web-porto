@@ -1,3 +1,4 @@
+// @component/myAI/ChatInput
 import * as React from "react";
 import { ArrowUp } from "lucide-react";
 import { Textarea } from "@components/components/ui/textarea";
@@ -31,7 +32,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   return (
     <form
       onSubmit={handleSubmit}
-      className="relative flex items-end gap-2 p-2 rounded-xl border bg-background/55 dark:bg-card/40 backdrop-blur-md focus-within:ring-2 focus-within:ring-primary/20 transition-all duration-300"
+      className="relative flex items-end gap-2 p-1.5 rounded-2xl border border-border/50 bg-muted/60 dark:bg-muted/60 shadow-sm hover:border-border/80 focus-within:bg-background dark:focus-within:bg-background focus-within:border-primary/40 focus-within:shadow-md transition-all duration-300"
     >
       <Textarea
         placeholder="Type a message or paste some text..."
@@ -39,13 +40,15 @@ export const ChatInput: React.FC<ChatInputProps> = ({
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         disabled={disabled}
-        className="min-h-[44px] max-h-[200px] flex-1 border-0 bg-transparent px-3 py-2.5 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-0 outline-none resize-none shadow-none text-sm leading-relaxed"
+        // Tambahkan tanda seru (!) pada text size, font family, dan line-height
+        className="min-h-[44px] max-h-[200px] flex-1 border-0 bg-transparent px-4 py-3 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-0 outline-none resize-none shadow-none !text-[15px] sm:!text-base !font-desc text-foreground/90 !leading-relaxed placeholder:text-muted-foreground/50"
       />
+
       <Button
         type="submit"
         size="icon"
         disabled={disabled || !value.trim()}
-        className="size-8.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground transition-all shrink-0 active:scale-95 disabled:scale-100 disabled:opacity-40"
+        className="size-9 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground transition-all shrink-0 active:scale-95 disabled:scale-100 disabled:opacity-40 mb-0.5 mr-0.5"
       >
         <ArrowUp className="size-4" />
       </Button>

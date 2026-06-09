@@ -1,3 +1,4 @@
+// @component/myAI/ChatContainer
 import * as React from "react";
 import { ChatHistory } from "./ChatHistory";
 import { ChatInput } from "./ChatInput";
@@ -126,14 +127,11 @@ export const ChatContainer: React.FC = () => {
   const isChatEmpty = messages.length === 0;
 
   return (
-    <div
-      className={`flex flex-col w-full overflow-hidden transition-all duration-500 ease-in-out ${isChatEmpty
-        ? "h-[50dvh] my-auto" // Tampilan saat kosong (50dvh, di tengah)
-        : "h-[100dvh]" // Tampilan saat ada chat (Penuh)
-        }`}
-    >
-      {/* Chat Header (Tetap di atas) */}
-      <div className="shrink-0 flex items-center justify-between px-6 py-4 border-b border-border/40 bg-background/80 backdrop-blur-md z-10 sticky top-0">
+    // 1. TAMBAHKAN w-full dan mx-auto di sini agar tetap di tengah untuk layar besar
+    <div className="flex flex-col flex-1 min-h-0 w-full max-w-[850px] overflow-hidden bg-background">
+
+      {/* --- Chat Header (Hapus sticky top-0, cukup shrink-0 saja di Flexbox) --- */}
+      <div className="shrink-0 flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border/40 bg-background/80 backdrop-blur-md z-10">
         <div className="flex items-center gap-3">
           <div className="relative flex items-center justify-center size-3 rounded-full bg-emerald-500">
             <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
@@ -141,60 +139,57 @@ export const ChatContainer: React.FC = () => {
           <div>
             <h2 className="text-sm font-semibold tracking-wide">myAI Playground</h2>
             <p className="text-[10px] text-muted-foreground/80 flex items-center gap-1 font-mono">
-              <Radio className="size-2.5 text-emerald-500" />
-              Active Node • Latency ~12ms
+              <Radio className="size-2.5 text-emerald-500" /> Active Node • Latency ~12ms
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           {messages.length > 0 ? (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleClearChat}
-              className="size-8 text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 rounded-lg transition-all"
-              title="Clear chat"
-            >
+            <Button variant="ghost" size="icon" onClick={handleClearChat} className="size-8 text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 rounded-lg transition-all" title="Clear chat">
               <Trash2 className="size-4" />
             </Button>
           ) : (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleResetChat}
-              className="size-8 text-muted-foreground/60 hover:text-foreground hover:bg-muted/80 rounded-lg transition-all"
-              title="Load demo chat" // 2. UBAH DI SINI: Ganti tooltip agar lebih masuk akal
-            >
+            <Button variant="ghost" size="icon" onClick={handleResetChat} className="size-8 text-muted-foreground/60 hover:text-foreground hover:bg-muted/80 rounded-lg transition-all" title="Load demo chat">
               <RefreshCw className="size-4" />
             </Button>
           )}
         </div>
       </div>
 
-      {/* Area Tengah */}
-      <div className="flex-1 px-6 py-4 overflow-y-auto flex flex-col">
-        {/* 3. CATATAN PENTING: Karena sebelumnya Anda membuat UI Kosong yang keren (dengan icon CPU) di dalam ChatHistory.tsx, kita cukup memanggil ChatHistory secara langsung di sini tanpa ternary isChatEmpty lagi di area ini. */}
-        <ChatHistory
-          messages={messages}
-          bottomRef={bottomRef}
-          isLoading={isLoading}
-        />
+      {/* --- Area Tengah --- */}
+      {/* 2. UBAH DI SINI: Ganti overflow-y-auto menjadi min-h-0 */}
+      <div className="flex-1 flex flex-col min-h-0">
+        {isChatEmpty ? (
+          <div className="flex-1 flex flex-col justify-end items-center pb-10 animate-in fade-in duration-700">
+            <h1 className="text-xl md:text-2xl font-medium text-muted-foreground/60 tracking-wide text-center px-4">
+              Ask me anything about Helmi.
+            </h1>
+          </div>
+        ) : (
+          // 3. TAMBAHKAN min-h-0 juga di bungkus ChatHistory ini
+          <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 flex-1 flex flex-col mt-2 md:mt-4 min-h-0">
+            <ChatHistory messages={messages} bottomRef={bottomRef} isLoading={isLoading} />
+          </div>
+        )}
       </div>
 
-      {/* Chat Input (Tetap di bawah) */}
-      <div className="shrink-0 p-4 border-t border-border/40 bg-background z-10">
-        {/* TAMBAHKAN PEMBUNGKUS INI UNTUK MENGATUR LEBAR */}
-        <div className="max-w-2xl mx-auto w-full">
+      {/* --- Chat Input --- */}
+      <div
+        className={`shrink-0 z-10 bg-background transition-all duration-500 ease-in-out ${isChatEmpty
+          ? "pb-[45dvh] pt-0" // Input naik ke tengah
+          : "pb-16 md:pb-6 pt-2" // Input turun ke dasar (pb-16 di HP, pb-6 di Desktop)
+          }`}
+      >
+        <div className="w-full max-w-2xl mx-auto px-4 sm:px-6">
           <ChatInput onSendMessage={handleSendMessage} disabled={isLoading} />
-
-          <div className="flex items-center justify-center gap-1.5 mt-2.5 text-[10px] text-muted-foreground/50">
+          <div className="flex items-center justify-center gap-1.5 mt-2.5 text-[10px] text-muted-foreground/50 transition-opacity duration-500">
             <Shield className="size-3" />
             <span>Responses are mocked. Data is processed locally.</span>
           </div>
         </div>
       </div>
-    </div>
 
+    </div>
   );
 };

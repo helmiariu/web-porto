@@ -6,7 +6,7 @@ import { ChatContainer } from "@components/myAI/ChatContainer";
 <Layout title="myAI Playground - Assistant" fullHeight={true}>
   <div
     transition:animate="none"
-    className="relative w-full min-h-screen bg-background text-foreground font-sans antialiased overflow-hidden"
+    class="relative w-full h-full bg-background text-foreground font-sans antialiased overflow-hidden flex flex-col"
   >
     <!-- {/* Dynamic Background Pattern */}
     <div
@@ -14,11 +14,11 @@ import { ChatContainer } from "@components/myAI/ChatContainer";
     >
     </div> -->
 
-    <div class="relative z-10 mx-auto flex flex-col gap-6">
+    <div class="relative z-10 mx-auto flex flex-col flex-1 w-full min-h-0">
       {/* Main Interactive Chat Panel Component */}
-      <main class="w-full mt-2">
-        <ChatContainer client:load />
-      </main>
+      <div class="w-full flex-1 min-h-0 flex flex-col mt-2">
+        <ChatContainer client:only="react" />
+      </div>
     </div>
   </div>
 </Layout>
