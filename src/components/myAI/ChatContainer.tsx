@@ -6,66 +6,21 @@ import { type Message } from "./ChatMessage";
 import { Trash2, Shield, RefreshCw, Radio } from "lucide-react";
 import { Button } from "@components/components/ui/button";
 
+// Definisikan URL Cloudflare Worker (Pastikan diisi dengan URL aslimu saat deploy selesai)
+const WORKER_API_URL = import.meta.env.PUBLIC_GEMINI_WORKER_URL || "https://gemini-proxy-worker.helmi.workers.dev";
+
 // INITIAL_MESSAGES tetap dipertahankan jika sewaktu-waktu butuh data demo
 const INITIAL_MESSAGES: Message[] = [
+  // ... (isi INITIAL_MESSAGES biarkan sama seperti kodemu sebelumnya)
   {
     id: "1",
     role: "ai",
     content: "Hi there! I am your personal AI Assistant. How can I help you today?",
     timestamp: new Date(Date.now() - 1000 * 60 * 15),
-  },
-  {
-    id: "2",
-    role: "user",
-    content: "Can you help me design a minimalist dashboard layout?",
-    timestamp: new Date(Date.now() - 1000 * 60 * 14),
-  },
-  {
-    id: "3",
-    role: "ai",
-    content: "Of course! A minimalist dashboard focuses on high-contrast typography, generous whitespace, subtle borders (such as border-border/40), and functional color accents.\n\nHere are some best practices:\n• Keep the navigation clean and collapsable.\n• Group similar items together into borderless or softly bordered cards.\n• Highlight important metrics using large, bold typefaces.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 12),
-  },
-  {
-    id: "4",
-    role: "user",
-    content: "That makes sense. What color palette should I use? I want it to feel modern but not too cold.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 10),
-  },
-  {
-    id: "5",
-    role: "ai",
-    content: "For a modern, warm minimalist feel, I recommend a neutral base with a subtle warm undertone. Try using off-whites (like `zinc-50` or `stone-50` in Tailwind) for backgrounds, dark slate for primary text, and a single muted accent color like sage green or dusty blue for interactive elements like buttons and active links.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 8),
-  },
-  {
-    id: "6",
-    role: "user",
-    content: "Oh, dusty blue sounds nice. How do I handle data tables? They usually look so cluttered.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 6),
-  },
-  {
-    id: "7",
-    role: "ai",
-    content: "Great question! Data tables are tricky. To keep them minimalist:\n\n1. Remove vertical borders entirely.\n2. Use very faint horizontal borders (e.g., `border-gray-100` or `border-border/20`).\n3. Align text to the left and numbers to the right.\n4. Use adequate padding (like `p-4`) so the data breathes.\n\nWould you like me to generate a quick React component example for that table?",
-    timestamp: new Date(Date.now() - 1000 * 60 * 4),
-  },
-  {
-    id: "8",
-    role: "user",
-    content: "Yes please! And make sure it uses Lucide React icons for the table actions.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 2),
-  },
-  {
-    id: "9",
-    role: "ai",
-    content: "I can definitely help with that! You can use icons like `MoreHorizontal` for a minimalist action menu, or `Edit2` and `Trash2` for direct actions. Just let me know when you are ready to write the code!",
-    timestamp: new Date(Date.now() - 1000 * 60 * 1),
   }
 ];
 
 export const ChatContainer: React.FC = () => {
-  // 1. UBAH DI SINI: Inisialisasi state dengan array kosong []
   const [messages, setMessages] = React.useState<Message[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const bottomRef = React.useRef<HTMLDivElement | null>(null);
@@ -79,41 +34,64 @@ export const ChatContainer: React.FC = () => {
     scrollToBottom();
   }, [messages, isLoading]);
 
-  const handleSendMessage = (content: string) => {
+  // UBAH DI SINI: Fungsi handleSendMessage sekarang terhubung ke Worker backend
+  const handleSendMessage = async (content: string) => {
+    // 1. Buat pesan user baru
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
       content,
       timestamp: new Date(),
     };
-    setMessages((prev) => [...prev, userMessage]);
+
+    // Update state pesan dengan input user
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setIsLoading(true);
 
-    setTimeout(() => {
-      let aiText = "I received your message. How else can I assist you with your Astro or React project?";
+    try {
+      // 2. Kirim riwayat pesan ke proxy Cloudflare Worker
+      const response = await fetch(WORKER_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messages: updatedMessages.map((msg) => ({
+            role: msg.role,
+            content: msg.content,
+          })),
+        }),
+      });
 
-      const query = content.toLowerCase();
-      if (query.includes("hello") || query.includes("hi")) {
-        aiText = "Hello! Hope you are having an amazing day. What are we building today?";
-      } else if (query.includes("astro")) {
-        aiText = "Astro.js is fantastic for content-driven websites. By utilizing islands architecture, you can keep your pages fast while using React, Vue, or Svelte only where necessary!";
-      } else if (query.includes("react")) {
-        aiText = "React is perfect for stateful interactions like this chat interface. Using hooks like `useState` and `useRef` enables dynamic UI updates without page reloads.";
-      } else if (query.includes("tailwind")) {
-        aiText = "Tailwind CSS allows for rapid styling with utility classes. In minimalist designs, focus on using semantic spacing values and OKLCH color palettes for a highly premium feel.";
-      } else if (query.includes("design") || query.includes("table") || query.includes("code")) {
-        aiText = "Great design is subtraction. Try to reduce visual noise by using spacing instead of lines, using lighter text for secondary details, and emphasizing interactive states.";
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Jika terkena Rate Limit (HTTP 429) atau error lainnya
+        throw new Error(data.error || "Gagal mendapatkan respon dari AI.");
       }
 
+      // 3. Tambahkan pesan AI ke chat history
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "ai",
-        content: aiText,
+        content: data.content,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, aiMessage]);
+
+    } catch (error: any) {
+      // 4. Handle error & rate limit dengan menampilkan pesan peringatan di chat
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "ai",
+        content: `⚠️ Error: ${error.message}`,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
-    }, 1200);
+    }
   };
 
   const handleClearChat = () => {
@@ -127,10 +105,9 @@ export const ChatContainer: React.FC = () => {
   const isChatEmpty = messages.length === 0;
 
   return (
-    // 1. TAMBAHKAN w-full dan mx-auto di sini agar tetap di tengah untuk layar besar
     <div className="flex flex-col flex-1 min-h-0 w-full max-w-[850px] overflow-hidden bg-background px-4 md:px-0">
 
-      {/* --- Chat Header (Hapus sticky top-0, cukup shrink-0 saja di Flexbox) --- */}
+      {/* --- Chat Header --- */}
       <div className="shrink-0 flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border/40 bg-background/80 backdrop-blur-md z-10">
         <div className="flex items-center gap-3">
           <div className="relative flex items-center justify-center size-3 rounded-full bg-emerald-500">
@@ -158,7 +135,6 @@ export const ChatContainer: React.FC = () => {
       </div>
 
       {/* --- Area Tengah --- */}
-      {/* 2. UBAH DI SINI: Ganti overflow-y-auto menjadi min-h-0 */}
       <div className="flex-1 flex flex-col min-h-0">
         {isChatEmpty ? (
           <div className="flex-1 flex flex-col justify-end items-center pb-10 animate-in fade-in duration-700">
@@ -167,7 +143,6 @@ export const ChatContainer: React.FC = () => {
             </h1>
           </div>
         ) : (
-          // 3. TAMBAHKAN min-h-0 juga di bungkus ChatHistory ini
           <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 flex-1 flex flex-col mt-2 md:mt-4 min-h-0">
             <ChatHistory messages={messages} bottomRef={bottomRef} isLoading={isLoading} />
           </div>
