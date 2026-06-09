@@ -167,7 +167,7 @@ export const ChatContainer: React.FC = () => {
       <div className="flex-1 flex flex-col min-h-0">
         {isChatEmpty ? (
           <div className="flex-1 flex flex-col justify-end items-center pb-10 animate-in fade-in duration-700">
-            <h1 className="text-xl md:text-2xl font-medium text-muted-foreground/60 tracking-wide text-center px-4">
+            <h1 className="text-xl md:text-2xl font-medium text-muted-foreground/70 tracking-wide text-center px-4">
               Ask me anything about Helmi.
             </h1>
           </div>
