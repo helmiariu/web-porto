@@ -128,7 +128,7 @@ export const ChatContainer: React.FC = () => {
 
   return (
     // 1. TAMBAHKAN w-full dan mx-auto di sini agar tetap di tengah untuk layar besar
-    <div className="flex flex-col flex-1 min-h-0 w-full max-w-[850px] overflow-hidden bg-background">
+    <div className="flex flex-col flex-1 min-h-0 w-full max-w-[850px] overflow-hidden bg-background px-4 md:px-0">
 
       {/* --- Chat Header (Hapus sticky top-0, cukup shrink-0 saja di Flexbox) --- */}
       <div className="shrink-0 flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border/40 bg-background/80 backdrop-blur-md z-10">
