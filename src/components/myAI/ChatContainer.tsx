@@ -183,9 +183,9 @@ export const ChatContainer: React.FC = () => {
       >
         <div className="w-full max-w-2xl mx-auto px-4 sm:px-6">
           <ChatInput onSendMessage={handleSendMessage} disabled={isLoading} />
-          <div className="flex items-center justify-center gap-1.5 mt-2.5 text-[10px] text-muted-foreground/50 transition-opacity duration-500">
+          <div className="flex items-center justify-center gap-1.5 mt-2.5 text-[11px] text-muted-foreground/60 transition-opacity duration-500">
             <Shield className="size-3" />
-            <span>Responses are mocked. Data is processed locally.</span>
+            <span>Privacy first: Your messages are not stored.</span>
           </div>
         </div>
       </div>
