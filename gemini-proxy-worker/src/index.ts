@@ -4,7 +4,7 @@ export interface Env {
 }
 
 const CORS_HEADERS = {
-	"Access-Control-Allow-Origin": "https://ai-chat.helmiari.my.id/", // Sesuaikan dengan domain web porto Anda nanti demi keamanan https://ai-chat.helmiari.my.id/
+	"Access-Control-Allow-Origin": "https://ai-chat.helmiari.my.id", // Sesuaikan dengan domain web porto Anda nanti demi keamanan https://ai-chat.helmiari.my.id/
 	"Access-Control-Allow-Methods": "POST, OPTIONS",
 	"Access-Control-Allow-Headers": "Content-Type",
 };
@@ -129,11 +129,21 @@ export default {
 				},
 			});
 
-		} catch (err: any) {
-			return new Response(JSON.stringify({ error: "Internal Server Error", message: err.message }), {
-				status: 500,
-				headers: { "Content-Type": "application/json", ...CORS_HEADERS },
-			});
+			// ... kode sebelumnya ...
+		} catch (error: any) {
+			// INI KUNCINYA: Cetak error sistem ke terminal
+			console.error("🔥 FATAL ERROR DI WORKER:", error.name, error.message, error.stack);
+
+			return new Response(
+				JSON.stringify({
+					error: "Internal Server Error",
+					details: error.message
+				}),
+				{
+					status: 500,
+					headers: { "Content-Type": "application/json", ...CORS_HEADERS }
+				}
+			);
 		}
 	},
 };

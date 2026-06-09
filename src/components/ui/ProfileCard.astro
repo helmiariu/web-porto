@@ -2,6 +2,7 @@
 // ProfileCard.astro
 import VerifiedBadge from "@components/ui/VerifiedBadge.astro";
 import AvatarDropdown from "@components/ui/AvatarDropdown.astro";
+import { Bot } from "@lucide/astro";
 
 interface Props {
   variant?: "sidebar" | "mobile";
@@ -23,21 +24,41 @@ const isMobile = variant === "mobile";
         </h2>
         <VerifiedBadge />
       </div>
+      <span class="flex items-center gap-2.5 text-md text-muted-foreground font-sm -mt-3">
+        <a
+          href="/myAI"
+          class="flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted hover:bg-muted/80 text-foreground border border-border text-[12px] font-medium transition-colors"
+        >
+          <Bot class="h-3 w-3 text-blue-500" />
+          My AI
+        </a>
+        me@domainku.my.id
+      </span>
     </div>
   ) : (
     /* Tampilan khusus Desktop (di Sidebar) */
-<div class="mb-5 pl-2 flex flex-col">
-  <div class="relative mb-1">
-    <AvatarDropdown sizeClass="w-24 h-24" />
-  </div>
+    <div class="mb-5 pl-2 flex flex-col">
+      <div class="relative mb-1">
+        <AvatarDropdown sizeClass="w-24 h-24" />
+      </div>
 
-  <div class="space-y-1">
-    <!-- Perubahan ada pada class text-lg lg:text-xl dan tambahan whitespace-nowrap -->
-    <h1 class="text-lg lg:text-xl font-bold tracking-tight text-[hsl(var(--foreground))] flex items-center gap-1.5 whitespace-nowrap">
-      Helmi Arimbawa
-      <VerifiedBadge />
-    </h1>
-  </div>
-</div>
+      <div class="space-y-1">
+        <h1 class="text-lg lg:text-xl font-bold tracking-tight text-[hsl(var(--foreground))] flex items-center gap-1.5 whitespace-nowrap">
+          Helmi Arimbawa
+          <VerifiedBadge />
+        </h1>
+
+        <span class="flex items-center gap-1.5 text-xs text-muted-foreground font-sm mt-1.5 ">
+          <a
+            href="/myAI"
+            class="flex items-center gap-1 px-2 py-0.5 rounded-sm bg-muted hover:bg-muted/80 text-foreground border border-border text-[10px] font-medium transition-colors"
+          >
+            <Bot class="h-3 w-3 text-blue-500" />
+            My AI
+          </a>
+          me@domainku.my.id
+        </span>
+      </div>
+    </div>
   )
 }
