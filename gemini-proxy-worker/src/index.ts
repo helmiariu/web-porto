@@ -4,7 +4,7 @@ export interface Env {
 }
 
 const CORS_HEADERS = {
-	"Access-Control-Allow-Origin": "*", // Sesuaikan dengan domain web porto Anda nanti demi keamanan https://ai-chat.helmiari.my.id/
+	"Access-Control-Allow-Origin": "https://ai-chat.helmiari.my.id/", // Sesuaikan dengan domain web porto Anda nanti demi keamanan https://ai-chat.helmiari.my.id/
 	"Access-Control-Allow-Methods": "POST, OPTIONS",
 	"Access-Control-Allow-Headers": "Content-Type",
 };
@@ -42,7 +42,7 @@ export default {
 							JSON.stringify({ count: 1, expiresAt: now + 2 * 60 * 60 * 1000 }), // 2 jam
 							{ expirationTtl: 2 * 60 * 60 } // Expire KV key otomatis setelah 2 jam
 						);
-					} else if (currentData.count >= 15) {
+					} else if (currentData.count >= 5) {
 						// Limit terlampaui
 						const timeLeftSeconds = Math.round((currentData.expiresAt - now) / 1000);
 						const minutes = Math.floor(timeLeftSeconds / 60);
