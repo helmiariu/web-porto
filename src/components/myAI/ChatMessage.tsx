@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Copy, Check } from "lucide-react";
 import { Button } from "@components/components/ui/button";
 import { cn } from "@components/lib/utils";
+import ReactMarkdown from 'react-markdown';
 
 export interface Message {
   id: string;
@@ -54,16 +55,54 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
           isAi ? "w-full items-start" : "max-w-[90%] md:max-w-[85%] items-end"
         )}
       >
+
+
         {/* Teks Konten Utama */}
         <div
           className={cn(
-            "text-[15px] sm:text-base whitespace-pre-wrap break-words font-desc font-medium text-foreground/90 antialiased",
+            "text-[17px] sm:text-base whitespace-pre-wrap break-words font-desc font-medium text-foreground/90 antialiased",
             isAi
-              ? "leading-relaxed sm:leading-7 w-full pt-1" // Gaya AI: Teks polos renggang
-              : "leading-relaxed bg-muted/60 dark:bg-muted/30 px-5 py-3 rounded-3xl rounded-tr-sm text-foreground/90" // Gaya User: Gelembung membulat abu-abu
+              ? "leading-relaxed w-full pt-1" // Hapus class prose di sini
+              : "leading-relaxed bg-muted/60 dark:bg-muted/30 px-5 py-3 rounded-3xl rounded-tr-sm text-foreground/90"
           )}
         >
-          {message.content}
+          {isAi ? (
+            <ReactMarkdown
+              components={{
+                // mb-2 (8px) itu jarak yang sangat standar untuk chat agar tidak terlalu nempel tapi juga tidak renggang.
+                // leading-normal (1.5) adalah standar tinggi baris yang paling proporsional tanpa terlihat tinggi/molor.
+                p: ({ node, ...props }) => (
+                  <p className="mb-0 last:mb-0 leading-relaxed" {...props} />
+                ),
+
+                // pl-4 (lebih kecil dari pl-5) supaya list tidak terlalu menjorok ke dalam (hemat ruang horizontal).
+                // mb-2 supaya list tidak punya jarak bawah yang lebar.
+                ul: ({ node, ...props }) => (
+                  <ul className="list-disc pl-4 mb-0 space-y-0.5" {...props} />
+                ),
+                ol: ({ node, ...props }) => (
+                  <ol className="list-decimal pl-4 mb-0 space-y-0.5" {...props} />
+                ),
+
+                // List Item: my-0 agar tidak ada spasi vertikal ekstra dari browser.
+                li: ({ node, ...props }) => (
+                  <li className="pl-1 leading-normal my-0" {...props} />
+                ),
+
+                strong: ({ node, ...props }) => (
+                  <strong className="font-semibold text-foreground/90" {...props} />
+                ),
+
+                code: ({ node, ...props }) => (
+                  <code className="bg-muted px-1 py-0 rounded font-mono text-[13px]" {...props} />
+                ),
+              }}
+            >
+              {message.content}
+            </ReactMarkdown>
+          ) : (
+            message.content
+          )}
         </div>
 
         {/* Aksi Copy & Waktu (Muncul saat hover) */}

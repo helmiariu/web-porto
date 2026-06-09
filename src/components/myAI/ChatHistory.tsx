@@ -27,7 +27,8 @@ export const ChatHistory: React.FC<ChatHistoryProps> = ({
 }) => {
   // Hanya gunakan ScrollArea, tidak perlu if(empty) lagi di sini
   return (
-    <ScrollArea className="flex-1 w-full pr-1.5 min-h-0">
+    // Ganti ScrollArea dengan div biasa + kelas overflow-y-auto
+    <div className="flex-1 w-full pr-1.5 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       <div className="flex flex-col gap-6 py-4 px-1 min-h-full">
         {messages.map((message) => (
           <ChatMessage key={message.id} message={message} />
@@ -48,6 +49,6 @@ export const ChatHistory: React.FC<ChatHistoryProps> = ({
 
         <div ref={bottomRef} className="h-1" />
       </div>
-    </ScrollArea>
+    </div>
   );
 };

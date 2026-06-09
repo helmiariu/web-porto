@@ -182,3 +182,29 @@
   transition: none !important;
   animation-duration: 0s !important;
 }
+
+/* scrolbarr */
+
+/* Styling Scrollbar agar tipis dan elegan */
+::-webkit-scrollbar {
+  width: 6px;
+  /* Lebar scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  /* Track transparan */
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(160, 160, 160, 0.3);
+  /* Warna abu-abu transparan */
+  border-radius: 10px;
+  /* Membuat ujung membulat */
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(160, 160, 160, 0.6);
+  /* Lebih gelap saat kursor diarahkan */
+}
