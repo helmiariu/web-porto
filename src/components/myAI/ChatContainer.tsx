@@ -20,10 +20,39 @@ const INITIAL_MESSAGES: Message[] = [
   }
 ];
 
+const STORAGE_KEY = "myai_chat_history";
+
 export const ChatContainer: React.FC = () => {
-  const [messages, setMessages] = React.useState<Message[]>([]);
+  const [messages, setMessages] = React.useState<Message[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = sessionStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          return parsed.map((msg: any) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp),
+          }));
+        }
+      } catch (error) {
+        console.error("Failed to load chat history from sessionStorage:", error);
+      }
+    }
+    return [];
+  });
   const [isLoading, setIsLoading] = React.useState(false);
   const bottomRef = React.useRef<HTMLDivElement | null>(null);
+
+  // Auto-save messages to sessionStorage whenever they change
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+      } catch (error) {
+        console.error("Failed to save chat history to sessionStorage:", error);
+      }
+    }
+  }, [messages]);
 
   // Auto-scroll to bottom
   const scrollToBottom = () => {
@@ -158,7 +187,7 @@ export const ChatContainer: React.FC = () => {
       >
         <div className="w-full max-w-2xl mx-auto px-4 sm:px-6">
           <ChatInput onSendMessage={handleSendMessage} disabled={isLoading} />
-          <div className="flex items-center justify-center gap-1.5 mt-2.5 text-[11px] text-muted-foreground/60 transition-opacity duration-500">
+          <div className="flex items-center justify-center gap-1.5 mt-2.5 text-[11px] text-muted-foreground/90 transition-opacity duration-500">
             <Shield className="size-3" />
             <span>Privacy first: Your messages are not stored.</span>
           </div>

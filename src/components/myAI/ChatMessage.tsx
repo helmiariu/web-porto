@@ -81,7 +81,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                   <ul className="list-disc pl-4 mb-0 space-y-0.5" {...props} />
                 ),
                 ol: ({ node, ...props }) => (
-                  <ol className="list-decimal pl-4 mb-0 space-y-0.5" {...props} />
+                  <ol className="list-decimal pl-8 mb-0 space-y-0.5" {...props} />
                 ),
 
                 // List Item: my-0 agar tidak ada spasi vertikal ekstra dari browser.

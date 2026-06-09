@@ -2,7 +2,7 @@
 import * as React from "react";
 import { ScrollArea } from "@components/components/ui/scroll-area";
 import { ChatMessage, type Message } from "./ChatMessage";
-import { Cpu } from "lucide-react";
+import { Cpu, Shield } from "lucide-react";
 
 const TypingIndicator = () => {
   return (
