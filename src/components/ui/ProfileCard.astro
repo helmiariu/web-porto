@@ -32,7 +32,9 @@ const isMobile = variant === "mobile";
           <Bot class="h-3 w-3 text-blue-500" />
           My AI
         </a>
-        me@domainku.my.id
+        <a href="#" id="email-display">
+          Load...
+        </a>
       </span>
     </div>
   ) : (
@@ -56,9 +58,31 @@ const isMobile = variant === "mobile";
             <Bot class="h-3 w-3 text-blue-500" />
             My AI
           </a>
-          me@domainku.my.id
+          <a href="#" id="email-display">
+            Load...
+          </a>
         </span>
       </div>
     </div>
   )
 }
+
+<script>
+  document.addEventListener("astro:page-load", async () => {
+    const emailLink = document.getElementById(
+      "email-display",
+    ) as HTMLAnchorElement;
+
+    try {
+      const response = await fetch("/api/get-email");
+      const data = await response.json();
+
+      if (data.email) {
+        emailLink.textContent = data.email;
+        emailLink.href = `mailto:${data.email}`;
+      }
+    } catch (err) {
+      emailLink.textContent = "...";
+    }
+  });
+</script>
