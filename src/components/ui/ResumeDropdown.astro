@@ -6,12 +6,10 @@ import { cn } from "@components/lib/utils";
 ---
 
 <details class="relative inline-block text-left group" id="resume-dropdown">
-    <!-- Trigger menggunakan tag <summary> yang bergaya tombol outline/secondary Shadcn -->
-
     <summary
         class={cn(
             buttonVariants({ variant: "outline" }),
-            "h-10 px-4 text-sm font-semibold gap-2 rounded-lg",
+            "h-10 px-4 text-sm font-semibold gap-2 rounded-lg cursor-pointer select-none",
         )}
     >
         <span>Resume</span>
@@ -20,40 +18,88 @@ import { cn } from "@components/lib/utils";
         />
     </summary>
 
-    <!-- Konten Dropdown Menu khas Shadcn -->
     <div
+        id="cv-dropdown-container"
         class="absolute left-0 mt-2 w-36 origin-top rounded-xl border border-border bg-popover p-1.5 text-primary lg:text-foreground shadow-md z-50 animate-in fade-in slide-in-from-top-1"
     >
-        <a
-            href="/resume-en.pdf"
-            download
-            class="group/item flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent hover:text-foreground transition-colors cursor-pointer"
+        <span
+            id="cv-loading"
+            class="text-xs px-3 py-2 block text-muted-foreground text-center"
         >
-            <span>English</span>
-            <ArrowRight
-                class="h-4 w-4 transition-transform group-hover/item:translate-y-[1px]"
-            />
-        </a>
-
-        <a
-            href="/resume-id.pdf"
-            download
-            class="group/item flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent hover:text-foreground transition-colors cursor-pointer"
-        >
-            <span>Indonesia</span>
-            <ArrowRight
-                class="h-4 w-4 transition-transform group-hover/item:translate-y-[1px]"
-            />
-        </a>
+            Memuat...
+        </span>
     </div>
 </details>
 
+<template id="cv-item-template">
+    <a
+        href="#"
+        class="group/item flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent hover:text-foreground transition-colors cursor-pointer"
+    >
+        <span class="cv-label">Nama Bahasa</span>
+        <ArrowRight
+            class="h-4 w-4 transition-transform group-hover/item:translate-y-[1px]"
+        />
+    </a>
+</template>
+
 <script>
-    // Opsional: Hanya jika ingin menu menutup otomatis saat pengguna mengeklik area luar web
+    async function loadCvDropdown() {
+        const container = document.getElementById("cv-dropdown-container");
+        const loadingIndicator = document.getElementById("cv-loading");
+        const template = document.getElementById(
+            "cv-item-template",
+        ) as HTMLTemplateElement;
+
+        // Jika komponen dropdown tidak ada di halaman saat ini, hentikan fungsi
+        if (!container || !template) return;
+
+        try {
+            const response = await fetch("/api/cv-list");
+            const data = await response.json();
+
+            if (loadingIndicator) loadingIndicator.remove();
+
+            if (!data.languages || data.languages.length === 0) {
+                container.innerHTML = `<span class="text-xs px-3 py-2 block text-muted-foreground text-center">Tidak ada CV</span>`;
+                return;
+            }
+
+            // Bersihkan container terlebih dahulu sebelum append (menghindari duplikasi saat bolak-balik halaman)
+            container.innerHTML = "";
+
+            data.languages.forEach((lang: { code: string; label: string }) => {
+                const clone = template.content.cloneNode(
+                    true,
+                ) as DocumentFragment;
+                const linkElement = clone.querySelector("a");
+                const labelElement = clone.querySelector(".cv-label");
+
+                if (linkElement && labelElement) {
+                    labelElement.textContent = lang.label;
+                    linkElement.href = `/cv/${lang.code}`;
+                    container.appendChild(clone);
+                }
+            });
+        } catch (error) {
+            console.error("Gagal memuat daftar CV:", error);
+            if (loadingIndicator) {
+                loadingIndicator.textContent = "Gagal memuat";
+            }
+        }
+    }
+
+    // 1. Jalankan fungsi fetch data menggunakan event milik Astro View Transitions
+    document.addEventListener("astro:page-load", loadCvDropdown);
+
+    // 2. Event click outside ditaruh di LUAR astro:page-load (di tingkat akar script)
+    // Karena script Astro bundled hanya dieksekusi SEKALI secara global,
+    // menaruhnya di sini mencegah event listener ini menumpuk/tergandakan setiap kali pindah halaman.
     document.addEventListener("click", (e) => {
         const dropdown = document.getElementById(
             "resume-dropdown",
         ) as HTMLDetailsElement;
+        // document.getElementById akan selalu mencari element yang aktif di DOM saat ini secara dinamis
         if (dropdown && !dropdown.contains(e.target as Node)) {
             dropdown.removeAttribute("open");
         }
