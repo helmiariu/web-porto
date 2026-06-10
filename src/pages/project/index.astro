@@ -1,77 +1,56 @@
 ---
 // src/pages/project/index.astro
 import Layout from "@layouts/Layout.astro";
-import CardProject from "@components/ui/CardProject.astro";
 import { getCollection } from "astro:content";
+import { ProjectCard } from "@components/components/ProjectCard";
 
-const allProjects = await getCollection("projects");
-const sortedProjects = allProjects.sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+// Fetch all project entries
+const allproject = await getCollection("project");
+
+// Mengurutkan agar proyek 'featured' berada di atas (opsional, silakan hapus .sort jika ingin urutan bebas)
+const sortedproject = allproject.sort((a, b) => {
+  return (b.data.isFeatured ? 1 : 0) - (a.data.isFeatured ? 1 : 0);
+});
 ---
 
-<Layout>
-  <div class="space-y-6 animate-fade-in-up mb-10">
-    <div class="space-y-1">
-      <h1
-        class="text-[clamp(1.3rem,6vw,1.4rem)] font-bold tracking-tight text-foreground"
-      >
-        All Projects
-      </h1>
-      <p class="text-sm text-[hsl(var(--foreground)/0.7)]">
-        Daftar lengkap proyek yang pernah saya kerjakan.
+<Layout title="project">
+  <div class="w-full space-y-10 max-w-[52rem]">
+    {/* Page Header */}
+    <div
+      class="sticky top-0 z-30 flex flex-col justify-center backdrop-blur-md border-b pb-4 pt-4"
+    >
+      <h2 class="text-xl font-semibold tracking-tight text-foreground">
+        Project
+      </h2>
+      <p class="text-muted-foreground text-xs sm:text-sm">
+        A gallery of my technical builds, automation scripts, and creative
+        designs.
       </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-      {
-        sortedProjects.map((project) => (
-          /* Ditambahkan class `flex` agar tinggi semua card sejajar rapi */
-          <div class="project-card-lazy flex">
-            <CardProject
-              title={project.data.title}
-              description={project.data.description}
-              image={project.data.image}
-              tags={project.data.tags}
+    {/* All project Grid */}
+    {
+      sortedproject.length > 0 && (
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {sortedproject.map((project) => (
+            <ProjectCard
+              key={project.id}
+              project={project.data}
               slug={project.id}
-              featured={project.data.featured}
+              client:load
             />
-          </div>
-        ))
-      }
-    </div>
+          ))}
+        </div>
+      )
+    }
+
+    {/* Empty State */}
+    {
+      sortedproject.length === 0 && (
+        <div class="flex flex-col items-center justify-center py-20 border border-dashed rounded-xl border-border/80">
+          <p class="text-muted-foreground text-sm">No project found.</p>
+        </div>
+      )
+    }
   </div>
 </Layout>
-
-<style>
-  /* 1. Optimasi Animasi untuk HP Spek Lama */
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .animate-fade-in-up {
-    animation: fadeInUp 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-    will-change: transform, opacity;
-  }
-
-  /* 2. LAZY RENDERING: Disesuaikan dimensinya agar pas dengan rasio grid 3 kolom */
-  .project-card-lazy {
-    content-visibility: auto;
-    contain-intrinsic-size: 0 400px; /* Diatur ke ~400px karena kartu vertikal di grid 3 kolom sedikit lebih tinggi ke bawah */
-  }
-
-  /* Matikan animasi jika user mengaktifkan mode hemat daya */
-  @media (prefers-reduced-motion: reduce) {
-    .animate-fade-in-up {
-      animation: none;
-      will-change: auto;
-    }
-  }
-</style>

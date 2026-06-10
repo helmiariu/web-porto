@@ -71,13 +71,17 @@ import { ClientRouter } from "astro:transitions";
     <ClientRouter />
   </head>
 
-  <body class={`antialiased bg-background text-foreground min-h-screen ${fullHeight ? "h-screen overflow-hidden" : ""}`}>
+  <body
+    class={`antialiased bg-background text-foreground min-h-screen ${fullHeight ? "h-screen overflow-hidden" : ""}`}
+  >
     <div class="prose dark:prose-invert hidden"></div>
     <TopProgressBar />
 
     <div
       class={`mx-auto max-w-[1250px] w-full md:pl-0 md:pr-6 lg:pr-8 pb-0 md:pt-0 flex flex-col md:grid md:grid-cols-[250px_1fr] gap-6 md:gap-6 lg:gap-7 ${
-        fullHeight ? "h-screen md:h-[100dvh] overflow-hidden px-0 pt-0" : "min-h-screen px-6 sm:px-9 pt-8"
+        fullHeight
+          ? "h-screen md:h-[100dvh] overflow-hidden px-0 pt-0"
+          : "min-h-screen px-6 sm:px-9 pt-8"
       }`}
     >
       <Sidebar />

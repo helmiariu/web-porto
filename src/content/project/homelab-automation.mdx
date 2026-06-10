@@ -1,0 +1,31 @@
+---
+title: "Homelab Automation & Local Cloud"
+description: "Deploying and orchestrating self-hosted services using Docker, Cloudflare Tunnel, and D1 Database on a Linux server."
+heroImage: "/projects/homelab-automation.png"
+techStack:
+  - icon: "simple-icons:docker"
+    color: "#2496ED" 
+  - icon: "simple-icons:cloudflareworkers"
+    color: "#F38020"
+  - icon: "simple-icons:react"
+    color: "#61DAFB"
+  - icon: "logos:typescript-icon" 
+  - icon: "simple-icons:espressif" 
+    color: "#E7352C" 
+  - icon: "simple-icons:sqlite"
+    color: "#003862" 
+isFeatured: true
+---
+
+## Core Purpose
+The primary objective of this project is to build a highly reliable, cost-efficient, and secure home server infrastructure. By moving away from commercial VPS providers, this setup orchestrates services locally while preserving the benefits of cloud storage and cloud networking.
+
+## Key Implementation Details
+- **Docker Orchestration**: Containerizing and managing service configurations with Docker Compose for local dashboarding, analytics, and automation.
+- **Cloudflare Tunnels**: Exposing local services securely to the internet without opening router ports, preventing common DDoS vectors and routing traffic encrypted end-to-end.
+- **D1 Database & Workers**: Syncing local server statistics and metrics to Cloudflare D1 SQL database via Cloudflare Workers to enable a real-time status page.
+
+## Results & Outstandings
+- Reduced cloud hosting monthly costs to $0.
+- High availability dashboard accessible from anywhere with sub-50ms latency.
+- Auto-healing docker containers with active resource logging and monitoring.

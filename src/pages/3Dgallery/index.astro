@@ -92,10 +92,17 @@ const albumList = await Promise.all(
 
 <Layout>
   <div class="max-w-6xl mx-auto">
-    <h1 class="text-3xl font-bold text-primary mb-2 text-center">3D Gallery</h1>
-    <p class="text-gray-500 text-center mb-10 font-desc">
-      Semua album ter-update secara otomatis
-    </p>
+    {/* Page Header */}
+    <div
+      class="sticky top-0 z-30 flex flex-col justify-center bg-background/95 backdrop-blur-md border-b pb-4 pt-4"
+    >
+      <h2 class="text-xl font-semibold tracking-tight text-foreground">
+        3D Gallery
+      </h2>
+      <p class="text-muted-foreground text-xs sm:text-sm">
+        Semua album ter-update secara otomatis
+      </p>
+    </div>
 
     <div
       class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-10 xl:gap-6 mb-8 md:mb-0"

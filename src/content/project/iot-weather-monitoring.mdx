@@ -1,0 +1,20 @@
+---
+title: "IoT Weather Monitoring Station"
+description: "Building an ESP32-powered climate station reporting real-time metrics to a React dashboard via MQTT."
+heroImage: "/projects/iot-weather-monitoring.png"
+techStack:
+  - icon: "simple-icons:espressif" 
+    color: "#E7352C" 
+  - icon: "logos:arduino"
+  - icon: "logos:typescript-icon"
+  - icon: "logos:tailwindcss-icon"
+isFeatured: false
+---
+
+## Core Purpose
+This project is an IoT weather station that monitors local ambient temperature, humidity, and barometric pressure. The goal was to build a robust low-power monitoring node and display the collected statistics in a modern web dashboard.
+
+## Key Implementation Details
+- **Hardware Integration**: ESP32 microcontroller with a BME280 sensor, programmed using Arduino framework.
+- **Data Transmission**: Publishing metrics over MQTT protocol to a local broker.
+- **Web Interface**: A React frontend with Tailwind CSS visualizing real-time metrics using charting libraries.
