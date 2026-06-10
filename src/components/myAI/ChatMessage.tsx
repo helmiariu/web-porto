@@ -60,7 +60,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         {/* Teks Konten Utama */}
         <div
           className={cn(
-            "text-[17px] sm:text-base whitespace-pre-wrap break-words font-desc font-medium text-foreground/90 antialiased",
+            "text-[17px] sm:text-base whitespace-pre-wrap break-words font-desc text-foreground/90 antialiased",
             isAi
               ? "leading-relaxed w-full pt-1" // Hapus class prose di sini
               : "leading-relaxed bg-muted/60 dark:bg-muted/30 px-5 py-3 rounded-3xl rounded-tr-sm text-foreground/90"

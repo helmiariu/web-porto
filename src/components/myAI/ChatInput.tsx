@@ -40,7 +40,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         disabled={disabled}
-        className="min-h-[52px] max-h-[200px] flex-1 border-0 bg-transparent px-4 py-3.5 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-0 outline-none resize-none shadow-none !text-[15px] sm:!text-base !font-desc text-foreground/90 !leading-relaxed placeholder:text-muted-foreground/50"
+        className="min-h-[52px] max-h-[200px] flex-1 border-0 bg-transparent px-4 py-3.5 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-0 outline-none resize-none shadow-none !text-[15px] sm:!text-base !font-desc text-foreground/90 !leading-relaxed placeholder:text-muted-foreground/80"
       />
 
       <Button
