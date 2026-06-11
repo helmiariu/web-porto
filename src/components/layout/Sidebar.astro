@@ -2,6 +2,18 @@
 // src/components/layout/Sidebar.astro
 import ProfileCard from "@components/ui/ProfileCard.astro";
 import SidebarNav from "@components/layout/SidebarNav.astro";
+import { SidebarAuth } from "@components/components/button-auth.tsx";
+
+const sessionCookie = Astro.cookies.get("user_session")?.json();
+
+let currentUser = null;
+if (sessionCookie) {
+  currentUser = {
+    name: sessionCookie.name,
+    email: sessionCookie.email,
+    avatar: sessionCookie.avatar,
+  };
+}
 ---
 
 <aside
@@ -9,5 +21,8 @@ import SidebarNav from "@components/layout/SidebarNav.astro";
   class="hidden md:flex flex-col w-full shrink-0 md:sticky md:top-0 md:h-screen md:max-h-screen overflow-y-auto md:pt-13 pb-0 md:pb-0 px-5 md:border-none select-none"
 >
   <ProfileCard variant="sidebar" />
-  <SidebarNav />
+  <SidebarAuth client:load user={currentUser} />
+  <div class="mt-4">
+    <SidebarNav />
+  </div>
 </aside>
