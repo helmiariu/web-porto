@@ -32,7 +32,7 @@ const isMobile = variant === "mobile";
           <Bot class="h-3 w-3 text-blue-500" />
           My AI
         </a>
-        <a href="#" id="email-display">
+        <a href="#" class="email-display">
           Load...
         </a>
       </span>
@@ -58,7 +58,7 @@ const isMobile = variant === "mobile";
             <Bot class="h-3 w-3 text-blue-500" />
             My AI
           </a>
-          <a href="#" id="email-display">
+          <a href="#" class="email-display">
             Load...
           </a>
         </span>
@@ -69,20 +69,25 @@ const isMobile = variant === "mobile";
 
 <script>
   document.addEventListener("astro:page-load", async () => {
-    const emailLink = document.getElementById(
-      "email-display",
-    ) as HTMLAnchorElement;
+    // DIUBAH: Mengambil semua elemen dengan class .email-display
+    const emailLinks = document.querySelectorAll(".email-display");
 
     try {
       const response = await fetch("/api/get-email");
       const data = await response.json();
 
       if (data.email) {
-        emailLink.textContent = data.email;
-        emailLink.href = `mailto:${data.email}`;
+        // DIUBAH: Melakukan looping untuk mengubah semua elemen yang ditemukan
+        emailLinks.forEach((link) => {
+          const anchor = link as HTMLAnchorElement;
+          anchor.textContent = data.email;
+          anchor.href = `mailto:${data.email}`;
+        });
       }
     } catch (err) {
-      emailLink.textContent = "...";
+      emailLinks.forEach((link) => {
+        link.textContent = "...";
+      });
     }
   });
 </script>

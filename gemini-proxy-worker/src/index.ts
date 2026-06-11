@@ -1,10 +1,12 @@
+// gemini-proxy-worker/src/index.ts
+
 export interface Env {
 	RATE_LIMIT_KV: KVNamespace;
 	GEMINI_API_KEY: string;
 }
 
 const CORS_HEADERS = {
-	"Access-Control-Allow-Origin": "https://ai-chat.helmiari.my.id", // Sesuaikan dengan domain web porto Anda nanti demi keamanan https://ai-chat.helmiari.my.id/
+	"Access-Control-Allow-Origin": "https://ai-chat.domain.my.id",
 	"Access-Control-Allow-Methods": "POST, OPTIONS",
 	"Access-Control-Allow-Headers": "Content-Type",
 };

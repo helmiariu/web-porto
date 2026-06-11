@@ -1,4 +1,4 @@
-// @component/myAI/ChatContainer
+// @component/myAI/ChatContainer.tsx
 import * as React from "react";
 import { ChatHistory } from "./ChatHistory";
 import { ChatInput } from "./ChatInput";
@@ -6,12 +6,11 @@ import { type Message } from "./ChatMessage";
 import { Trash2, Shield, RefreshCw, Radio } from "lucide-react";
 import { Button } from "@components/components/ui/button";
 
-// Definisikan URL Cloudflare Worker (Pastikan diisi dengan URL aslimu saat deploy selesai)
-const WORKER_API_URL = import.meta.env.PUBLIC_GEMINI_WORKER_URL || "https://gemini-proxy-worker.helmi.workers.dev";
+// Karena sudah direfactor ke Pages Functions, cukup gunakan relative path lokal
+const AI_CHAT_API_URL = "/api/ai-chat";
 
 // INITIAL_MESSAGES tetap dipertahankan jika sewaktu-waktu butuh data demo
 const INITIAL_MESSAGES: Message[] = [
-  // ... (isi INITIAL_MESSAGES biarkan sama seperti kodemu sebelumnya)
   {
     id: "1",
     role: "ai",
@@ -63,7 +62,7 @@ export const ChatContainer: React.FC = () => {
     scrollToBottom();
   }, [messages, isLoading]);
 
-  // UBAH DI SINI: Fungsi handleSendMessage sekarang terhubung ke Worker backend
+  // Fungsi handleSendMessage sekarang terhubung langsung ke Pages Functions lokal
   const handleSendMessage = async (content: string) => {
     // 1. Buat pesan user baru
     const userMessage: Message = {
@@ -79,8 +78,8 @@ export const ChatContainer: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // 2. Kirim riwayat pesan ke proxy Cloudflare Worker
-      const response = await fetch(WORKER_API_URL, {
+      // 2. Kirim riwayat pesan ke endpoint internal /api/chat
+      const response = await fetch(AI_CHAT_API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -96,8 +95,10 @@ export const ChatContainer: React.FC = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        // Jika terkena Rate Limit (HTTP 429) atau error lainnya
-        throw new Error(data.error || "Gagal mendapatkan respon dari AI.");
+        // Sematkan status code ke dalam object Error agar bisa dibaca di blok catch
+        const error = new Error(data.error || "Gagal mendapatkan respon dari AI.");
+        (error as any).status = response.status;
+        throw error;
       }
 
       // 3. Tambahkan pesan AI ke chat history
@@ -110,11 +111,21 @@ export const ChatContainer: React.FC = () => {
       setMessages((prev) => [...prev, aiMessage]);
 
     } catch (error: any) {
-      // 4. Handle error & rate limit dengan menampilkan pesan peringatan di chat
+      // 4. Handle error UX feedback berdasarkan status code
+      let feedbackMessage = `⚠️ Error: ${error.message}`;
+
+      if (error.status === 429) {
+        // Tampilan khusus untuk Rate Limit (UX lebih ramah)
+        feedbackMessage = `⏳ ${error.message}`;
+      } else if (error.status >= 500) {
+        // Tampilan khusus untuk Server Error
+        feedbackMessage = `🛠️ Terjadi gangguan pada server. Mohon coba beberapa saat lagi.`;
+      }
+
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "ai",
-        content: `⚠️ Error: ${error.message}`,
+        content: feedbackMessage,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -182,7 +193,7 @@ export const ChatContainer: React.FC = () => {
       <div
         className={`shrink-0 z-10 bg-background transition-all duration-500 ease-in-out ${isChatEmpty
           ? "pb-[45dvh] pt-0" // Input naik ke tengah
-          : "pb-16 md:pb-6 pt-2" // Input turun ke dasar (pb-16 di HP, pb-6 di Desktop)
+          : "pb-16 md:pb-6 pt-2" // Input turun ke dasar
           }`}
       >
         <div className="w-full max-w-2xl mx-auto px-4 sm:px-6">
