@@ -5,12 +5,9 @@ compatibility_date = "2026-05-19"
 compatibility_flags = [ "nodejs_compat_v2" ]
 
 [[kv_namespaces]]
-binding = "RATE_LIMIT_KV"
-id = "dbdb8106d79540ebb697973b0fbb7dec"
+binding = "prod-web-porto"
+id = "76bea9b089d24d238e818a3059b511ee"
 
-[[kv_namespaces]]
-binding = "SESSION"
-id = "cd52162049aa41ae8e0bec8473d92433"
 
 [[d1_databases]]
 binding = "DB"

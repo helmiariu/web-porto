@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { ArrowUpRight, LogOut } from "lucide-react" // Sesuaikan jika kamu memakai library icon lain
+import { signOut } from "auth-astro/client"
 
 interface UserSession {
     name: string
@@ -60,13 +61,13 @@ export function SidebarAuth({ user }: SidebarAuthProps) {
             {/* Dropdown Menu Logout */}
             {isOpen && (
                 <div className="absolute top-full mt-2 left-0 right-0 z-50 rounded-xl border border-border bg-popover p-1.5 shadow-md animate-in slide-in-from-top-2 duration-150">
-                    <a
-                        href="/api/auth/logout"
-                        className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                    <button
+                        onClick={() => signOut()}
+                        className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors border-none text-left bg-transparent"
                     >
                         <LogOut className="h-4 w-4" />
                         Log out
-                    </a>
+                    </button>
                 </div>
             )}
         </div>
