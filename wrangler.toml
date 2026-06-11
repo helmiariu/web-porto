@@ -1,13 +1,13 @@
 # Example Cloudflare Wrangler configuration for Astro.js
 
 name = "web-porto"
+account_id = "aad5dedf7e6b22b552cd6c1184a70710"
 compatibility_date = "2026-05-19"
 compatibility_flags = [ "nodejs_compat_v2" ]
 
 [[kv_namespaces]]
 binding = "prod-web-porto"
 id = "76bea9b089d24d238e818a3059b511ee"
-
 
 [[d1_databases]]
 binding = "DB"
