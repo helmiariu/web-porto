@@ -5,6 +5,7 @@ import { LoginForm } from "@components/components/login-form";
 // PENTING: Import file CSS global Tailwind/Shadcn kamu di sini
 // (Sesuaikan path-nya dengan letak file global CSS milikmu)
 import "@styles/global.css";
+export const prerender = false;
 
 const sessionCookie = Astro.cookies.get("user_session")?.value;
 if (sessionCookie) {

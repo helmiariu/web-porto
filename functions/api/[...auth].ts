@@ -2,23 +2,15 @@ import { Auth } from "@auth/core";
 import { D1Adapter } from "@auth/d1-adapter";
 import GitHub from "@auth/core/providers/github";
 import Google from "@auth/core/providers/google";
+import type { APIRoute } from "astro";
 
-// Di Cloudflare Pages Functions murni, fungsinya diekspor menggunakan onRequest
-export const onRequest: PagesFunction<{
-    "prod-web-porto": KVNamespace; // Jika butuh KV lama
-    DB: D1Database;                // Sesuaikan dengan nama binding D1 kamu di dashboard Pages
-    GITHUB_CLIENT_ID: string;
-    GITHUB_CLIENT_SECRET: string;
-    GOOGLE_CLIENT_ID: string;
-    GOOGLE_CLIENT_SECRET: string;
-    AUTH_SECRET: string;
-}> = async (context) => {
-    const { request, env } = context;
+export const ALL: APIRoute = async ({ request, locals }) => {
+    // Mengambil instance database D1 dari runtime Cloudflare Pages
+    const env = locals.runtime.env;
 
-    // Jalankan core Auth.js langsung di runtime Cloudflare
     return Auth(request, {
-        // Menyuntikkan D1 Adapter agar user tersimpan otomatis ke database prod-web-porto kamu
-        adapter: D1Adapter(env.DB),
+        // Menyuntikkan D1 Adapter agar user tersimpan otomatis
+        adapter: D1Adapter(env["prod-porto-db"]),
         providers: [
             GitHub({
                 clientId: env.GITHUB_CLIENT_ID,
@@ -29,7 +21,8 @@ export const onRequest: PagesFunction<{
                 clientSecret: env.GOOGLE_CLIENT_SECRET,
             }),
         ],
+        // Secret untuk enkripsi cookie
         secret: env.AUTH_SECRET,
-        trustHost: true,
+        trustHost: true, // Wajib diaktifkan untuk environment Cloudflare
     });
 };

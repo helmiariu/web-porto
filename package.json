@@ -12,7 +12,9 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^13.7.0",
     "@astrojs/mdx": "^6.0.2",
+    "@astrojs/node": "^10.1.4",
     "@astrojs/react": "^5.0.5",
     "@auth/d1-adapter": "^1.11.2",
     "@fontsource-variable/geist": "^5.2.9",
