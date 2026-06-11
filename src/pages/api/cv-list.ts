@@ -1,11 +1,11 @@
 import type { APIRoute } from "astro";
-import { env } from "cloudflare:workers";
+import { getKV } from "@lib/cloudflare";
 
 export const GET: APIRoute = async () => {
     try {
-        const cfEnv = env as any;
+        const kv = getKV();
         // 1. Ambil semua key yang punya awalan "cv:" dari KV
-        const kvList = await cfEnv["prod-web-porto"].list({ prefix: "cv:" });
+        const kvList = await kv.list({ prefix: "cv:" });
 
         // 2. Olah datanya menjadi format array objek yang rapi untuk frontend
         const languages = kvList.keys.map((item: any) => {
@@ -41,3 +41,4 @@ export const GET: APIRoute = async () => {
         return new Response(JSON.stringify({ languages: [] }), { status: 500 });
     }
 };
+

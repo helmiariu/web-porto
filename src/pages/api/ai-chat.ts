@@ -1,10 +1,10 @@
 // src/pages/api/ai-chat.ts
 import type { APIRoute } from "astro";
-import { env } from "cloudflare:workers";
+import { getKV, getGeminiApiKey } from "@lib/cloudflare";
 
 export const POST: APIRoute = async (context) => {
     const request = context.request;
-    const cfEnv = env as any;
+    const kv = getKV();
 
     try {
         // 1. Ambil IP Address Client
@@ -14,16 +14,16 @@ export const POST: APIRoute = async (context) => {
         const isLocal = clientIP === "127.0.0.1" || clientIP === "::1" || clientIP === "unknown-ip";
 
         if (!isLocal) {
-            // 2. Cek Rate Limit di KV instance 'prod-web-porto' (5 request / 2 jam)
+            // 2. Cek Rate Limit di KV (5 request / 2 jam)
             const kvKey = `ratelimit:${clientIP}`;
-            const currentData = await cfEnv["prod-web-porto"].get(kvKey, "json") as { count: number; expiresAt: number } | null;
+            const currentData = await kv.get(kvKey, "json") as { count: number; expiresAt: number } | null;
 
             const now = Date.now();
 
             if (currentData) {
                 if (now > currentData.expiresAt) {
                     // Masa berlaku habis, buat ulang record baru
-                    await cfEnv["prod-web-porto"].put(
+                    await kv.put(
                         kvKey,
                         JSON.stringify({ count: 1, expiresAt: now + 2 * 60 * 60 * 1000 }),
                         { expirationTtl: 2 * 60 * 60 } // Expire otomatis dalam 2 jam
@@ -46,7 +46,7 @@ export const POST: APIRoute = async (context) => {
                     );
                 } else {
                     // Tambah hit count
-                    await cfEnv["prod-web-porto"].put(
+                    await kv.put(
                         kvKey,
                         JSON.stringify({ count: currentData.count + 1, expiresAt: currentData.expiresAt }),
                         { expirationTtl: Math.max(60, Math.round((currentData.expiresAt - now) / 1000)) }
@@ -54,7 +54,7 @@ export const POST: APIRoute = async (context) => {
                 }
             } else {
                 // Record IP belum ada, buat baru
-                await cfEnv["prod-web-porto"].put(
+                await kv.put(
                     kvKey,
                     JSON.stringify({ count: 1, expiresAt: now + 2 * 60 * 60 * 1000 }),
                     { expirationTtl: 2 * 60 * 60 }
@@ -78,7 +78,7 @@ export const POST: APIRoute = async (context) => {
         }));
 
         // 5. Hubungi Gemini API (Menggunakan model gemini-3.1-flash-lite)
-        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${cfEnv.GEMINI_API_KEY}`;
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${getGeminiApiKey()}`;
         const geminiResponse = await fetch(geminiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },

@@ -1,12 +1,12 @@
 import type { APIRoute } from "astro";
-import { env } from "cloudflare:workers";
+import { getKV } from "@lib/cloudflare";
 
 export const POST: APIRoute = async (context) => {
     const { name, email, message } = await context.request.json();
-    const cfEnv = env as any;
+    const kv = getKV();
 
     // Ambil email tujuan dari KV
-    const destinationEmail = await cfEnv["prod-web-porto"].get("site:email");
+    const destinationEmail = await kv.get("site:email");
 
     const resendResponse = await fetch("https://api.resend.com/emails", {
         // ... (header sama)
@@ -21,3 +21,4 @@ export const POST: APIRoute = async (context) => {
     // ... (sisa logika return)
     return new Response(JSON.stringify({ success: true }));
 };
+

@@ -1,6 +1,6 @@
 # Example Cloudflare Wrangler configuration for Astro.js
 
-name = "gemini-proxy-worker"
+name = "web-porto"
 compatibility_date = "2026-05-19"
 compatibility_flags = [ "nodejs_compat_v2" ]
 

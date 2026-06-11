@@ -1,11 +1,12 @@
 import type { APIRoute } from "astro";
-import { env } from "cloudflare:workers";
+import { getKV } from "@lib/cloudflare";
 
 export const GET: APIRoute = async () => {
-    const cfEnv = env as any;
-    const email = await cfEnv["prod-web-porto"].get("site:email");
+    const kv = getKV();
+    const email = await kv.get("site:email");
 
     return new Response(JSON.stringify({ email }), {
         headers: { "Content-Type": "application/json" },
     });
 };
+
