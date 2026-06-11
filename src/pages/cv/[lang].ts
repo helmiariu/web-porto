@@ -1,11 +1,9 @@
-interface Env {
-    // Menggunakan tanda kutip karena nama binding mengandung tanda hubung (-)
-    "prod-web-porto": KVNamespace;
-}
+import type { APIRoute } from "astro";
 
-export const onRequest: PagesFunction<Env> = async (context) => {
+export const GET: APIRoute = async (context) => {
     // 1. Ambil parameter [lang] dari URL (misal dari /cv/id atau /cv/en)
     const lang = context.params.lang as string;
+    const env = context.locals.runtime.env;
 
     // 2. Buat nama key menjadi huruf kecil semua (lowercase) 
     // agar cocok dengan 'cv:id' atau 'cv:en' yang kamu buat di KV Pairs
@@ -13,7 +11,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
     try {
         // 3. Ambil link CV dari instance KV 'prod-web-porto'
-        const destinationLink = await context.env["prod-web-porto"].get(keyName);
+        const destinationLink = await env["prod-web-porto"].get(keyName);
 
         // 4. Jika link ditemukan, langsung redirect pengunjung
         if (destinationLink) {
@@ -22,7 +20,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
         // 5. ANTISIPASI: Jika salah ketik bahasa (misal /cv/xyz) atau key 'cv:en' belum diisi,
         // kita gunakan 'cv:id' (Bahasa Indonesia) sebagai fallback/cadangan utama.
-        const fallbackLink = await context.env["prod-web-porto"].get("cv:id");
+        const fallbackLink = await env["prod-web-porto"].get("cv:id");
         if (fallbackLink) {
             return Response.redirect(fallbackLink, 302);
         }

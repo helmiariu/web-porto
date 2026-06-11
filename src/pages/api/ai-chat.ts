@@ -1,14 +1,9 @@
-// functions/api/ai-chat.ts
-interface Env {
-    // Menggunakan instance KV lama kamu
-    "prod-web-porto": KVNamespace;
-    // Diambil dari Variables and secrets di dashboard Pages
-    GEMINI_API_KEY: string;
-}
+// src/pages/api/ai-chat.ts
+import type { APIRoute } from "astro";
 
-export const onRequestPost: PagesFunction<Env> = async (context) => {
+export const POST: APIRoute = async (context) => {
     const request = context.request;
-    const env = context.env;
+    const env = context.locals.runtime.env;
 
     try {
         // 1. Ambil IP Address Client

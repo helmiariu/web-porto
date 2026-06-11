@@ -1,19 +1,18 @@
-interface Env {
-    "prod-web-porto": KVNamespace;
-}
+import type { APIRoute } from "astro";
 
-export const onRequest: PagesFunction<Env> = async (context) => {
+export const GET: APIRoute = async (context) => {
     try {
+        const env = context.locals.runtime.env;
         // 1. Ambil semua key yang punya awalan "cv:" dari KV
-        const kvList = await context.env["prod-web-porto"].list({ prefix: "cv:" });
+        const kvList = await env["prod-web-porto"].list({ prefix: "cv:" });
 
         // 2. Olah datanya menjadi format array objek yang rapi untuk frontend
-        const languages = kvList.keys.map((item) => {
+        const languages = kvList.keys.map((item: any) => {
             // item.name berisi "cv:id" atau "cv:en"
             const code = item.name.split(":")[1]; // Mengambil kata setelah titik dua ("id" atau "en")
 
             // Mapping standar kode bahasa ke nama labelnya
-            const labelMap = {
+            const labelMap: Record<string, string> = {
                 id: "Indonesia",
                 en: "English",
                 jp: "Japanese",

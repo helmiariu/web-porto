@@ -14,11 +14,10 @@ import node from "@astrojs/node";
 const isDev = process.env.NODE_ENV === "development" || process.argv.includes("dev");
 
 export default defineConfig({
-  // JIKA DEV: Gunakan Node adapter (supaya auth-astro senang & tidak error module)
-  // JIKA PROD (BUILD): Gunakan Cloudflare adapter asli untuk di-deploy
+  output: "server",
   adapter: isDev
     ? node({ mode: "standalone" })
-    : cloudflare({ mode: "directory", platformProxy: { enabled: true } }),
+    : cloudflare({ platformProxy: { enabled: true } }),
 
   integrations: [icon(), react(), mdx(), auth()],
   vite: {
