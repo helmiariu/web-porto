@@ -13,7 +13,7 @@ export function getCfEnv() {
  */
 export function getKV() {
     const cfEnv = getCfEnv();
-    return cfEnv["dev_kv"] || cfEnv.RATE_LIMIT_KV;
+    return cfEnv["prod-web-porto"] || cfEnv["dev_kv"] || cfEnv.RATE_LIMIT_KV;
 }
 
 /**
