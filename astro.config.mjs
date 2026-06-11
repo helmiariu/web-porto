@@ -5,6 +5,7 @@ import icon from "astro-icon"; // 1. Impor astro-icon di sini
 
 import react from "@astrojs/react";
 
+
 import mdx from "@astrojs/mdx";
 
 // https://astro.build/config
