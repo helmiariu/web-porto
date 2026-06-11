@@ -1,6 +1,16 @@
 ---
 // src/components/Skills.astro
-import { Icon } from "astro-icon/components";
+const getIconUrl = (icon: string, colorClass?: string) => {
+  const [prefix, name] = icon.split(":");
+  let url = `https://api.iconify.design/${prefix}/${name}.svg`;
+  if (colorClass) {
+    const hexMatch = colorClass.match(/#([A-Fa-f0-9]{6})/);
+    if (hexMatch) {
+      url += `?color=%23${hexMatch[1]}`;
+    }
+  }
+  return url;
+};
 
 const row1Skills = [
   { name: "HTML5", icon: "logos:html-5" },
@@ -77,9 +87,11 @@ const row2Skills = [
         {
           row1Skills.map((skill) => (
             <div class="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 sm:px-4 sm:py-2 max-[415px]:px-2 max-[415px]:py-1 rounded-lg md:rounded-xl border border-border bg-card text-card-foreground text-xs sm:text-sm max-[415px]:text-[11px] transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground shadow-xs hover:scale-105">
-              <Icon
-                name={skill.icon}
-                class={`w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
+              <img
+                src={getIconUrl(skill.icon, skill.color)}
+                class="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 object-contain antialiased"
+                alt={skill.name}
+                loading="lazy"
               />
               <span>{skill.name}</span>
             </div>
@@ -95,9 +107,11 @@ const row2Skills = [
         {
           row1Skills.map((skill) => (
             <div class="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 sm:px-4 sm:py-2 max-[415px]:px-2 max-[415px]:py-1 rounded-lg md:rounded-xl border border-border bg-card text-card-foreground text-xs sm:text-sm max-[415px]:text-[11px] transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground shadow-xs hover:scale-105">
-              <Icon
-                name={skill.icon}
-                class={`w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
+              <img
+                src={getIconUrl(skill.icon, skill.color)}
+                class="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 object-contain antialiased"
+                alt={skill.name}
+                loading="lazy"
               />
               <span>{skill.name}</span>
             </div>
@@ -114,9 +128,11 @@ const row2Skills = [
           row1Skills.map((skill) => (
             /* Mengubah px-2.5 py-1.5 menjadi px-3 py-2 dan menghapus max-[415px] padding */
             <div class="inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-lg md:rounded-xl border border-border bg-card text-card-foreground text-xs sm:text-sm max-[415px]:text-[11px] transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground shadow-xs hover:scale-105">
-              <Icon
-                name={skill.icon}
-                class={`w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
+              <img
+                src={getIconUrl(skill.icon, skill.color)}
+                class="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 object-contain antialiased"
+                alt={skill.name}
+                loading="lazy"
               />
               <span>{skill.name}</span>
             </div>
@@ -132,9 +148,11 @@ const row2Skills = [
         {
           row1Skills.map((skill) => (
             <div class="inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-lg md:rounded-xl border border-border bg-card text-card-foreground text-xs sm:text-sm max-[415px]:text-[11px] transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground shadow-xs hover:scale-105">
-              <Icon
-                name={skill.icon}
-                class={`w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
+              <img
+                src={getIconUrl(skill.icon, skill.color)}
+                class="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 object-contain antialiased"
+                alt={skill.name}
+                loading="lazy"
               />
               <span>{skill.name}</span>
             </div>
@@ -154,9 +172,11 @@ const row2Skills = [
         {
           row2Skills.map((skill) => (
             <div class="inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-lg md:rounded-xl border border-border bg-card text-card-foreground text-xs sm:text-sm max-[415px]:text-[11px] transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground shadow-xs hover:scale-105">
-              <Icon
-                name={skill.icon}
-                class={`w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
+              <img
+                src={getIconUrl(skill.icon, skill.color)}
+                class="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 object-contain antialiased"
+                alt={skill.name}
+                loading="lazy"
               />
               <span>{skill.name}</span>
             </div>
@@ -172,9 +192,11 @@ const row2Skills = [
         {
           row2Skills.map((skill) => (
             <div class="inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-lg md:rounded-xl border border-border bg-card text-card-foreground text-xs sm:text-sm max-[415px]:text-[11px] transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground shadow-xs hover:scale-105">
-              <Icon
-                name={skill.icon}
-                class={`w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
+              <img
+                src={getIconUrl(skill.icon, skill.color)}
+                class="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 object-contain antialiased"
+                alt={skill.name}
+                loading="lazy"
               />
               <span>{skill.name}</span>
             </div>
@@ -190,9 +212,11 @@ const row2Skills = [
         {
           row2Skills.map((skill) => (
             <div class="inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-lg md:rounded-xl border border-border bg-card text-card-foreground text-xs sm:text-sm max-[415px]:text-[11px] transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground shadow-xs hover:scale-105">
-              <Icon
-                name={skill.icon}
-                class={`w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
+              <img
+                src={getIconUrl(skill.icon, skill.color)}
+                class="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 object-contain antialiased"
+                alt={skill.name}
+                loading="lazy"
               />
               <span>{skill.name}</span>
             </div>
@@ -208,9 +232,11 @@ const row2Skills = [
         {
           row2Skills.map((skill) => (
             <div class="inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-lg md:rounded-xl border border-border bg-card text-card-foreground text-xs sm:text-sm max-[415px]:text-[11px] transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground shadow-xs hover:scale-105">
-              <Icon
-                name={skill.icon}
-                class={`w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 object-contain antialiased ${skill.color || ""}`}
+              <img
+                src={getIconUrl(skill.icon, skill.color)}
+                class="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 object-contain antialiased"
+                alt={skill.name}
+                loading="lazy"
               />
               <span>{skill.name}</span>
             </div>

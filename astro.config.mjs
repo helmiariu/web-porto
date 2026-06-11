@@ -1,7 +1,7 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
-import icon from "astro-icon";
+
 import react from "@astrojs/react";
 import mdx from "@astrojs/mdx";
 import auth from "auth-astro";
@@ -19,13 +19,10 @@ export default defineConfig({
     ? node({ mode: "standalone" })
     : cloudflare({ platformProxy: { enabled: true } }),
 
-  integrations: [icon(), react(), mdx(), auth()],
+  integrations: [react(), mdx(), auth()],
   vite: {
     plugins: [tailwindcss()],
     assetsInclude: ['**/*.glb'],
-    ssr: {
-      noExternal: ['auth-astro', '@auth/core', 'astro-icon', '@lucide/astro'],
-    },
     optimizeDeps: {
       include: ['auth-astro'],
     },

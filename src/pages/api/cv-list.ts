@@ -1,10 +1,11 @@
 import type { APIRoute } from "astro";
+import { env } from "cloudflare:workers";
 
-export const GET: APIRoute = async (context) => {
+export const GET: APIRoute = async () => {
     try {
-        const env = context.locals.runtime.env;
+        const cfEnv = env as any;
         // 1. Ambil semua key yang punya awalan "cv:" dari KV
-        const kvList = await env["prod-web-porto"].list({ prefix: "cv:" });
+        const kvList = await cfEnv["prod-web-porto"].list({ prefix: "cv:" });
 
         // 2. Olah datanya menjadi format array objek yang rapi untuk frontend
         const languages = kvList.keys.map((item: any) => {

@@ -1,8 +1,9 @@
 import type { APIRoute } from "astro";
+import { env } from "cloudflare:workers";
 
-export const GET: APIRoute = async (context) => {
-    const env = context.locals.runtime.env;
-    const email = await env["prod-web-porto"].get("site:email");
+export const GET: APIRoute = async () => {
+    const cfEnv = env as any;
+    const email = await cfEnv["prod-web-porto"].get("site:email");
 
     return new Response(JSON.stringify({ email }), {
         headers: { "Content-Type": "application/json" },

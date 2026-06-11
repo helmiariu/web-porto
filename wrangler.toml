@@ -8,6 +8,10 @@ compatibility_flags = [ "nodejs_compat_v2" ]
 binding = "RATE_LIMIT_KV"
 id = "dbdb8106d79540ebb697973b0fbb7dec"
 
+[[kv_namespaces]]
+binding = "SESSION"
+id = "cd52162049aa41ae8e0bec8473d92433"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "prod-porto-db"
