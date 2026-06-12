@@ -1,0 +1,119 @@
+---
+import { getSession } from "auth-astro/server";
+import { drizzle } from "drizzle-orm/d1";
+import { isNull, eq, asc } from "drizzle-orm";
+import { getDB } from "@lib/cloudflare";
+import { aiChatMessages, users } from "../../db/schema";
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+import { ChatLogsDashboard } from '../../components/dashboard/ChatLogsDashboard';
+
+export const prerender = false;
+
+// 1. Session Auth Check
+const session = await getSession(Astro.request);
+if (!session) {
+  return Astro.redirect("/auth");
+}
+
+// 2. Database query
+const rawDb = getDB();
+const db = drizzle(rawDb);
+
+// Query guest messages (userId is null)
+const guestMessages = await db
+  .select({
+    id: aiChatMessages.id,
+    sessionId: aiChatMessages.sessionId,
+    role: aiChatMessages.role,
+    content: aiChatMessages.content,
+    createdAt: aiChatMessages.createdAt,
+  })
+  .from(aiChatMessages)
+  .where(isNull(aiChatMessages.userId))
+  .orderBy(asc(aiChatMessages.createdAt));
+
+// Query registered user messages (userId is not null)
+const userMessages = await db
+  .select({
+    id: aiChatMessages.id,
+    sessionId: aiChatMessages.sessionId,
+    role: aiChatMessages.role,
+    content: aiChatMessages.content,
+    createdAt: aiChatMessages.createdAt,
+    userId: users.id,
+    userName: users.name,
+    userEmail: users.email,
+    userImage: users.image,
+  })
+  .from(aiChatMessages)
+  .innerJoin(users, eq(aiChatMessages.userId, users.id))
+  .orderBy(asc(aiChatMessages.createdAt));
+
+// Group guest sessions
+const guestSessionsMap: Record<string, any> = {};
+guestMessages.forEach(msg => {
+  if (!guestSessionsMap[msg.sessionId]) {
+    guestSessionsMap[msg.sessionId] = {
+      sessionId: msg.sessionId,
+      lastActive: msg.createdAt,
+      messages: []
+    };
+  }
+  guestSessionsMap[msg.sessionId].messages.push(msg);
+  if (msg.createdAt && (!guestSessionsMap[msg.sessionId].lastActive || msg.createdAt > guestSessionsMap[msg.sessionId].lastActive)) {
+    guestSessionsMap[msg.sessionId].lastActive = msg.createdAt;
+  }
+});
+const guestSessions = Object.values(guestSessionsMap).sort((a: any, b: any) => {
+  const timeA = a.lastActive || '';
+  const timeB = b.lastActive || '';
+  return timeB.localeCompare(timeA);
+});
+
+// Group user sessions
+const userSessionsMap: Record<string, any> = {};
+userMessages.forEach(msg => {
+  if (!userSessionsMap[msg.sessionId]) {
+    userSessionsMap[msg.sessionId] = {
+      sessionId: msg.sessionId,
+      lastActive: msg.createdAt,
+      user: {
+        id: msg.userId,
+        name: msg.userName || 'Anonymous',
+        email: msg.userEmail || '',
+        avatar: msg.userImage || 'https://github.com/identicons/default.png',
+      },
+      messages: []
+    };
+  }
+  userSessionsMap[msg.sessionId].messages.push({
+    id: msg.id,
+    role: msg.role,
+    content: msg.content,
+    createdAt: msg.createdAt
+  });
+  if (msg.createdAt && (!userSessionsMap[msg.sessionId].lastActive || msg.createdAt > userSessionsMap[msg.sessionId].lastActive)) {
+    userSessionsMap[msg.sessionId].lastActive = msg.createdAt;
+  }
+});
+const userSessions = Object.values(userSessionsMap).sort((a: any, b: any) => {
+  const timeA = a.lastActive || '';
+  const timeB = b.lastActive || '';
+  return timeB.localeCompare(timeA);
+});
+---
+
+<DashboardLayout title="Riwayat Chat AI - Porto Astro Admin">
+  <div class="space-y-6">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight text-foreground">Riwayat Chat AI</h1>
+      <p class="text-sm text-muted-foreground">Pantau dan baca seluruh percakapan pengunjung dengan asisten AI Anda.</p>
+    </div>
+
+    <ChatLogsDashboard 
+      client:load 
+      initialGuestSessions={guestSessions as any} 
+      initialUserSessions={userSessions as any} 
+    />
+  </div>
+</DashboardLayout>
