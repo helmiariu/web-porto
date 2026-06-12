@@ -9,14 +9,16 @@ import { SidebarAuth } from "@components/components/button-auth.tsx";
 // Memanggil komponen utama ThemeToggle yang sudah optimal
 import ThemeToggle from "@components/ui/ThemeToggle.astro";
 
-const sessionCookie = Astro.cookies.get("user_session")?.json();
+import { getSession } from "auth-astro/server";
+
+const session = await getSession(Astro.request);
 
 let currentUser = null;
-if (sessionCookie) {
+if (session?.user) {
   currentUser = {
-    name: sessionCookie.name,
-    email: sessionCookie.email,
-    avatar: sessionCookie.avatar, // Pastikan properti ini sesuai dengan data dari Google/GitHub
+    name: session.user.name,
+    email: session.user.email,
+    avatar: session.user.image, // Pastikan properti ini sesuai dengan data dari Google/GitHub
   };
 }
 ---

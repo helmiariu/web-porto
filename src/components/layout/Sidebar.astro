@@ -4,14 +4,16 @@ import ProfileCard from "@components/ui/ProfileCard.astro";
 import SidebarNav from "@components/layout/SidebarNav.astro";
 import { SidebarAuth } from "@components/components/button-auth.tsx";
 
-const sessionCookie = Astro.cookies.get("user_session")?.json();
+import { getSession } from "auth-astro/server";
+
+const session = await getSession(Astro.request);
 
 let currentUser = null;
-if (sessionCookie) {
+if (session?.user) {
   currentUser = {
-    name: sessionCookie.name,
-    email: sessionCookie.email,
-    avatar: sessionCookie.avatar,
+    name: session.user.name,
+    email: session.user.email,
+    avatar: session.user.image,
   };
 }
 ---

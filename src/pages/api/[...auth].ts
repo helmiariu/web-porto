@@ -16,10 +16,12 @@ export const ALL: APIRoute = async ({ request }) => {
             GitHub({
                 clientId: cfEnv.GITHUB_CLIENT_ID,
                 clientSecret: cfEnv.GITHUB_CLIENT_SECRET,
+                allowDangerousEmailAccountLinking: true,
             }),
             Google({
                 clientId: cfEnv.GOOGLE_CLIENT_ID,
                 clientSecret: cfEnv.GOOGLE_CLIENT_SECRET,
+                allowDangerousEmailAccountLinking: true,
             }),
         ],
         // Secret untuk enkripsi cookie

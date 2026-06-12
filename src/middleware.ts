@@ -1,5 +1,13 @@
 import { defineMiddleware } from "astro:middleware";
-import { env } from "cloudflare:workers";
+
+let workerEnv: any = {};
+try {
+    // @ts-ignore
+    const workers = await import("cloudflare:workers");
+    workerEnv = workers.env;
+} catch (e) {
+    workerEnv = {};
+}
 
 export const onRequest = defineMiddleware(async (context, next) => {
     const request = context.request;
@@ -15,7 +23,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     if (isHtmlPage && !isApi) {
         // 2. Ambil data analitik dari request Cloudflare
         const pagePath = url.pathname;
-        const db = (env as any).DB;
+        const db = workerEnv.DB;
 
         if (db) {
             // Cloudflare otomatis menyuntikkan data geolokasi di request.cf

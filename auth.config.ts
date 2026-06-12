@@ -21,10 +21,12 @@ export default defineConfig({
         GitHub({
             clientId: cfEnv.GITHUB_CLIENT_ID || import.meta.env.GITHUB_CLIENT_ID,
             clientSecret: cfEnv.GITHUB_CLIENT_SECRET || import.meta.env.GITHUB_CLIENT_SECRET,
+            allowDangerousEmailAccountLinking: true,
         }),
         Google({
             clientId: cfEnv.GOOGLE_CLIENT_ID || import.meta.env.GOOGLE_CLIENT_ID,
             clientSecret: cfEnv.GOOGLE_CLIENT_SECRET || import.meta.env.GOOGLE_CLIENT_SECRET,
+            allowDangerousEmailAccountLinking: true,
         }),
     ],
     secret: cfEnv.AUTH_SECRET || import.meta.env.AUTH_SECRET,

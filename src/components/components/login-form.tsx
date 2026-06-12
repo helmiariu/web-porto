@@ -30,7 +30,7 @@ export function LoginForm({
             <Button
               variant="outline"
               type="button"
-              onClick={() => signIn("google")}
+              onClick={() => signIn("google", { callbackUrl: "/" })}
               className="w-full flex items-center justify-center gap-2 h-11 transition-colors cursor-pointer"
             >
               <svg className="h-5 w-5" viewBox="0 0 488 512">
@@ -43,7 +43,7 @@ export function LoginForm({
             <Button
               variant="outline"
               type="button"
-              onClick={() => signIn("github")}
+              onClick={() => signIn("github", { callbackUrl: "/" })}
               className="w-full flex items-center justify-center gap-2 h-11 transition-colors cursor-pointer"
             >
               <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
