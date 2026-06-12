@@ -20,6 +20,19 @@ const INITIAL_MESSAGES: Message[] = [
 ];
 
 const STORAGE_KEY = "myai_chat_history";
+const SESSION_KEY = "myai_chat_session_id";
+
+const getOrCreateSessionId = () => {
+  if (typeof window === "undefined") return "";
+  let id = sessionStorage.getItem(SESSION_KEY);
+  if (!id) {
+    id = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : Math.random().toString(36).substring(2) + Date.now().toString(36);
+    sessionStorage.setItem(SESSION_KEY, id);
+  }
+  return id;
+};
 
 export const ChatContainer: React.FC = () => {
   const [messages, setMessages] = React.useState<Message[]>(() => {
@@ -39,8 +52,13 @@ export const ChatContainer: React.FC = () => {
     }
     return [];
   });
+  const [sessionId, setSessionId] = React.useState<string>("");
   const [isLoading, setIsLoading] = React.useState(false);
   const bottomRef = React.useRef<HTMLDivElement | null>(null);
+
+  React.useEffect(() => {
+    setSessionId(getOrCreateSessionId());
+  }, []);
 
   // Auto-save messages to sessionStorage whenever they change
   React.useEffect(() => {
@@ -85,6 +103,7 @@ export const ChatContainer: React.FC = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          sessionId: sessionId || getOrCreateSessionId(),
           messages: updatedMessages.map((msg) => ({
             role: msg.role,
             content: msg.content,
@@ -136,6 +155,13 @@ export const ChatContainer: React.FC = () => {
 
   const handleClearChat = () => {
     setMessages([]);
+    if (typeof window !== "undefined") {
+      const newId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : Math.random().toString(36).substring(2) + Date.now().toString(36);
+      sessionStorage.setItem(SESSION_KEY, newId);
+      setSessionId(newId);
+    }
   };
 
   const handleResetChat = () => {

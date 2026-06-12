@@ -54,3 +54,12 @@ export const webAnalytics = sqliteTable("web_analytics", {
   userAgent: text("user_agent").notNull(),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
+
+export const aiChatMessages = sqliteTable("ai_chat_messages", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  sessionId: text("session_id").notNull(),
+  userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
+  role: text("role").notNull(), // 'user' atau 'ai'
+  content: text("content").notNull(),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+});
