@@ -1,9 +1,9 @@
 import * as React from 'react'
 import { useStore } from '@nanostores/react'
-import { $sidebarOpen } from '../stores/sidebar'
+import { $sidebarOpen } from '../../stores/sidebar'
 import { ChevronRight } from 'lucide-react'
 import * as Icons from 'lucide-react'
-import { cn } from '../lib/utils'
+import { cn } from '../../lib/utils'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,8 +11,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu'
-import { Button } from './ui/button'
+} from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
 
 interface SubItem {
   title: string

@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 
 export function DashboardTabs() {
   return (

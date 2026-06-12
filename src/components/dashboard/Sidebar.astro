@@ -1,5 +1,5 @@
 ---
-import { sidebarData } from "./layout/data/sidebar-data";
+import { sidebarData } from "./data/sidebar-data";
 import { SidebarItem } from "./SidebarItem";
 import { Command } from "lucide-react";
 
@@ -75,7 +75,7 @@ const activeRoute = pathname;
 </aside>
 
 <script>
-  import { $sidebarOpen } from "../stores/sidebar";
+  import { $sidebarOpen } from "../../stores/sidebar";
 
   const sidebar = document.getElementById("app-sidebar");
   const mainWrapper = document.getElementById("main-wrapper");
