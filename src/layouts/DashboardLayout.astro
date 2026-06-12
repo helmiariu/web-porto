@@ -1,0 +1,78 @@
+---
+import Sidebar from '../components/Sidebar.astro';
+import Header from '../components/Header.astro';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { 
+  title = "Shadcn Admin - Astro Port", 
+  description = "A minimal Astro.js port of the shadcn-admin dashboard template." 
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#fff" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+
+    <!-- Inline script to restore theme before first render (prevents flash) -->
+    <script is:inline>
+      const getThemePreference = () => {
+        if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+          return localStorage.getItem('theme');
+        }
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      };
+      
+      const isDark = getThemePreference() === 'dark';
+      document.documentElement.classList.toggle('dark', isDark);
+      
+      const themeColor = isDark ? '#020817' : '#fff';
+      document.querySelector("meta[name='theme-color']")?.setAttribute('content', themeColor);
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body class="min-h-svh w-full bg-background text-foreground overflow-x-hidden antialiased">
+    <div id="main-wrapper" class="flex min-h-svh w-full relative">
+      <!-- Sidebar Astro component (uses peer) -->
+      <Sidebar />
+
+      <!-- Main content panel: shifts dynamically based on sidebar state -->
+      <div 
+        id="content-panel" 
+        class="flex-1 flex flex-col min-h-svh w-full transition-[padding] duration-200 ease-linear md:ps-[16rem] group-data-[state=collapsed]/sidebar:md:ps-[3.5rem]"
+      >
+        <Header />
+        
+        <main class="flex-1 p-6">
+          <slot />
+        </main>
+      </div>
+    </div>
+
+    <script>
+      import { $sidebarOpen } from '../stores/sidebar';
+
+      const contentPanel = document.getElementById('content-panel');
+
+      $sidebarOpen.subscribe((open) => {
+        if (open) {
+          contentPanel?.classList.remove('md:ps-[3.5rem]');
+          contentPanel?.classList.add('md:ps-[16rem]');
+        } else {
+          contentPanel?.classList.remove('md:ps-[16rem]');
+          contentPanel?.classList.add('md:ps-[3.5rem]');
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,92 @@
+---
+import { sidebarData } from "./layout/data/sidebar-data";
+import { SidebarItem } from "./SidebarItem";
+import { Command } from "lucide-react";
+
+// Get current path for active state highlighting
+const pathname = Astro.url.pathname;
+const activeRoute = pathname;
+---
+
+<aside
+  id="app-sidebar"
+  class="group/sidebar peer fixed inset-y-0 left-0 z-20 flex h-svh w-[16rem] flex-col border-e bg-sidebar text-sidebar-foreground transition-[width,transform] duration-200 ease-linear data-[state=collapsed]:w-[3.5rem] max-md:data-[state=collapsed]:-translate-x-full"
+  data-state="expanded"
+>
+  <!-- Header / Team Switcher -->
+  <div class="flex h-16 items-center gap-2 px-4 border-b group-data-[state=collapsed]/sidebar:px-3 group-data-[state=collapsed]/sidebar:justify-center">
+    <div
+      class="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shrink-0"
+    >
+      <Command class="size-4" />
+    </div>
+    <div
+      class="grid flex-1 text-left text-sm leading-tight group-data-[state=collapsed]/sidebar:hidden transition-all"
+    >
+      <span class="truncate font-semibold">{sidebarData.teams[0].name}</span>
+      <span class="truncate text-xs text-muted-foreground"
+        >{sidebarData.teams[0].plan}</span
+      >
+    </div>
+  </div>
+
+  <!-- Content / Navigation Groups -->
+  <div
+    class="flex-1 overflow-y-auto overflow-x-hidden py-4 px-2 space-y-4 scrollbar-none"
+  >
+    {
+      sidebarData.navGroups.map((group) => (
+        <div class="space-y-1">
+          <h3 class="px-3 text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider group-data-[state=collapsed]/sidebar:hidden select-none">
+            {group.title}
+          </h3>
+          <ul class="space-y-0.5">
+            {group.items.map((item) => (
+              <li>
+                <SidebarItem item={item} activeRoute={activeRoute} client:load />
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+
+  <!-- Footer / User Card -->
+  <div class="border-t p-2 group-data-[state=collapsed]/sidebar:p-1">
+    <div
+      class="flex items-center gap-2 rounded-md p-2 hover:bg-sidebar-accent transition-colors group-data-[state=collapsed]/sidebar:p-1 group-data-[state=collapsed]/sidebar:justify-center"
+    >
+      <img
+        src={sidebarData.user.avatar}
+        alt={sidebarData.user.name}
+        class="size-8 rounded-full shrink-0"
+      />
+      <div
+        class="grid flex-1 text-left text-sm leading-tight group-data-[state=collapsed]/sidebar:hidden"
+      >
+        <span class="truncate font-semibold">{sidebarData.user.name}</span>
+        <span class="truncate text-xs text-muted-foreground"
+          >{sidebarData.user.email}</span
+        >
+      </div>
+    </div>
+  </div>
+</aside>
+
+<script>
+  import { $sidebarOpen } from "../stores/sidebar";
+
+  const sidebar = document.getElementById("app-sidebar");
+  const mainWrapper = document.getElementById("main-wrapper");
+
+  $sidebarOpen.subscribe((open) => {
+    if (open) {
+      sidebar?.setAttribute("data-state", "expanded");
+      mainWrapper?.setAttribute("data-sidebar-state", "expanded");
+    } else {
+      sidebar?.setAttribute("data-state", "collapsed");
+      mainWrapper?.setAttribute("data-sidebar-state", "collapsed");
+    }
+  });
+</script>

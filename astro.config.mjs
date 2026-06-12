@@ -22,6 +22,11 @@ export default defineConfig({
   integrations: [react(), mdx(), auth()],
   vite: {
     plugins: [tailwindcss()],
+    resolve: {
+      alias: {
+        '@': '/src',
+      },
+    },
     assetsInclude: ['**/*.glb'],
     optimizeDeps: {
       include: ['auth-astro'],

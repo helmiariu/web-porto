@@ -1,0 +1,23 @@
+---
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+import { DashboardTabs } from '../../components/DashboardTabs';
+import { Button } from '../../components/ui/button';
+---
+
+<DashboardLayout title="Dashboard - Porto Astro Admin">
+  <div class="space-y-6">
+    <!-- Header Page Title -->
+    <div class="flex items-center justify-between space-y-2">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight text-foreground">Dashboard</h1>
+        <p class="text-sm text-muted-foreground">Welcome back! Here's an overview of your systems.</p>
+      </div>
+      <div class="flex items-center space-x-2">
+        <Button client:load>Download Report</Button>
+      </div>
+    </div>
+
+    <!-- Tabs Container -->
+    <DashboardTabs client:load />
+  </div>
+</DashboardLayout>
