@@ -74,3 +74,55 @@ Jika Anda melakukan perubahan pada kode program (misalnya file `.astro`, `.tsx`,
 ## 4. Troubleshooting Autentikasi
 
 * **Error `OAuthAccountNotLinked`**: Terjadi ketika email yang sama mencoba masuk menggunakan provider yang berbeda (misal pertama daftar pakai Google, lalu coba login pakai GitHub). Solusinya adalah dengan memastikan `allowDangerousEmailAccountLinking: true` aktif pada konfigurasi provider, atau bersihkan isi tabel database terlebih dahulu dengan perintah hapus di atas untuk mulai dari awal.
+
+---
+
+## 5. Panduan Penggunaan Drizzle ORM & Drizzle Studio
+
+Project ini sudah terinstalasi **Drizzle ORM** dan **Drizzle Kit**. Skema database ditulis dalam TypeScript di [src/db/schema.ts](file:///f:/Career/Web%20Design/porto-astro/web-porto/src/db/schema.ts).
+
+### A. Perintah Migrasi Drizzle
+
+| Perintah | Deskripsi |
+| :--- | :--- |
+| **`bunx drizzle-kit generate`** | Membuat/memperbarui file migrasi SQL otomatis di folder `drizzle/` setelah Anda memodifikasi skema di `src/db/schema.ts`. |
+| **`bunx drizzle-kit migrate`** | (Alternatif) Menjalankan proses migrasi database. |
+
+Untuk menerapkan migrasi SQL hasil generate Drizzle ke Cloudflare D1:
+* **Remote (Produksi)**:
+  ```bash
+  bunx wrangler d1 migrations apply prod-porto-db --remote
+  ```
+* **Lokal (Preview/Dev)**:
+  ```bash
+  bunx wrangler d1 migrations apply prod-porto-db
+  ```
+
+### B. Menggunakan Drizzle Studio (Database GUI)
+
+Drizzle menyediakan Web GUI lokal untuk melihat dan mengelola data tabel Anda di browser:
+
+```bash
+bunx drizzle-kit studio
+```
+*Perintah ini akan membuka antarmuka Drizzle Studio di browser Anda (biasanya di `https://local.drizzle.studio`). Anda bisa melakukan penambahan, perubahan, dan penghapusan data secara visual.*
+
+### C. Contoh Penggunaan Drizzle di Kode Project
+Berikut contoh mengimpor dan memakai client Drizzle untuk mengambil data:
+
+```typescript
+import { drizzle } from "drizzle-orm/d1";
+import { getDB } from "@lib/cloudflare";
+import { users } from "@db/schema"; // path alias / import path Anda
+
+export const GET = async () => {
+  const rawD1 = getDB();
+  const db = drizzle(rawD1);
+
+  // Mengambil seluruh user
+  const allUsers = await db.select().from(users);
+
+  return new Response(JSON.stringify(allUsers));
+};
+```
+
