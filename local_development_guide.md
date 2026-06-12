@@ -98,6 +98,18 @@ Untuk menerapkan migrasi SQL hasil generate Drizzle ke Cloudflare D1:
   bunx wrangler d1 migrations apply prod-porto-db
   ```
 
+### B. Menjadikan Pengguna sebagai Admin di Cloudflare D1 (Lokal & Remote)
+Setelah skema diperbarui, Anda perlu memperbarui `role` pengguna agar bisa mengakses halaman `/admin`.
+
+* **Database Lokal (Preview/Dev)**:
+  ```bash
+  bunx wrangler d1 execute prod-porto-db --command="UPDATE users SET role = 'admin' WHERE email = 'email-anda@gmail.com';"
+  ```
+* **Database Remote (Produksi)**:
+  ```bash
+  bunx wrangler d1 execute prod-porto-db --remote --command="UPDATE users SET role = 'admin' WHERE email = 'email-anda@gmail.com';"
+  ```
+
 ### B. Menggunakan Drizzle Studio (Database GUI)
 
 Drizzle menyediakan Web GUI lokal untuk melihat dan mengelola data tabel Anda di browser:

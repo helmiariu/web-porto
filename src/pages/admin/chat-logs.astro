@@ -9,45 +9,83 @@ import { ChatLogsDashboard } from '../../components/dashboard/ChatLogsDashboard'
 
 export const prerender = false;
 
-// 1. Session Auth Check
-const session = await getSession(Astro.request);
-if (!session) {
-  return Astro.redirect("/auth");
+// 1. Authenticate via Cloudflare Access (Zero Trust) with Local Dev Fallback
+let email = Astro.request.headers.get("Cf-Access-Authenticated-User-Email");
+
+const isLocalhost = Astro.url.hostname === "localhost" || Astro.url.hostname === "127.0.0.1";
+
+if (isLocalhost && !email) {
+  // Ambil email dari session auth-astro jika ada, atau gunakan default mock admin email
+  const session = await getSession(Astro.request);
+  email = session?.user?.email || "admin@example.com";
 }
 
-// 2. Database query
+if (!email) {
+  return new Response("Unauthorized: Akses diblokir oleh sistem otentikasi.", { status: 401 });
+}
+
+// 2. Database connection & role verification
 const rawDb = getDB();
 const db = drizzle(rawDb);
+let isAdmin = false;
 
-// Query guest messages (userId is null)
-const guestMessages = await db
-  .select({
-    id: aiChatMessages.id,
-    sessionId: aiChatMessages.sessionId,
-    role: aiChatMessages.role,
-    content: aiChatMessages.content,
-    createdAt: aiChatMessages.createdAt,
-  })
-  .from(aiChatMessages)
-  .where(isNull(aiChatMessages.userId))
-  .orderBy(asc(aiChatMessages.createdAt));
+try {
+  const adminUser = await db
+    .select({ role: users.role })
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1);
 
-// Query registered user messages (userId is not null)
-const userMessages = await db
-  .select({
-    id: aiChatMessages.id,
-    sessionId: aiChatMessages.sessionId,
-    role: aiChatMessages.role,
-    content: aiChatMessages.content,
-    createdAt: aiChatMessages.createdAt,
-    userId: users.id,
-    userName: users.name,
-    userEmail: users.email,
-    userImage: users.image,
-  })
-  .from(aiChatMessages)
-  .innerJoin(users, eq(aiChatMessages.userId, users.id))
-  .orderBy(asc(aiChatMessages.createdAt));
+  isAdmin = adminUser && adminUser.length > 0 && adminUser[0].role === "admin";
+} catch (dbError) {
+  console.error("⚠️ Gagal mengecek role admin di database:", dbError);
+  if (isLocalhost) {
+    console.warn("⚠️ Menggunakan fallback admin karena berjalan di localhost.");
+    isAdmin = true;
+  }
+}
+
+if (!isAdmin) {
+  return new Response(`Forbidden: Email ${email} tidak terdaftar sebagai Admin di database D1.`, { status: 403 });
+}
+
+// Query data chat
+let guestMessages: any[] = [];
+let userMessages: any[] = [];
+
+try {
+  // Query guest messages (userId is null)
+  guestMessages = await db
+    .select({
+      id: aiChatMessages.id,
+      sessionId: aiChatMessages.sessionId,
+      role: aiChatMessages.role,
+      content: aiChatMessages.content,
+      createdAt: aiChatMessages.createdAt,
+    })
+    .from(aiChatMessages)
+    .where(isNull(aiChatMessages.userId))
+    .orderBy(asc(aiChatMessages.createdAt));
+
+  // Query registered user messages (userId is not null)
+  userMessages = await db
+    .select({
+      id: aiChatMessages.id,
+      sessionId: aiChatMessages.sessionId,
+      role: aiChatMessages.role,
+      content: aiChatMessages.content,
+      createdAt: aiChatMessages.createdAt,
+      userId: users.id,
+      userName: users.name,
+      userEmail: users.email,
+      userImage: users.image,
+    })
+    .from(aiChatMessages)
+    .innerJoin(users, eq(aiChatMessages.userId, users.id))
+    .orderBy(asc(aiChatMessages.createdAt));
+} catch (queryError) {
+  console.error("⚠️ Gagal memuat data log chat dari D1 database:", queryError);
+}
 
 // Group guest sessions
 const guestSessionsMap: Record<string, any> = {};

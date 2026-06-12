@@ -15,6 +15,13 @@
       "when": 1781257079379,
       "tag": "0001_wonderful_dakota_north",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1781274566900,
+      "tag": "0002_natural_northstar",
+      "breakpoints": true
     }
   ]
 }

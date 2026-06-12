@@ -1,7 +1,53 @@
 ---
+import { getSession } from "auth-astro/server";
+import { drizzle } from "drizzle-orm/d1";
+import { eq } from "drizzle-orm";
+import { getDB } from "@lib/cloudflare";
+import { users } from "../../db/schema";
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import { DashboardTabs } from '../../components/dashboard/DashboardTabs';
 import { Button } from '../../components/ui/button';
+
+export const prerender = false;
+
+// 1. Authenticate via Cloudflare Access (Zero Trust) with Local Dev Fallback
+let email = Astro.request.headers.get("Cf-Access-Authenticated-User-Email");
+
+const isLocalhost = Astro.url.hostname === "localhost" || Astro.url.hostname === "127.0.0.1";
+
+if (isLocalhost && !email) {
+  const session = await getSession(Astro.request);
+  email = session?.user?.email || "admin@example.com";
+}
+
+if (!email) {
+  return new Response("Unauthorized: Akses diblokir oleh sistem otentikasi.", { status: 401 });
+}
+
+// 2. Database connection & role verification
+const rawDb = getDB();
+const db = drizzle(rawDb);
+let isAdmin = false;
+
+try {
+  const adminUser = await db
+    .select({ role: users.role })
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1);
+
+  isAdmin = adminUser && adminUser.length > 0 && adminUser[0].role === "admin";
+} catch (dbError) {
+  console.error("⚠️ Gagal mengecek role admin di database:", dbError);
+  if (isLocalhost) {
+    console.warn("⚠️ Menggunakan fallback admin karena berjalan di localhost.");
+    isAdmin = true;
+  }
+}
+
+if (!isAdmin) {
+  return new Response(`Forbidden: Email ${email} tidak terdaftar sebagai Admin di database D1.`, { status: 403 });
+}
 ---
 
 <DashboardLayout title="Dashboard - Porto Astro Admin">
