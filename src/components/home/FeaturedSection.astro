@@ -1,0 +1,116 @@
+---
+// src/components/home/FeaturedSection.astro
+import { getCollection } from "astro:content";
+import { getImage } from "astro:assets";
+import { InteractiveFeatured } from "./InteractiveFeatured";
+
+// 1. Fetch Blogs (sorted by pubDate descending, take top 2)
+const rawBlogs = await getCollection("blogs");
+const blogs = rawBlogs
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 2);
+
+// 2. Fetch Projects (sorted by isFeatured descending, take top 2)
+const rawProjects = await getCollection("project");
+const projects = rawProjects
+  .sort((a, b) => (b.data.isFeatured ? 1 : 0) - (a.data.isFeatured ? 1 : 0))
+  .slice(0, 2);
+
+// 3. Fetch 3D Gallery Albums (same method as 3Dgallery/index.astro, take top 2)
+const allImages = import.meta.glob(
+  "/src/assets/3Dgallery/**/*.{jpeg,jpg,png,gif,webp,avif,svg}",
+  { eager: true }
+);
+
+const allModels = import.meta.glob("/src/assets/3Dgallery/**/*.glb", {
+  eager: true,
+  query: "?url",
+});
+
+interface AlbumRaw {
+  images: any[];
+  modelUrl?: string;
+  wireframeUrl?: string;
+}
+const rawAlbumsData: Record<string, AlbumRaw> = {};
+
+// Group 2D Images (sorted alphabetically to keep slide order consistent)
+Object.keys(allImages)
+  .sort()
+  .forEach((path) => {
+    const parts = path.split("/3Dgallery/");
+    if (parts.length > 1) {
+      const albumName = parts[1].split("/")[0];
+      if (!rawAlbumsData[albumName]) {
+        rawAlbumsData[albumName] = { images: [] };
+      }
+      rawAlbumsData[albumName].images.push((allImages[path] as any).default);
+    }
+  });
+
+// Group 3D Files (.glb)
+Object.keys(allModels).forEach((path) => {
+  const parts = path.split("/3Dgallery/");
+  if (parts.length > 1) {
+    const albumName = parts[1].split("/")[0];
+    if (!rawAlbumsData[albumName]) {
+      rawAlbumsData[albumName] = { images: [] };
+    }
+
+    const fileUrl = (allModels[path] as any).default;
+
+    if (path.toLowerCase().includes("wireframe")) {
+      rawAlbumsData[albumName].wireframeUrl = fileUrl;
+    } else {
+      rawAlbumsData[albumName].modelUrl = fileUrl;
+    }
+  }
+});
+
+// Process Images Optimization
+const albumList = await Promise.all(
+  Object.keys(rawAlbumsData).map(async (name) => {
+    const album = rawAlbumsData[name];
+
+    const optimizedImages = await Promise.all(
+      album.images.map(async (imgMetadata) => {
+        if (imgMetadata.format === "svg") return imgMetadata.src;
+        const optimized = await getImage({
+          src: imgMetadata,
+          width: 1200,
+          format: "webp",
+          quality: "normal",
+        });
+        return optimized.src;
+      })
+    );
+
+    return {
+      name: name,
+      images: optimizedImages,
+      modelUrl: album.modelUrl,
+      wireframeUrl: album.wireframeUrl,
+    };
+  })
+);
+
+// Get the top 2 albums
+const featuredAlbums = albumList.slice(0, 2);
+---
+
+<section class="w-full py-8 text-foreground antialiased">
+  {/* Header Section */}
+  <div class="flex items-center justify-between mb-8">
+    <div class="flex flex-col gap-1">
+      <h2 class="text-2xl font-bold tracking-tight sm:text-3xl text-foreground relative after:block after:w-16 after:h-[3px] after:bg-primary after:mt-1.5 after:rounded-full">
+        Featured Creations
+      </h2>
+      <p class="text-xs sm:text-sm text-muted-foreground">
+        A handpicked selection of my latest projects, articles, and 3D models.
+      </p>
+    </div>
+  </div>
+
+  <InteractiveFeatured client:load projects={projects} blogs={blogs} albums={featuredAlbums} />
+</section>
+

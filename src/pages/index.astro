@@ -4,8 +4,7 @@ import Layout from "../layouts/Layout.astro";
 import MobileProfile from "@components/ui/MobileProfile.astro";
 import Hero from "@components/home/Hero.astro";
 import Skill from "@components/home/Skill.astro";
-import Project from "@components/home/Project.astro";
-import Blog from "@components/home/Blog.astro";
+import FeaturedSection from "@components/home/FeaturedSection.astro";
 export const prerender = false;
 ---
 
@@ -14,5 +13,6 @@ export const prerender = false;
     <MobileProfile />
     <Hero />
     <Skill />
+    <FeaturedSection />
   </div>
 </Layout>
