@@ -105,19 +105,17 @@ const albumList = await Promise.all(
     </div>
 
     <div
-      class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-10 xl:gap-6 mb-8 md:mb-0"
+      class="flex flex-col gap-10 mb-8 md:mb-0"
     >
       {
         albumList.map((album) => (
-          <div class="bg-card px-0 rounded-xl border overflow-hidden flex flex-col justify-start">
-            <Gallerycard
-              client:visible
-              albumName={album.name}
-              images={album.images}
-              modelUrl={album.modelUrl}
-              wireframeUrl={album.wireframeUrl}
-            />
-          </div>
+          <Gallerycard
+            client:visible
+            albumName={album.name}
+            images={album.images}
+            modelUrl={album.modelUrl}
+            wireframeUrl={album.wireframeUrl}
+          />
         ))
       }
     </div>
