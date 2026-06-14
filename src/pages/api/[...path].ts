@@ -556,6 +556,178 @@ app.get("/admin/activities", async (c) => {
   }
 });
 
+// 12. POST /api/admin/albums/rename-file (Ganti nama berkas di R2 secara aman)
+app.post("/admin/albums/rename-file", async (c) => {
+  const authorized = await isAdmin(c);
+  if (!authorized) return c.json({ error: "Unauthorized" }, 401);
+
+  const body = await c.req.json();
+  const { albumSlug, oldKey, newFileName } = body;
+
+  if (!albumSlug || !oldKey || !newFileName) {
+    return c.json({ error: "Missing parameters" }, 400);
+  }
+
+  const cfEnv = getCfEnv();
+  const bucket = cfEnv.GALLERY_BUCKET;
+  if (!bucket) return c.json({ error: "R2 bucket not bound" }, 500);
+
+  // Bersihkan nama file baru agar aman
+  const cleanFileName = newFileName.replace(/[^a-zA-Z0-9.\-_ ()]/g, "");
+  if (!cleanFileName) return c.json({ error: "Invalid filename" }, 400);
+
+  const newKey = `assets/3Dgallery/${albumSlug}/${cleanFileName}`;
+
+  if (newKey === oldKey) {
+    return c.json({ error: "New name is the same as the old name" }, 400);
+  }
+
+  try {
+    // Cek apakah key baru sudah ada di R2
+    const checkExisting = await bucket.head(newKey);
+    if (checkExisting) {
+      return c.json({ error: "A file with this name already exists in the album" }, 400);
+    }
+
+    // Ambil object lama
+    const obj = await bucket.get(oldKey);
+    if (!obj) {
+      return c.json({ error: "Old file not found in R2" }, 404);
+    }
+
+    // Put ke key baru (Stream transfer)
+    await bucket.put(newKey, obj.body, {
+      httpMetadata: obj.httpMetadata,
+      customMetadata: obj.customMetadata
+    });
+
+    // Hapus key lama
+    await bucket.delete(oldKey);
+
+    // Ekstrak nama file lama untuk log
+    const oldParts = oldKey.split("/");
+    const oldName = oldParts[oldParts.length - 1] || oldKey;
+
+    // Log aktivitas
+    try {
+      const { logActivity } = await import("@/lib/activity");
+      await logActivity(
+        "admin_rename_file",
+        `Admin mengubah nama file di album "${albumSlug}": dari "${oldName}" menjadi "${cleanFileName}"`
+      );
+    } catch (e) {}
+
+    return c.json({ success: true, newKey });
+  } catch (e: any) {
+    console.error("Gagal mengubah nama file:", e);
+    return c.json({ error: "Failed to rename file", details: e.message }, 500);
+  }
+});
+
+// 13. POST /api/admin/albums/upload/start (Inisialisasi Multipart Upload R2)
+app.post("/api/admin/albums/upload/start", async (c) => {
+  const authorized = await isAdmin(c);
+  if (!authorized) return c.json({ error: "Unauthorized" }, 401);
+
+  const body = await c.req.json();
+  const { albumSlug, fileName, fileType } = body;
+
+  if (!albumSlug || !fileName) {
+    return c.json({ error: "Missing parameters" }, 400);
+  }
+
+  const cfEnv = getCfEnv();
+  const bucket = cfEnv.GALLERY_BUCKET;
+  if (!bucket) return c.json({ error: "R2 bucket not bound" }, 500);
+
+  const cleanFileName = fileName.replace(/[^a-zA-Z0-9.\-_ ()]/g, "");
+  const r2Key = `assets/3Dgallery/${albumSlug}/${cleanFileName}`;
+
+  try {
+    const upload = await bucket.createMultipartUpload(r2Key, {
+      httpMetadata: { contentType: fileType || "application/octet-stream" }
+    });
+
+    return c.json({
+      uploadId: upload.uploadId,
+      key: upload.key
+    });
+  } catch (e: any) {
+    console.error("Gagal inisialisasi multipart upload:", e);
+    return c.json({ error: "Failed to start multipart upload", details: e.message }, 500);
+  }
+});
+
+// 14. POST /api/admin/albums/upload/part (Unggah Part Chunk)
+app.post("/api/admin/albums/upload/part", async (c) => {
+  const authorized = await isAdmin(c);
+  if (!authorized) return c.json({ error: "Unauthorized" }, 401);
+
+  const body = await c.req.parseBody();
+  const key = body.key as string;
+  const uploadId = body.uploadId as string;
+  const partNumber = parseInt(body.partNumber as string);
+  const file = body.file as File;
+
+  if (!key || !uploadId || isNaN(partNumber) || !file) {
+    return c.json({ error: "Missing parameters" }, 400);
+  }
+
+  const cfEnv = getCfEnv();
+  const bucket = cfEnv.GALLERY_BUCKET;
+  if (!bucket) return c.json({ error: "R2 bucket not bound" }, 500);
+
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const upload = await bucket.resumeMultipartUpload(key, uploadId);
+    const uploadedPart = await upload.uploadPart(partNumber, arrayBuffer);
+
+    return c.json({
+      partNumber: uploadedPart.partNumber,
+      etag: uploadedPart.etag
+    });
+  } catch (e: any) {
+    console.error(`Gagal mengunggah part ${partNumber}:`, e);
+    return c.json({ error: `Failed to upload part ${partNumber}`, details: e.message }, 500);
+  }
+});
+
+// 15. POST /api/admin/albums/upload/complete (Selesaikan Multipart Upload R2)
+app.post("/api/admin/albums/upload/complete", async (c) => {
+  const authorized = await isAdmin(c);
+  if (!authorized) return c.json({ error: "Unauthorized" }, 401);
+
+  const body = await c.req.json();
+  const { key, uploadId, parts, fileName, albumSlug } = body;
+
+  if (!key || !uploadId || !parts || !Array.isArray(parts) || !fileName || !albumSlug) {
+    return c.json({ error: "Missing parameters" }, 400);
+  }
+
+  const cfEnv = getCfEnv();
+  const bucket = cfEnv.GALLERY_BUCKET;
+  if (!bucket) return c.json({ error: "R2 bucket not bound" }, 500);
+
+  try {
+    const upload = await bucket.resumeMultipartUpload(key, uploadId);
+    await upload.complete(parts);
+
+    // Log aktivitas
+    try {
+      const { logActivity } = await import("@/lib/activity");
+      await logActivity(
+        "admin_upload_file",
+        `Admin mengunggah file (Multipart) "${fileName}" ke album "${albumSlug}"`
+      );
+    } catch (e) {}
+
+    return c.json({ success: true });
+  } catch (e: any) {
+    console.error("Gagal menyelesaikan multipart upload:", e);
+    return c.json({ error: "Failed to complete multipart upload", details: e.message }, 500);
+  }
+});
+
 export type AppType = typeof app;
 export const ALL = async (context: any) => {
   return app.fetch(context.request, context.locals);
