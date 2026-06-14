@@ -41,6 +41,7 @@ const mockDB = {
             run: async () => ({ success: true, results: [], meta: {} }),
             all: async () => ({ success: true, results: [] }),
             first: async () => null,
+            raw: async () => [],
         });
         return {
             bind: (...args: any[]) => {

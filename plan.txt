@@ -1,0 +1,17 @@
+oke simpan penerapan di atas, sekarang saya mau di [gallery-card.tsx](file;file:///f%3A/Career/Web%20Design/porto-astro/web-porto/src/components/components/gallery-card.tsx) bagian 
+<p className="mt-1 text-sm text-muted-foreground leading-snug">
+     {modelUrl ? "Interactive 3D model & render gallery" : "Render gallery"}
+</p>
+di ganti dengan icon dan tulisan dari software 3d yang dipakai, menggunakan simpleicon atau mungkin ada yang lebih lengkap, bagaimana supaya tetap dinamis? apakah data icon yang diperlukan diinput di D1 atau bagaimana cara paling tepat untuk hal ini?
+
+hapus "description": nya karena saya mau dibawah title hanya icon software dan nama softwarenya, menurut saya pendekatan terbaiknya adalah Menggunakan D1 Database karena saya akan ada admin panel, juga saya mau bisa custom warna iconya langsung dari admin panel mungkin menggunakan color pick. pertanyaannya adalah bagaimana kalau iconnya tidak ada di simpleicon dan logos? apakah saya bisa upload iconnya langsung dari admin panel dan simpan di R2? bagaimana pendekatan paling tepat untuk hal ini?
+
+
+bertindaklah seperti Expert Cloudflare Developer, terapkan semua instruksi di atas mulai dari pindahkan semua assets/3dgallery ke bucket R2 dev-web-porto-r2 local, tambahkan binding R2 di wrangler.toml, buat endpoint baru misalnya src/pages/api/assets/[...key].ts: , Ambil Data Dinamis di src/pages/3Dgallery/index.astro, pastikan Penerapan di atas sudah mendukung Browser Cache dan menyimpan cache file tersebut di Server Cloudflare Terdekat (Edge CDN), sesuaikan Struktur Tabel Database (D1) seperti Tabel software_tools, Tabel album_metadata, update di schema.ts, Menangani Icon Kustom (Jika tidak ada di Simple Icons) dan lain lain, terapkan semuanya dan berikan juga penjelasan dari perubahan yang sudah dilakukan. buatkan juga tab untuk panel admin dengan icon rotate3d lucide, isi tab untuk mengelola semua data tersebut, buat supaya tampilan setiap album mudah dikelola dari panel admin dan pastikan penerapan terbaik yang paling optimal dalam hal performa
+
+navGroups: [
+
+apakah implementasi tadi Menambahkan tab baru bernama 3D Gallery dengan ikon Lucide Rotate3d dan Menyediakan panel pengelolaan lengkap (dashboard panel) sudah masuk export const sidebarData: SidebarData = { pada sidebarData? analisa dulu dan refaktorisasi jika ada yang salah atau kurang, laporkan dulu kesini jangan eksesusi sebelum saya approve
+
+
+bunx wrangler d1 execute prod-porto-db --command="UPDATE users SET role = 'admin' WHERE email = 'admin@example.com';"

@@ -22,6 +22,13 @@
       "when": 1781274566900,
       "tag": "0002_natural_northstar",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1781425807589,
+      "tag": "0003_stormy_karen_page",
+      "breakpoints": true
     }
   ]
 }

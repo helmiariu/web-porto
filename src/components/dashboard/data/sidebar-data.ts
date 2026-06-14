@@ -98,6 +98,12 @@ export const sidebarData: SidebarData = {
           url: '/admin/chat-logs',
           icon: 'Bot',
         },
+        {
+          title: 'Kelola Galeri 3D',
+          url: '/admin/gallery',
+          icon: 'Rotate3d',
+        }
+
       ],
     },
     {

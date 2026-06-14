@@ -3,6 +3,7 @@
 
 import * as React from "react";
 import { Rotate3d } from "lucide-react";
+import { Icon } from "@iconify/react";
 import {
     Carousel,
     CarouselContent,
@@ -21,9 +22,24 @@ interface CarouselProps {
     albumName: string;
     modelUrl?: string;
     wireframeUrl?: string;
+    title?: string;
+    softwareTools?: Array<{
+        name: string;
+        slug: string;
+        iconType: string;
+        iconValue: string;
+        color?: string;
+    }>;
 }
 
-export default function CarouselWithProgress({ images, albumName, modelUrl, wireframeUrl }: CarouselProps) {
+export default function CarouselWithProgress({ 
+    images, 
+    albumName, 
+    modelUrl, 
+    wireframeUrl,
+    title,
+    softwareTools = []
+}: CarouselProps) {
     const [isModalOpen, setIsModalOpen] = React.useState(false);
     const [initialView, setInitialView] = React.useState<"3d" | number>("3d");
 
@@ -43,11 +59,50 @@ export default function CarouselWithProgress({ images, albumName, modelUrl, wire
                     <div className="mb-5 flex items-end justify-between">
                         <div>
                             <h2 className="font-medium text-2xl md:text-3xl tracking-tight capitalize text-foreground">
-                                {albumName.replace(/-/g, " ")}
+                                {title || albumName.replace(/-/g, " ")}
                             </h2>
-                            <p className="mt-1 text-sm text-muted-foreground leading-snug">
-                                {modelUrl ? "Interactive 3D model & render gallery" : "Render gallery"}
-                            </p>
+                            {softwareTools.length > 0 ? (
+                                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                                    {softwareTools.map((tool) => {
+                                        const iconColor = tool.color || "currentColor";
+                                        return (
+                                            <div 
+                                                key={tool.slug}
+                                                className="flex items-center gap-1 bg-muted/65 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border border-border/40 text-foreground"
+                                                title={tool.name}
+                                            >
+                                                {tool.iconType === "iconify" ? (
+                                                    <Icon 
+                                                        icon={tool.iconValue} 
+                                                        className="h-3.5 w-3.5" 
+                                                        style={{ color: iconColor }}
+                                                    />
+                                                ) : (
+                                                    <div 
+                                                        className="h-3.5 w-3.5"
+                                                        style={{
+                                                            backgroundColor: iconColor,
+                                                            WebkitMaskImage: `url(${tool.iconValue.startsWith("/") ? tool.iconValue : `/api/assets/${tool.iconValue}`})`,
+                                                            maskImage: `url(${tool.iconValue.startsWith("/") ? tool.iconValue : `/api/assets/${tool.iconValue}`})`,
+                                                            WebkitMaskSize: "contain",
+                                                            maskSize: "contain",
+                                                            WebkitMaskRepeat: "no-repeat",
+                                                            maskRepeat: "no-repeat",
+                                                            WebkitMaskPosition: "center",
+                                                            maskPosition: "center",
+                                                        }}
+                                                    />
+                                                )}
+                                                <span>{tool.name}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <p className="mt-1 text-xs text-muted-foreground leading-snug">
+                                    {modelUrl ? "Interactive 3D model & render gallery" : "Render gallery"}
+                                </p>
+                            )}
                         </div>
 
                         <div className="flex items-center gap-2">

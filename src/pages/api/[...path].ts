@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { getKV, getCfEnv } from "@/lib/cloudflare";
+import { getKV, getCfEnv, getDB } from "@/lib/cloudflare";
 import { Resend } from "resend";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
@@ -70,6 +70,274 @@ app.post("/send-email", zValidator("json", sendEmailSchema), async (c) => {
   }
 
   return c.json({ success: true, message: "Email sent successfully", data });
+});
+
+import { drizzle } from "drizzle-orm/d1";
+import { eq } from "drizzle-orm";
+import { users, softwareTools, albumMetadata } from "../../db/schema";
+
+// Helper check admin
+const isAdmin = async (c: any) => {
+  const isLocalhost = c.req.header("host")?.includes("localhost") || 
+                      c.req.header("host")?.includes("127.0.0.1") || 
+                      c.req.header("host")?.includes("8787");
+  
+  let email = c.req.header("Cf-Access-Authenticated-User-Email");
+  if (!email) {
+     try {
+       const { getSession } = await import("auth-astro/server");
+       const session = await getSession(c.req.raw);
+       email = session?.user?.email;
+     } catch (e) {}
+  }
+
+  if (isLocalhost && !email) {
+     return true; // Dev bypass
+  }
+
+  if (!email) return false;
+
+  const rawDb = getDB();
+  const db = drizzle(rawDb);
+  const adminUser = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1);
+
+  return adminUser.length > 0 && adminUser[0].role === "admin";
+};
+
+// --- REST API ADMIN: SOFTWARE TOOLS ---
+
+// 1. GET /api/admin/software
+app.get("/admin/software", async (c) => {
+  const authorized = await isAdmin(c);
+  if (!authorized) return c.json({ error: "Unauthorized" }, 401);
+
+  const rawDb = getDB();
+  const db = drizzle(rawDb);
+  const list = await db.select().from(softwareTools);
+  return c.json(list);
+});
+
+// 2. POST /api/admin/software
+app.post("/admin/software", async (c) => {
+  const authorized = await isAdmin(c);
+  if (!authorized) return c.json({ error: "Unauthorized" }, 401);
+
+  const body = await c.req.parseBody();
+  const name = body.name as string;
+  const slug = body.slug as string;
+  const iconType = body.iconType as string; // "iconify" | "custom_r2"
+  const color = body.color as string;
+  let iconValue = body.iconValue as string;
+  const file = body.file as File;
+
+  if (!name || !slug || !iconType) {
+    return c.json({ error: "Missing fields" }, 400);
+  }
+
+  if (iconType === "custom_r2" && file) {
+    const cfEnv = getCfEnv();
+    const bucket = cfEnv.GALLERY_BUCKET;
+    if (!bucket) return c.json({ error: "R2 bucket not bound" }, 500);
+
+    const r2Key = `assets/icons/${slug}.svg`;
+    const arrayBuffer = await file.arrayBuffer();
+    await bucket.put(r2Key, arrayBuffer, {
+      httpMetadata: { contentType: "image/svg+xml" }
+    });
+    iconValue = r2Key;
+  }
+
+  const rawDb = getDB();
+  const db = drizzle(rawDb);
+  await db.insert(softwareTools).values({
+    name,
+    slug,
+    iconType,
+    iconValue,
+    color: color || null,
+  });
+
+  return c.json({ success: true });
+});
+
+// 3. PUT /api/admin/software/:id
+app.put("/admin/software/:id", async (c) => {
+  const authorized = await isAdmin(c);
+  if (!authorized) return c.json({ error: "Unauthorized" }, 401);
+
+  const id = parseInt(c.req.param("id"));
+  const body = await c.req.json();
+  const { name, slug, iconType, iconValue, color } = body;
+
+  const rawDb = getDB();
+  const db = drizzle(rawDb);
+  await db.update(softwareTools)
+    .set({
+      name,
+      slug,
+      iconType,
+      iconValue,
+      color: color || null,
+    })
+    .where(eq(softwareTools.id, id));
+
+  return c.json({ success: true });
+});
+
+// 4. DELETE /api/admin/software/:id
+app.delete("/admin/software/:id", async (c) => {
+  const authorized = await isAdmin(c);
+  if (!authorized) return c.json({ error: "Unauthorized" }, 401);
+
+  const id = parseInt(c.req.param("id"));
+  const rawDb = getDB();
+  const db = drizzle(rawDb);
+  await db.delete(softwareTools).where(eq(softwareTools.id, id));
+  return c.json({ success: true });
+});
+
+// --- REST API ADMIN: ALBUMS & FILE MANAGEMENT ---
+
+// 5. GET /api/admin/albums (Merge D1 & R2)
+app.get("/admin/albums", async (c) => {
+  const authorized = await isAdmin(c);
+  if (!authorized) return c.json({ error: "Unauthorized" }, 401);
+
+  const cfEnv = getCfEnv();
+  const bucket = cfEnv.GALLERY_BUCKET;
+  if (!bucket) return c.json({ error: "R2 bucket GALLERY_BUCKET not bound" }, 500);
+
+  const rawDb = getDB();
+  const db = drizzle(rawDb);
+
+  const allSoftware = await db.select().from(softwareTools);
+  const allMeta = await db.select().from(albumMetadata);
+  const metaMap = new Map(allMeta.map((m) => [m.albumSlug, m]));
+
+  const response = await bucket.list({ prefix: "assets/3Dgallery/" });
+  
+  const albums: Record<string, {
+    albumSlug: string;
+    title: string;
+    files: Array<{ key: string; name: string; size: number }>;
+    softwareList: string[];
+  }> = {};
+
+  for (const obj of response.objects) {
+    const key = obj.key;
+    const parts = key.split("/");
+    if (parts.length >= 4) {
+      const albumSlug = parts[2];
+      const name = parts[3];
+      if (!albumSlug) continue;
+
+      if (!albums[albumSlug]) {
+        const dbMeta = metaMap.get(albumSlug);
+        let swList: string[] = [];
+        if (dbMeta) {
+          try {
+            swList = JSON.parse(dbMeta.softwareList);
+          } catch(e) {}
+        }
+        albums[albumSlug] = {
+          albumSlug,
+          title: dbMeta?.title || albumSlug.replace(/-/g, " "),
+          files: [],
+          softwareList: swList,
+        };
+      }
+
+      albums[albumSlug].files.push({
+        key,
+        name,
+        size: obj.size,
+      });
+    }
+  }
+
+  return c.json({
+    albums: Object.values(albums),
+    softwareTools: allSoftware,
+  });
+});
+
+// 6. POST /api/admin/albums/metadata (Upsert)
+app.post("/admin/albums/metadata", async (c) => {
+  const authorized = await isAdmin(c);
+  if (!authorized) return c.json({ error: "Unauthorized" }, 401);
+
+  const body = await c.req.json();
+  const { albumSlug, title, softwareList } = body;
+
+  const rawDb = getDB();
+  const db = drizzle(rawDb);
+  const existing = await db.select().from(albumMetadata).where(eq(albumMetadata.albumSlug, albumSlug)).limit(1);
+
+  const swJson = JSON.stringify(softwareList || []);
+
+  if (existing.length > 0) {
+    await db.update(albumMetadata)
+      .set({ title, softwareList: swJson })
+      .where(eq(albumMetadata.albumSlug, albumSlug));
+  } else {
+    await db.insert(albumMetadata).values({
+      albumSlug,
+      title,
+      softwareList: swJson,
+    });
+  }
+
+  return c.json({ success: true });
+});
+
+// 7. POST /api/admin/albums/upload (Upload file to R2)
+app.post("/admin/albums/upload", async (c) => {
+  const authorized = await isAdmin(c);
+  if (!authorized) return c.json({ error: "Unauthorized" }, 401);
+
+  const cfEnv = getCfEnv();
+  const bucket = cfEnv.GALLERY_BUCKET;
+  if (!bucket) return c.json({ error: "R2 bucket not bound" }, 500);
+
+  const body = await c.req.parseBody();
+  const albumSlug = body.albumSlug as string;
+  const file = body.file as File;
+
+  if (!albumSlug || !file) {
+    return c.json({ error: "Missing albumSlug or file" }, 400);
+  }
+
+  const fileName = file.name.replace(/[^a-zA-Z0-9.\-_ ()]/g, "");
+  const r2Key = `assets/3Dgallery/${albumSlug}/${fileName}`;
+  const arrayBuffer = await file.arrayBuffer();
+  
+  await bucket.put(r2Key, arrayBuffer, {
+    httpMetadata: { contentType: file.type }
+  });
+
+  return c.json({ success: true, key: r2Key });
+});
+
+// 8. POST /api/admin/albums/delete-file
+app.post("/admin/albums/delete-file", async (c) => {
+  const authorized = await isAdmin(c);
+  if (!authorized) return c.json({ error: "Unauthorized" }, 401);
+
+  const cfEnv = getCfEnv();
+  const bucket = cfEnv.GALLERY_BUCKET;
+  if (!bucket) return c.json({ error: "R2 bucket not bound" }, 500);
+
+  const body = await c.req.json();
+  const { key } = body;
+
+  if (!key) return c.json({ error: "Missing key" }, 400);
+
+  await bucket.delete(key);
+  return c.json({ success: true });
 });
 
 export type AppType = typeof app;

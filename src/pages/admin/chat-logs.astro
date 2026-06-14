@@ -4,15 +4,16 @@ import { drizzle } from "drizzle-orm/d1";
 import { isNull, eq, asc } from "drizzle-orm";
 import { getDB } from "@lib/cloudflare";
 import { aiChatMessages, users } from "../../db/schema";
-import DashboardLayout from '../../layouts/DashboardLayout.astro';
-import { ChatLogsDashboard } from '../../components/dashboard/ChatLogsDashboard';
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import { ChatLogsDashboard } from "../../components/dashboard/ChatLogsDashboard";
 
 export const prerender = false;
 
 // 1. Authenticate via Cloudflare Access (Zero Trust) with Local Dev Fallback
 let email = Astro.request.headers.get("Cf-Access-Authenticated-User-Email");
 
-const isLocalhost = Astro.url.hostname === "localhost" || Astro.url.hostname === "127.0.0.1";
+const isLocalhost =
+  Astro.url.hostname === "localhost" || Astro.url.hostname === "127.0.0.1";
 
 if (isLocalhost && !email) {
   // Ambil email dari session auth-astro jika ada, atau gunakan default mock admin email
@@ -21,7 +22,9 @@ if (isLocalhost && !email) {
 }
 
 if (!email) {
-  return new Response("Unauthorized: Akses diblokir oleh sistem otentikasi.", { status: 401 });
+  return new Response("Unauthorized: Akses diblokir oleh sistem otentikasi.", {
+    status: 401,
+  });
 }
 
 // 2. Database connection & role verification
@@ -46,7 +49,10 @@ try {
 }
 
 if (!isAdmin) {
-  return new Response(`Forbidden: Email ${email} tidak terdaftar sebagai Admin di database D1.`, { status: 403 });
+  return new Response(
+    `Forbidden: Email ${email} tidak terdaftar sebagai Admin di database D1.`,
+    { status: 403 },
+  );
 }
 
 // Query data chat
@@ -89,54 +95,62 @@ try {
 
 // Group guest sessions
 const guestSessionsMap: Record<string, any> = {};
-guestMessages.forEach(msg => {
+guestMessages.forEach((msg) => {
   if (!guestSessionsMap[msg.sessionId]) {
     guestSessionsMap[msg.sessionId] = {
       sessionId: msg.sessionId,
       lastActive: msg.createdAt,
-      messages: []
+      messages: [],
     };
   }
   guestSessionsMap[msg.sessionId].messages.push(msg);
-  if (msg.createdAt && (!guestSessionsMap[msg.sessionId].lastActive || msg.createdAt > guestSessionsMap[msg.sessionId].lastActive)) {
+  if (
+    msg.createdAt &&
+    (!guestSessionsMap[msg.sessionId].lastActive ||
+      msg.createdAt > guestSessionsMap[msg.sessionId].lastActive)
+  ) {
     guestSessionsMap[msg.sessionId].lastActive = msg.createdAt;
   }
 });
 const guestSessions = Object.values(guestSessionsMap).sort((a: any, b: any) => {
-  const timeA = a.lastActive || '';
-  const timeB = b.lastActive || '';
+  const timeA = a.lastActive || "";
+  const timeB = b.lastActive || "";
   return timeB.localeCompare(timeA);
 });
 
 // Group user sessions
 const userSessionsMap: Record<string, any> = {};
-userMessages.forEach(msg => {
+userMessages.forEach((msg) => {
   if (!userSessionsMap[msg.sessionId]) {
     userSessionsMap[msg.sessionId] = {
       sessionId: msg.sessionId,
       lastActive: msg.createdAt,
       user: {
         id: msg.userId,
-        name: msg.userName || 'Anonymous',
-        email: msg.userEmail || '',
-        avatar: msg.userImage || 'https://github.com/identicons/default.png',
+        name: msg.userName || "Anonymous",
+        email: msg.userEmail || "",
+        avatar: msg.userImage || "https://github.com/identicons/default.png",
       },
-      messages: []
+      messages: [],
     };
   }
   userSessionsMap[msg.sessionId].messages.push({
     id: msg.id,
     role: msg.role,
     content: msg.content,
-    createdAt: msg.createdAt
+    createdAt: msg.createdAt,
   });
-  if (msg.createdAt && (!userSessionsMap[msg.sessionId].lastActive || msg.createdAt > userSessionsMap[msg.sessionId].lastActive)) {
+  if (
+    msg.createdAt &&
+    (!userSessionsMap[msg.sessionId].lastActive ||
+      msg.createdAt > userSessionsMap[msg.sessionId].lastActive)
+  ) {
     userSessionsMap[msg.sessionId].lastActive = msg.createdAt;
   }
 });
 const userSessions = Object.values(userSessionsMap).sort((a: any, b: any) => {
-  const timeA = a.lastActive || '';
-  const timeB = b.lastActive || '';
+  const timeA = a.lastActive || "";
+  const timeB = b.lastActive || "";
   return timeB.localeCompare(timeA);
 });
 ---
@@ -144,14 +158,18 @@ const userSessions = Object.values(userSessionsMap).sort((a: any, b: any) => {
 <DashboardLayout title="Riwayat Chat AI - Porto Astro Admin">
   <div class="space-y-6">
     <div>
-      <h1 class="text-3xl font-bold tracking-tight text-foreground">Riwayat Chat AI</h1>
-      <p class="text-sm text-muted-foreground">Pantau dan baca seluruh percakapan pengunjung dengan asisten AI Anda.</p>
+      <h1 class="text-3xl font-bold tracking-tight text-foreground">
+        Riwayat Chat AI
+      </h1>
+      <p class="text-sm text-muted-foreground">
+        Pantau dan baca seluruh percakapan pengunjung dengan asisten AI Anda.
+      </p>
     </div>
 
-    <ChatLogsDashboard 
-      client:load 
-      initialGuestSessions={guestSessions as any} 
-      initialUserSessions={userSessions as any} 
+    <ChatLogsDashboard
+      client:load
+      initialGuestSessions={guestSessions as any}
+      initialUserSessions={userSessions as any}
     />
   </div>
 </DashboardLayout>

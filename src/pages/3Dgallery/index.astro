@@ -1,122 +1,139 @@
 ---
 // src/pages/3Dgallery/index.astro
-import { getImage } from "astro:assets";
 import Layout from "@layouts/Layout.astro";
 import Gallerycard from "@components/components/gallery-card.tsx";
+import { getCfEnv, getDB } from "@lib/cloudflare";
+import { drizzle } from "drizzle-orm/d1";
+import { softwareTools, albumMetadata } from "../../db/schema";
 
-// 1. Ambil GAMBAR SAJA
-const allImages = import.meta.glob(
-  "/src/assets/3Dgallery/**/*.{jpeg,jpg,png,gif,webp,avif,svg}",
-  { eager: true },
-);
+export const prerender = false;
 
-// 2. AMANKAN FILE 3D: Tambahkan properti query secara eksplisit di dalam opsi!
-// Jika terlewat, Vite di server production bisa bingung dan mencoba membaca file .glb sebagai modul JS.
-const allModels = import.meta.glob("/src/assets/3Dgallery/**/*.glb", {
-  eager: true,
-  query: "?url", // 👈 WAJIB DI SINI, bukan cuma di komentar komentar sebelumnya bener, kodenya lupa ditulis hhehe
-});
+// 1. Inisialisasi Database D1
+const rawDb = getDB();
+const db = drizzle(rawDb);
 
-interface AlbumRaw {
-  images: any[];
+let allSoftware: any[] = [];
+let allMeta: any[] = [];
+
+try {
+  allSoftware = await db.select().from(softwareTools);
+  allMeta = await db.select().from(albumMetadata);
+} catch (e) {
+  console.error("Gagal mengambil data dari database D1:", e);
+}
+
+// Buat Map untuk mempercepat pencarian data
+const softwareMap = new Map(allSoftware.map((s) => [s.slug, s]));
+const metaMap = new Map(allMeta.map((m) => [m.albumSlug, m]));
+
+// 2. Inisialisasi R2 Bucket
+const cfEnv = getCfEnv();
+const bucket = cfEnv.GALLERY_BUCKET;
+
+interface AlbumData {
+  name: string;
+  title?: string;
+  images: string[];
   modelUrl?: string;
   wireframeUrl?: string;
+  softwareTools: any[];
 }
-const rawAlbumsData: Record<string, AlbumRaw> = {};
 
-// Kelompokkan Gambar 2D (Urutkan secara alfabetis agar urutan slide tidak acak-acakan)
-Object.keys(allImages)
-  .sort()
-  .forEach((path) => {
-    const parts = path.split("/3Dgallery/");
-    if (parts.length > 1) {
-      const albumName = parts[1].split("/")[0];
-      if (!rawAlbumsData[albumName]) {
-        rawAlbumsData[albumName] = { images: [] };
+const albumsMap: Record<string, AlbumData> = {};
+
+if (bucket) {
+  try {
+    const response = await bucket.list({ prefix: "assets/3Dgallery/" });
+    
+    for (const obj of response.objects) {
+      const key = obj.key; // Contoh: "assets/3Dgallery/helmet/model.glb"
+      const parts = key.split("/");
+      
+      if (parts.length >= 4) {
+        const albumSlug = parts[2]; // "helmet"
+        const fileName = parts[3];  // "model.glb"
+        
+        // Lewati jika file berada langsung di folder root assets/3Dgallery/
+        if (!albumSlug) continue;
+
+        if (!albumsMap[albumSlug]) {
+          const dbMeta = metaMap.get(albumSlug);
+          let tools: any[] = [];
+          
+          if (dbMeta) {
+            try {
+              const slugList = JSON.parse(dbMeta.softwareList) as string[];
+              tools = slugList
+                .map((slug) => softwareMap.get(slug))
+                .filter(Boolean);
+            } catch (jsonErr) {
+              console.error(`Gagal melakukan parse softwareList untuk ${albumSlug}:`, jsonErr);
+            }
+          }
+
+          albumsMap[albumSlug] = {
+            name: albumSlug,
+            title: dbMeta?.title,
+            images: [],
+            softwareTools: tools,
+          };
+        }
+
+        const fileUrl = `/api/assets/${key}`;
+
+        // Kategorikan File
+        if (fileName.endsWith(".glb")) {
+          if (fileName.toLowerCase().includes("wireframe")) {
+            albumsMap[albumSlug].wireframeUrl = fileUrl;
+          } else {
+            albumsMap[albumSlug].modelUrl = fileUrl;
+          }
+        } else if (/\.(jpg|jpeg|png|webp|avif|gif|svg)$/i.test(fileName)) {
+          albumsMap[albumSlug].images.push(fileUrl);
+        }
       }
-      rawAlbumsData[albumName].images.push((allImages[path] as any).default);
     }
-  });
-
-// Kelompokkan File 3D (.glb)
-Object.keys(allModels).forEach((path) => {
-  const parts = path.split("/3Dgallery/");
-  if (parts.length > 1) {
-    const albumName = parts[1].split("/")[0];
-    if (!rawAlbumsData[albumName]) {
-      rawAlbumsData[albumName] = { images: [] };
-    }
-
-    const fileUrl = (allModels[path] as any).default;
-
-    if (path.toLowerCase().includes("wireframe")) {
-      rawAlbumsData[albumName].wireframeUrl = fileUrl;
-    } else {
-      rawAlbumsData[albumName].modelUrl = fileUrl;
-    }
+  } catch (r2Err) {
+    console.error("Gagal melakukan list object R2:", r2Err);
   }
-});
+}
 
-// 3. Proses Optimasi Gambar & Satukan Data Akhir
-const albumList = await Promise.all(
-  Object.keys(rawAlbumsData).map(async (name) => {
-    const album = rawAlbumsData[name];
-
-    const optimizedImages = await Promise.all(
-      album.images.map(async (imgMetadata) => {
-        if (imgMetadata.format === "svg") return imgMetadata.src;
-
-        // OPTIMASI VISUAL: Naikkan width ke 1200
-        // Jika hanya 600, gambar akan terlihat pecah/blur saat user membuka mode MODAL FULLSCREEN di monitor desktop.
-        // Berkat format "webp", ukuran file 1200px akan tetap sangat kecil (kecerahan & ketajaman terjaga).
-        const optimized = await getImage({
-          src: imgMetadata,
-          width: 1200,
-          format: "webp",
-          quality: "normal",
-        });
-
-        return optimized.src;
-      }),
-    );
-
-    return {
-      name: name,
-      images: optimizedImages,
-      modelUrl: album.modelUrl,
-      wireframeUrl: album.wireframeUrl,
-    };
-  }),
-);
+const albumList = Object.values(albumsMap);
 ---
 
 <Layout>
   <div class="max-w-6xl mx-auto">
     {/* Page Header */}
     <div
-      class="sticky top-0 z-30 flex flex-col justify-center bg-background/95 backdrop-blur-md border-b pb-4 pt-4"
+      class="sticky top-0 z-30 flex flex-col justify-center bg-background/95 backdrop-blur-md border-b pb-4 pt-4 mb-6"
     >
       <h2 class="text-xl font-semibold tracking-tight text-foreground">
         3D Gallery
       </h2>
       <p class="text-muted-foreground text-xs sm:text-sm">
-        Semua album ter-update secara otomatis
+        Semua album ter-update secara otomatis dari Cloudflare R2 & D1
       </p>
     </div>
 
-    <div
-      class="flex flex-col gap-10 mb-8 md:mb-0"
-    >
+    <div class="flex flex-col gap-10 mb-8 md:mb-0">
       {
-        albumList.map((album) => (
-          <Gallerycard
-            client:visible
-            albumName={album.name}
-            images={album.images}
-            modelUrl={album.modelUrl}
-            wireframeUrl={album.wireframeUrl}
-          />
-        ))
+        albumList.length > 0 ? (
+          albumList.map((album) => (
+            <Gallerycard
+              client:load
+              albumName={album.name}
+              title={album.title}
+              images={album.images}
+              modelUrl={album.modelUrl}
+              wireframeUrl={album.wireframeUrl}
+              softwareTools={album.softwareTools}
+            />
+          ))
+        ) : (
+          <div class="flex flex-col items-center justify-center p-12 border border-dashed rounded-xl">
+            <p class="text-muted-foreground text-sm">Tidak ada album galeri 3D yang ditemukan di R2.</p>
+          </div>
+        )
       }
     </div>
   </div>

@@ -64,3 +64,18 @@ export const aiChatMessages = sqliteTable("ai_chat_messages", {
   content: text("content").notNull(),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
+
+export const softwareTools = sqliteTable("software_tools", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  slug: text("slug").unique().notNull(),
+  iconType: text("icon_type").notNull(), // 'iconify' | 'custom_r2'
+  iconValue: text("icon_value").notNull(),
+  color: text("color"), // HEX code
+});
+
+export const albumMetadata = sqliteTable("album_metadata", {
+  albumSlug: text("album_slug").primaryKey(),
+  title: text("title").notNull(),
+  softwareList: text("software_list").notNull(), // JSON string array
+});
