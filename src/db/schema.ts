@@ -79,3 +79,10 @@ export const albumMetadata = sqliteTable("album_metadata", {
   title: text("title").notNull(),
   softwareList: text("software_list").notNull(), // JSON string array
 });
+
+export const activityLogs = sqliteTable("activity_logs", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  type: text("type").notNull(), // 'admin_create_album', 'user_login', 'admin_update_software', 'ai_chat', etc.
+  description: text("description").notNull(),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+});

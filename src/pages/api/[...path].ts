@@ -73,8 +73,8 @@ app.post("/send-email", zValidator("json", sendEmailSchema), async (c) => {
 });
 
 import { drizzle } from "drizzle-orm/d1";
-import { eq } from "drizzle-orm";
-import { users, softwareTools, albumMetadata } from "../../db/schema";
+import { eq, sql } from "drizzle-orm";
+import { users, softwareTools, albumMetadata, webAnalytics, aiChatMessages, activityLogs } from "../../db/schema";
 
 // Helper check admin
 const isAdmin = async (c: any) => {
@@ -161,6 +161,11 @@ app.post("/admin/software", async (c) => {
     color: color || null,
   });
 
+  try {
+    const { logActivity } = await import("@/lib/activity");
+    await logActivity("admin_create_software", `Admin menambah software tool baru: "${name}" (${slug})`);
+  } catch (e) {}
+
   return c.json({ success: true });
 });
 
@@ -185,6 +190,11 @@ app.put("/admin/software/:id", async (c) => {
     })
     .where(eq(softwareTools.id, id));
 
+  try {
+    const { logActivity } = await import("@/lib/activity");
+    await logActivity("admin_update_software", `Admin memperbarui software tool: "${name}" (${slug})`);
+  } catch (e) {}
+
   return c.json({ success: true });
 });
 
@@ -196,7 +206,22 @@ app.delete("/admin/software/:id", async (c) => {
   const id = parseInt(c.req.param("id"));
   const rawDb = getDB();
   const db = drizzle(rawDb);
+
+  let toolName = `ID ${id}`;
+  try {
+    const tool = await db.select().from(softwareTools).where(eq(softwareTools.id, id)).limit(1);
+    if (tool.length > 0) {
+      toolName = tool[0].name;
+    }
+  } catch (e) {}
+
   await db.delete(softwareTools).where(eq(softwareTools.id, id));
+
+  try {
+    const { logActivity } = await import("@/lib/activity");
+    await logActivity("admin_delete_software", `Admin menghapus software tool: "${toolName}"`);
+  } catch (e) {}
+
   return c.json({ success: true });
 });
 
@@ -259,9 +284,12 @@ app.get("/admin/albums", async (c) => {
     }
   }
 
+  const bucketName = cfEnv.GALLERY_BUCKET_NAME || import.meta.env.GALLERY_BUCKET_NAME || "dev-web-porto-r2";
+
   return c.json({
     albums: Object.values(albums),
     softwareTools: allSoftware,
+    bucketName: bucketName,
   });
 });
 
@@ -291,6 +319,11 @@ app.post("/admin/albums/metadata", async (c) => {
     });
   }
 
+  try {
+    const { logActivity } = await import("@/lib/activity");
+    await logActivity("admin_update_album_metadata", `Admin memperbarui metadata album: "${title}" (${albumSlug})`);
+  } catch (e) {}
+
   return c.json({ success: true });
 });
 
@@ -319,6 +352,11 @@ app.post("/admin/albums/upload", async (c) => {
     httpMetadata: { contentType: file.type }
   });
 
+  try {
+    const { logActivity } = await import("@/lib/activity");
+    await logActivity("admin_upload_file", `Admin mengunggah file "${fileName}" ke album "${albumSlug}"`);
+  } catch (e) {}
+
   return c.json({ success: true, key: r2Key });
 });
 
@@ -336,8 +374,186 @@ app.post("/admin/albums/delete-file", async (c) => {
 
   if (!key) return c.json({ error: "Missing key" }, 400);
 
+  const parts = key.split("/");
+  const albumSlug = parts[2] || "unknown";
+  const fileName = parts[3] || "unknown";
+
   await bucket.delete(key);
+
+  try {
+    const { logActivity } = await import("@/lib/activity");
+    await logActivity("admin_delete_file", `Admin menghapus file "${fileName}" dari album "${albumSlug}"`);
+  } catch (e) {}
+
   return c.json({ success: true });
+});
+
+// 9. POST /api/admin/albums/create (Buat Album Baru)
+app.post("/admin/albums/create", async (c) => {
+  const authorized = await isAdmin(c);
+  if (!authorized) return c.json({ error: "Unauthorized" }, 401);
+
+  const body = await c.req.json();
+  const { slug, title } = body;
+
+  if (!slug || !title) {
+    return c.json({ error: "Missing slug or title" }, 400);
+  }
+
+  const cleanSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, "");
+  if (!cleanSlug) {
+    return c.json({ error: "Invalid slug format" }, 400);
+  }
+
+  const cfEnv = getCfEnv();
+  const bucket = cfEnv.GALLERY_BUCKET;
+  if (!bucket) return c.json({ error: "R2 bucket not bound" }, 500);
+
+  const rawDb = getDB();
+  const db = drizzle(rawDb);
+
+  const existing = await db
+    .select()
+    .from(albumMetadata)
+    .where(eq(albumMetadata.albumSlug, cleanSlug))
+    .limit(1);
+
+  if (existing.length > 0) {
+    return c.json({ error: "Album slug already exists" }, 400);
+  }
+
+  // 1. Tulis placeholder file .keep di R2
+  const placeholderKey = `assets/3Dgallery/${cleanSlug}/.keep`;
+  await bucket.put(placeholderKey, new ArrayBuffer(0));
+
+  // 2. Simpan metadata awal ke D1
+  await db.insert(albumMetadata).values({
+    albumSlug: cleanSlug,
+    title: title,
+    softwareList: JSON.stringify([]),
+  });
+
+  // 3. Log aktivitas
+  try {
+    const { logActivity } = await import("@/lib/activity");
+    await logActivity("admin_create_album", `Admin membuat album baru: "${title}" (${cleanSlug})`);
+  } catch (e) {}
+
+  return c.json({ success: true });
+});
+
+// 10. GET /api/admin/analytics (Dapatkan metrik analitik riil)
+app.get("/admin/analytics", async (c) => {
+  const authorized = await isAdmin(c);
+  if (!authorized) return c.json({ error: "Unauthorized" }, 401);
+
+  const rawDb = getDB();
+  const db = drizzle(rawDb);
+
+  try {
+    // 1. Pageviews
+    const totalPageviewsRes = await db.select({ count: sql<number>`count(*)` }).from(webAnalytics);
+    const totalPageviews = totalPageviewsRes[0]?.count || 0;
+
+    // 2. Unique Visitors (kombinasi UA dan Negara)
+    const uniqueVisitorsRes = await db.select({ count: sql<number>`count(distinct(user_agent || '-' || country))` }).from(webAnalytics);
+    const uniqueVisitors = uniqueVisitorsRes[0]?.count || 0;
+
+    // 3. AI Sessions
+    const totalAiSessionsRes = await db.select({ count: sql<number>`count(distinct(session_id))` }).from(aiChatMessages);
+    const totalAiSessions = totalAiSessionsRes[0]?.count || 0;
+
+    // 4. Registered Users
+    const registeredUsersRes = await db.select({ count: sql<number>`count(*)` }).from(users);
+    const registeredUsers = registeredUsersRes[0]?.count || 0;
+
+    // 5. Top Pages
+    const topPages = await db
+      .select({
+        pagePath: webAnalytics.pagePath,
+        count: sql<number>`count(*)`
+      })
+      .from(webAnalytics)
+      .groupBy(webAnalytics.pagePath)
+      .orderBy(sql`count(*) desc`)
+      .limit(5);
+
+    // 6. Top Countries
+    const topCountries = await db
+      .select({
+        country: webAnalytics.country,
+        count: sql<number>`count(*)`
+      })
+      .from(webAnalytics)
+      .groupBy(webAnalytics.country)
+      .orderBy(sql`count(*) desc`)
+      .limit(5);
+
+    // 7. Weekly Pageviews (7 hari terakhir)
+    const weeklyPageviews = await db
+      .select({
+        date: sql<string>`date(created_at)`,
+        count: sql<number>`count(*)`
+      })
+      .from(webAnalytics)
+      .where(sql`created_at >= datetime('now', '-7 days')`)
+      .groupBy(sql`date(created_at)`)
+      .orderBy(sql`date(created_at) asc`);
+
+    // Format grafik 7 hari terakhir agar lengkap (isi 0 jika ada tanggal kosong)
+    const datesList = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      return d.toISOString().split("T")[0];
+    });
+
+    const countsMap = new Map(weeklyPageviews.map((item) => [item.date, item.count]));
+    const weeklyChartData = datesList.map((date) => ({
+      date,
+      count: countsMap.get(date) || 0
+    }));
+
+    // 8. Recent Activities (ambil 5 saja untuk dashboard overview)
+    const recentActivities = await db
+      .select()
+      .from(activityLogs)
+      .orderBy(sql`created_at desc`)
+      .limit(5);
+
+    return c.json({
+      totalPageviews,
+      uniqueVisitors,
+      totalAiSessions,
+      registeredUsers,
+      topPages,
+      topCountries,
+      weeklyPageviews: weeklyChartData,
+      recentActivities,
+    });
+  } catch (e: any) {
+    console.error("Gagal memproses analitik:", e);
+    return c.json({ error: "Gagal mengambil data analitik", details: e.message }, 500);
+  }
+});
+
+// 11. GET /api/admin/activities (Ambil 10 aktivitas terbaru untuk dropdown bel)
+app.get("/admin/activities", async (c) => {
+  const authorized = await isAdmin(c);
+  if (!authorized) return c.json({ error: "Unauthorized" }, 401);
+
+  const rawDb = getDB();
+  const db = drizzle(rawDb);
+
+  try {
+    const list = await db
+      .select()
+      .from(activityLogs)
+      .orderBy(sql`created_at desc`)
+      .limit(10);
+    return c.json(list);
+  } catch (e: any) {
+    return c.json({ error: "Gagal mengambil log aktivitas", details: e.message }, 500);
+  }
 });
 
 export type AppType = typeof app;

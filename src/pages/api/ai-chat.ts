@@ -174,6 +174,15 @@ export const POST: APIRoute = async (context) => {
                     role: "ai",
                     content: replyText,
                 });
+
+                // Catat aktivitas AI Chat
+                try {
+                    const { logActivity } = await import("../../lib/activity");
+                    const identity = user?.name || user?.email || "Pengunjung umum";
+                    await logActivity("ai_chat", `${identity} berinteraksi dengan AI Assistant`);
+                } catch (actErr) {
+                    console.error("Gagal mencatat log aktivitas AI chat:", actErr);
+                }
             }
         } catch (dbError) {
             console.error("⚠️ Gagal menyimpan riwayat chat ke database:", dbError);

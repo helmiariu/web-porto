@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "wrangler dev --config dist/server/wrangler.json",
+    "preview": "wrangler dev --config dist/server/wrangler.json --persist-to .wrangler/state",
     "astro": "astro"
   },
   "dependencies": {

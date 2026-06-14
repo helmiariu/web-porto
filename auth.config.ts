@@ -29,6 +29,17 @@ export default defineConfig({
             allowDangerousEmailAccountLinking: true,
         }),
     ],
+    events: {
+        async signIn({ user }) {
+            try {
+                const { logActivity } = await import("./src/lib/activity");
+                const identity = user.name || user.email || "Seseorang";
+                await logActivity("user_login", `${identity} berhasil masuk (login)`);
+            } catch (e) {
+                console.error("Gagal mencatat log signIn:", e);
+            }
+        }
+    },
     secret: cfEnv.AUTH_SECRET || import.meta.env.AUTH_SECRET,
     trustHost: true,
 });

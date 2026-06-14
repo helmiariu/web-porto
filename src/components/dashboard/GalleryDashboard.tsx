@@ -31,6 +31,14 @@ export function GalleryDashboard() {
   const [softwareTools, setSoftwareTools] = React.useState<SoftwareTool[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [selectedAlbum, setSelectedAlbum] = React.useState<Album | null>(null);
+  const [bucketName, setBucketName] = React.useState('dev-web-porto-r2');
+  
+  // States untuk membuat album baru
+  const [showCreateAlbum, setShowCreateAlbum] = React.useState(false);
+  const [newAlbumSlug, setNewAlbumSlug] = React.useState('');
+  const [newAlbumTitle, setNewAlbumTitle] = React.useState('');
+  const [createAlbumMsg, setCreateAlbumMsg] = React.useState('');
+  const [creatingAlbum, setCreatingAlbum] = React.useState(false);
   
   // States untuk form Software Tool
   const [softwareForm, setSoftwareForm] = React.useState<SoftwareTool>({
@@ -38,7 +46,7 @@ export function GalleryDashboard() {
     slug: '',
     iconType: 'iconify',
     iconValue: '',
-    color: '#3b82f6'
+    color: '#ffffff'
   });
   const [editingSoftwareId, setEditingSoftwareId] = React.useState<number | null>(null);
   const [softwareSvgFile, setSoftwareSvgFile] = React.useState<File | null>(null);
@@ -62,6 +70,9 @@ export function GalleryDashboard() {
         const data = await res.json();
         setAlbums(data.albums || []);
         setSoftwareTools(data.softwareTools || []);
+        if (data.bucketName) {
+          setBucketName(data.bucketName);
+        }
       }
     } catch (e) {
       console.error("Gagal memuat data admin gallery:", e);
@@ -207,6 +218,37 @@ export function GalleryDashboard() {
     }
   };
 
+  // Buat Album Baru
+  const handleCreateAlbum = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newAlbumSlug || !newAlbumTitle) return;
+
+    try {
+      setCreatingAlbum(true);
+      const res = await fetch('/api/admin/albums/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug: newAlbumSlug, title: newAlbumTitle })
+      });
+
+      if (res.ok) {
+        setCreateAlbumMsg('Album berhasil dibuat!');
+        setNewAlbumSlug('');
+        setNewAlbumTitle('');
+        setShowCreateAlbum(false);
+        fetchData(); // Reload list
+        setTimeout(() => setCreateAlbumMsg(''), 3000);
+      } else {
+        const err = await res.json();
+        setCreateAlbumMsg(err.error || 'Gagal membuat album.');
+      }
+    } catch (err) {
+      setCreateAlbumMsg('Terjadi kesalahan jaringan.');
+    } finally {
+      setCreatingAlbum(false);
+    }
+  };
+
   // Submit Software Tool (Create / Update)
   const handleSaveSoftware = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -255,7 +297,7 @@ export function GalleryDashboard() {
 
       if (res.ok) {
         setSoftwareMsg(isEdit ? 'Software berhasil diperbarui!' : 'Software berhasil ditambahkan!');
-        setSoftwareForm({ name: '', slug: '', iconType: 'iconify', iconValue: '', color: '#3b82f6' });
+        setSoftwareForm({ name: '', slug: '', iconType: 'iconify', iconValue: '', color: '#ffffff' });
         setEditingSoftwareId(null);
         setSoftwareSvgFile(null);
         fetchData(); // Reload list
@@ -311,15 +353,74 @@ export function GalleryDashboard() {
       <div className="lg:col-span-4 space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl font-bold">
-              <Folder className="h-5 w-5 text-yellow-500" />
-              <span>Daftar Album R2 Bucket</span>
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-xl font-bold">
+                <Folder className="h-5 w-5 text-yellow-500" />
+                <span>Daftar Album R2 Bucket</span>
+              </CardTitle>
+              <button 
+                onClick={() => setShowCreateAlbum(!showCreateAlbum)}
+                className="h-8 rounded bg-primary text-primary-foreground px-3 text-xs font-semibold hover:bg-primary/95 flex items-center gap-1 cursor-pointer"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Tambah Album
+              </button>
+            </div>
             <CardDescription>
-              Folder album dideteksi dari `assets/3Dgallery/` di R2 bucket `dev-web-porto-r2`.
+              Folder album dideteksi dari `assets/3Dgallery/` di R2 bucket `{bucketName}`.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+            {showCreateAlbum && (
+              <form onSubmit={handleCreateAlbum} className="p-4 border rounded-lg bg-muted/20 space-y-3 mb-4">
+                <h4 className="text-xs font-bold text-foreground">Buat Album Baru</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="grid gap-1">
+                    <label className="text-[10px] font-semibold text-muted-foreground uppercase">Folder Slug (Contoh: helmet)</label>
+                    <input 
+                      type="text" 
+                      value={newAlbumSlug}
+                      onChange={(e) => setNewAlbumSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                      className="h-8 w-full rounded border border-input bg-background px-3 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      placeholder="slug-album"
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-1">
+                    <label className="text-[10px] font-semibold text-muted-foreground uppercase">Judul Album</label>
+                    <input 
+                      type="text" 
+                      value={newAlbumTitle}
+                      onChange={(e) => setNewAlbumTitle(e.target.value)}
+                      className="h-8 w-full rounded border border-input bg-background px-3 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      placeholder="Judul Album Cantik"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-2 justify-end">
+                  <button 
+                    type="button" 
+                    onClick={() => setShowCreateAlbum(false)}
+                    className="h-8 px-3 rounded border border-border text-xs bg-card hover:bg-muted font-medium cursor-pointer"
+                  >
+                    Batal
+                  </button>
+                  <button 
+                    type="submit"
+                    disabled={creatingAlbum}
+                    className="h-8 px-3 rounded bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/95 flex items-center justify-center gap-1 cursor-pointer"
+                  >
+                    {creatingAlbum ? 'Membuat...' : 'Buat Album'}
+                  </button>
+                </div>
+              </form>
+            )}
+            {createAlbumMsg && (
+              <div className="p-2.5 text-xs bg-primary/10 border border-primary/20 rounded-lg text-primary font-medium mb-4">
+                {createAlbumMsg}
+              </div>
+            )}
             {albums.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-6">Tidak ada folder album di R2.</p>
             ) : (
@@ -582,13 +683,13 @@ export function GalleryDashboard() {
                 <div className="flex items-center gap-2">
                   <input 
                     type="color" 
-                    value={softwareForm.color || '#3b82f6'}
+                    value={softwareForm.color || '#ffffff'}
                     onChange={(e) => setSoftwareForm({ ...softwareForm, color: e.target.value })}
                     className="h-9 w-12 rounded border cursor-pointer bg-background"
                   />
                   <input 
                     type="text"
-                    value={softwareForm.color || '#3b82f6'}
+                    value={softwareForm.color || '#ffffff'}
                     onChange={(e) => setSoftwareForm({ ...softwareForm, color: e.target.value })}
                     className="h-9 w-full rounded border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     placeholder="#ffffff"
@@ -655,7 +756,7 @@ export function GalleryDashboard() {
                     type="button"
                     onClick={() => {
                       setEditingSoftwareId(null);
-                      setSoftwareForm({ name: '', slug: '', iconType: 'iconify', iconValue: '', color: '#3b82f6' });
+                      setSoftwareForm({ name: '', slug: '', iconType: 'iconify', iconValue: '', color: '#ffffff' });
                     }}
                     className="h-9 px-3 rounded border border-border bg-card text-foreground text-xs font-semibold hover:bg-muted cursor-pointer"
                   >

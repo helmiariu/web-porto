@@ -3,6 +3,7 @@ import { SidebarTrigger } from '../ui/sidebar';
 import { Separator } from '../ui/separator';
 import { ProfileDropdown } from './profile-dropdown';
 import ThemeToggle from './ThemeToggle.astro';
+import { NotificationDropdown } from './notification-dropdown';
 ---
 
 <header class="z-50 h-16 border-b bg-background sticky top-0 w-full header-fixed peer/header">
@@ -19,6 +20,7 @@ import ThemeToggle from './ThemeToggle.astro';
         </span>
       </div>
       <nav class="flex items-center space-x-2">
+        <NotificationDropdown client:load />
         <ThemeToggle />
         <ProfileDropdown client:load />
       </nav>

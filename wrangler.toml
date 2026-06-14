@@ -23,3 +23,6 @@ id = "e835e2e882f341a0997f1504e3acce01"
 [[r2_buckets]]
 binding = "GALLERY_BUCKET"
 bucket_name = "dev-web-porto-r2"
+
+[vars]
+GALLERY_BUCKET_NAME = "dev-web-porto-r2"

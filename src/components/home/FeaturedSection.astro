@@ -1,8 +1,10 @@
 ---
 // src/components/home/FeaturedSection.astro
 import { getCollection } from "astro:content";
-import { getImage } from "astro:assets";
 import { InteractiveFeatured } from "./InteractiveFeatured";
+import { getCfEnv, getDB } from "@/lib/cloudflare";
+import { drizzle } from "drizzle-orm/d1";
+import { softwareTools, albumMetadata } from "../../db/schema";
 
 // 1. Fetch Blogs (sorted by pubDate descending, take top 2)
 const rawBlogs = await getCollection("blogs");
@@ -16,86 +18,97 @@ const projects = rawProjects
   .sort((a, b) => (b.data.isFeatured ? 1 : 0) - (a.data.isFeatured ? 1 : 0))
   .slice(0, 2);
 
-// 3. Fetch 3D Gallery Albums (same method as 3Dgallery/index.astro, take top 2)
-const allImages = import.meta.glob(
-  "/src/assets/3Dgallery/**/*.{jpeg,jpg,png,gif,webp,avif,svg}",
-  { eager: true }
-);
+// 3. Fetch 3D Gallery Albums dari R2 & D1 (ambil 2 teratas)
+const rawDb = getDB();
+const db = drizzle(rawDb);
 
-const allModels = import.meta.glob("/src/assets/3Dgallery/**/*.glb", {
-  eager: true,
-  query: "?url",
-});
+let allSoftware: any[] = [];
+let allMeta: any[] = [];
 
-interface AlbumRaw {
-  images: any[];
+try {
+  allSoftware = await db.select().from(softwareTools);
+  allMeta = await db.select().from(albumMetadata);
+} catch (e) {
+  console.error("Gagal mengambil data dari database D1 untuk FeaturedSection:", e);
+}
+
+// Buat Map pencarian cepat
+const softwareMap = new Map(allSoftware.map((s) => [s.slug, s]));
+const metaMap = new Map(allMeta.map((m) => [m.albumSlug, m]));
+
+// Inisialisasi R2
+const cfEnv = getCfEnv();
+const bucket = cfEnv.GALLERY_BUCKET;
+
+interface AlbumData {
+  name: string;
+  title?: string;
+  images: string[];
   modelUrl?: string;
   wireframeUrl?: string;
+  softwareTools: any[];
 }
-const rawAlbumsData: Record<string, AlbumRaw> = {};
 
-// Group 2D Images (sorted alphabetically to keep slide order consistent)
-Object.keys(allImages)
-  .sort()
-  .forEach((path) => {
-    const parts = path.split("/3Dgallery/");
-    if (parts.length > 1) {
-      const albumName = parts[1].split("/")[0];
-      if (!rawAlbumsData[albumName]) {
-        rawAlbumsData[albumName] = { images: [] };
+const albumsMap: Record<string, AlbumData> = {};
+
+if (bucket) {
+  try {
+    const response = await bucket.list({ prefix: "assets/3Dgallery/" });
+    
+    for (const obj of response.objects) {
+      const key = obj.key;
+      const parts = key.split("/");
+      
+      if (parts.length >= 4) {
+        const albumSlug = parts[2]; // "helmet"
+        const fileName = parts[3];  // "model.glb"
+        
+        if (!albumSlug) continue;
+
+        if (!albumsMap[albumSlug]) {
+          const dbMeta = metaMap.get(albumSlug);
+          let tools: any[] = [];
+          
+          if (dbMeta) {
+            try {
+              const slugList = JSON.parse(dbMeta.softwareList) as string[];
+              tools = slugList
+                .map((slug) => softwareMap.get(slug))
+                .filter(Boolean);
+            } catch (jsonErr) {
+              console.error(`Gagal melakukan parse softwareList untuk ${albumSlug} di FeaturedSection:`, jsonErr);
+            }
+          }
+
+          albumsMap[albumSlug] = {
+            name: albumSlug,
+            title: dbMeta?.title,
+            images: [],
+            softwareTools: tools,
+          };
+        }
+
+        const fileUrl = `/api/assets/${key}`;
+
+        // Kategorikan File
+        if (fileName.endsWith(".glb")) {
+          if (fileName.toLowerCase().includes("wireframe")) {
+            albumsMap[albumSlug].wireframeUrl = fileUrl;
+          } else {
+            albumsMap[albumSlug].modelUrl = fileUrl;
+          }
+        } else if (/\.(jpg|jpeg|png|webp|avif|gif|svg)$/i.test(fileName)) {
+          albumsMap[albumSlug].images.push(fileUrl);
+        }
       }
-      rawAlbumsData[albumName].images.push((allImages[path] as any).default);
     }
-  });
-
-// Group 3D Files (.glb)
-Object.keys(allModels).forEach((path) => {
-  const parts = path.split("/3Dgallery/");
-  if (parts.length > 1) {
-    const albumName = parts[1].split("/")[0];
-    if (!rawAlbumsData[albumName]) {
-      rawAlbumsData[albumName] = { images: [] };
-    }
-
-    const fileUrl = (allModels[path] as any).default;
-
-    if (path.toLowerCase().includes("wireframe")) {
-      rawAlbumsData[albumName].wireframeUrl = fileUrl;
-    } else {
-      rawAlbumsData[albumName].modelUrl = fileUrl;
-    }
+  } catch (r2Err) {
+    console.error("Gagal melakukan list object R2 di FeaturedSection:", r2Err);
   }
-});
+}
 
-// Process Images Optimization
-const albumList = await Promise.all(
-  Object.keys(rawAlbumsData).map(async (name) => {
-    const album = rawAlbumsData[name];
-
-    const optimizedImages = await Promise.all(
-      album.images.map(async (imgMetadata) => {
-        if (imgMetadata.format === "svg") return imgMetadata.src;
-        const optimized = await getImage({
-          src: imgMetadata,
-          width: 1200,
-          format: "webp",
-          quality: "normal",
-        });
-        return optimized.src;
-      })
-    );
-
-    return {
-      name: name,
-      images: optimizedImages,
-      modelUrl: album.modelUrl,
-      wireframeUrl: album.wireframeUrl,
-    };
-  })
-);
-
-// Get the top 2 albums
-const featuredAlbums = albumList.slice(0, 2);
+// Ambil 2 album teratas
+const featuredAlbums = Object.values(albumsMap).slice(0, 2);
 ---
 
 <section class="w-full py-8 text-foreground antialiased">
