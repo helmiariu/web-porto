@@ -640,7 +640,7 @@ app.post("/admin/albums/rename-file", async (c) => {
 });
 
 // 13. POST /api/admin/albums/upload/start (Inisialisasi Multipart Upload R2)
-app.post("/api/admin/albums/upload/start", async (c) => {
+app.post("/admin/albums/upload/start", async (c) => {
   const authorized = await isAdmin(c);
   if (!authorized) return c.json({ error: "Unauthorized" }, 401);
 
@@ -674,7 +674,7 @@ app.post("/api/admin/albums/upload/start", async (c) => {
 });
 
 // 14. POST /api/admin/albums/upload/part (Unggah Part Chunk)
-app.post("/api/admin/albums/upload/part", async (c) => {
+app.post("/admin/albums/upload/part", async (c) => {
   const authorized = await isAdmin(c);
   if (!authorized) return c.json({ error: "Unauthorized" }, 401);
 
@@ -708,7 +708,7 @@ app.post("/api/admin/albums/upload/part", async (c) => {
 });
 
 // 15. POST /api/admin/albums/upload/complete (Selesaikan Multipart Upload R2)
-app.post("/api/admin/albums/upload/complete", async (c) => {
+app.post("/admin/albums/upload/complete", async (c) => {
   const authorized = await isAdmin(c);
   if (!authorized) return c.json({ error: "Unauthorized" }, 401);
 
