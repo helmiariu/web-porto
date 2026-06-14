@@ -21,7 +21,6 @@ export function getCfEnv() {
 const mockKV = {
     get: async (key: string, type?: string) => {
         console.warn(`[Local Mock KV] Reading key: "${key}"`);
-        if (key === "site:email") return "me@helmiari.my.id";
         return null;
     },
     put: async (key: string, value: string, options?: any) => {
