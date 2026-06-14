@@ -28,3 +28,7 @@ buat @sidebar-data.ts pada bagian { title: 'Dashboard',url: '/',icon: 'LayoutDas
 
 tugas 3
 karena sudah menggunakan drizzle dan semua tabel di konfigurasi dalam src/db/schema.ts, maka folder db di root sudah tidak diperlukan lagi? dan juga apakah folder assets/3dgallery perlu di hapus juga? karena semua album 3d sudah di pindahkan ke r2
+
+-------------------------------------------
+bertindaklah anda sebagai expert fullstack developer, buat fitur untuk ganti nama file di album 3d langsung dari panel kelola gareri 3d, buatkan preview gambar untuk album yang dipilih sesuaikan layout supaya rapih dan mudah untuk di kelola, ubah juga sistem pemilihan software 3d yang digunakan saat kelola album mungkin dengan dropdown dan checkbox untuk memilih software yang digunakan, dan juga bisa multi choose file yang akan di upload, implementasikan juga R2 multipart API from Workers sehingga ketika upload akan dipecah menjadi multipart anda bisa mencari info terbaru https://developers.cloudflare.com/r2/objects/upload-objects/
+buat perencanaan dan jangan eksekusi sebelum saya approve

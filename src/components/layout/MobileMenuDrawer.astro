@@ -53,7 +53,7 @@ if (session?.user) {
           <span
             class="flex items-center gap-1.5 text-xs text-muted-foreground font-sm"
           >
-            me@domainku.my.id
+            <a href="#" class="email-display"> Load... </a>
           </span>
         </div>
       </div>
@@ -103,3 +103,28 @@ if (session?.user) {
     </div>
   </div>
 </div>
+
+<script>
+  document.addEventListener("astro:page-load", async () => {
+    // DIUBAH: Mengambil semua elemen dengan class .email-display
+    const emailLinks = document.querySelectorAll(".email-display");
+
+    try {
+      const response = await fetch("/api/get-email");
+      const data = await response.json();
+
+      if (data.email) {
+        // DIUBAH: Melakukan looping untuk mengubah semua elemen yang ditemukan
+        emailLinks.forEach((link) => {
+          const anchor = link as HTMLAnchorElement;
+          anchor.textContent = data.email;
+          anchor.href = `mailto:${data.email}`;
+        });
+      }
+    } catch (err) {
+      emailLinks.forEach((link) => {
+        link.textContent = "...";
+      });
+    }
+  });
+</script>
