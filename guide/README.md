@@ -15,3 +15,6 @@ Silakan pilih panduan yang Anda butuhkan di bawah ini:
 
 4. 👑 **[Panduan Konfigurasi Admin Database D1](file:///f:/Career/Web%20Design/porto-astro/web-porto/guide/admin_configuration.md)**
    Langkah-langkah cepat untuk menjadikan akun pengguna Anda sebagai `admin` di database D1 lokal maupun remote produksi.
+
+5. 🔄 **[Panduan Sinkronisasi Data Lokal ke Remote & Perintah Penting](file:///f:/Career/Web%20Design/porto-astro/web-porto/guide/local_to_remote_sync.md)**
+   Panduan lengkap cara menyelaraskan data D1, R2, dan KV dari emulator lokal ke server produksi Cloudflare secara aman (tanpa menghapus data remote yang sudah ada) beserta rangkuman perintah CLI penting.
