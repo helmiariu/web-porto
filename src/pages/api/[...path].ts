@@ -82,7 +82,9 @@ const isAdmin = async (c: any) => {
                       c.req.header("host")?.includes("127.0.0.1") || 
                       c.req.header("host")?.includes("8787");
   
-  let email = c.req.header("Cf-Access-Authenticated-User-Email");
+  let email = c.req.header("Cf-Access-Authenticated-User-Email") || 
+              c.req.raw.headers.get("cf-access-authenticated-user-email");
+              
   if (!email) {
      try {
        const { getSession } = await import("auth-astro/server");
@@ -91,21 +93,34 @@ const isAdmin = async (c: any) => {
      } catch (e) {}
   }
 
+  console.log(`[isAdmin Debug] email: "${email}", isLocalhost: ${isLocalhost}`);
+
   if (isLocalhost && !email) {
      return true; // Dev bypass
   }
 
-  if (!email) return false;
+  if (!email) {
+     console.error("[isAdmin Debug] No email found in headers or session.");
+     return false;
+  }
 
   const rawDb = getDB();
   const db = drizzle(rawDb);
-  const adminUser = await db
-    .select()
-    .from(users)
-    .where(eq(users.email, email))
-    .limit(1);
+  
+  try {
+    const adminUser = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
 
-  return adminUser.length > 0 && adminUser[0].role === "admin";
+    const isAuthorized = adminUser.length > 0 && adminUser[0].role === "admin";
+    console.log(`[isAdmin Debug] User database lookup for "${email}": found=${adminUser.length > 0}, role=${adminUser[0]?.role}, isAuthorized=${isAuthorized}`);
+    return isAuthorized;
+  } catch (error: any) {
+    console.error(`[isAdmin Debug] Database error during admin check:`, error);
+    return false;
+  }
 };
 
 // --- REST API ADMIN: SOFTWARE TOOLS ---

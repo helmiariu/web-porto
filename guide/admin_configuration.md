@@ -21,11 +21,24 @@ bunx wrangler d1 execute prod-porto-db --command="UPDATE users SET role = 'admin
 
 ## 2. Database REMOTE (Cloud/Produksi)
 
-Setelah Anda men-deploy aplikasi dan melakukan login pertama kali di URL produksi asli, jalankan perintah ini untuk memberikan akses admin di database remote:
-
+### Kasus A: Akun Sudah Terdaftar (Telah Login via OAuth Sebelumnya)
+Jika akun email Anda sudah ada di database (misalnya Anda pernah login lewat Google/GitHub sebelumnya), Anda hanya perlu memperbarui status `role` menjadi `admin`:
 ```bash
 bunx wrangler d1 execute prod-porto-db --remote --command="UPDATE users SET role = 'admin' WHERE email = 'email-anda@gmail.com';"
 ```
 
-> [!IMPORTANT]  
-> Pastikan email yang ditulis sama persis dengan email yang terdaftar di sistem otentikasi produksi Anda.
+### Kasus B: Menggunakan Cloudflare Access (Akun Belum Ada di Database)
+Jika Anda masuk melalui **Cloudflare Access (Zero Trust)**, aplikasi membaca email dari header request. Namun, karena Anda tidak melalui alur pendaftaran standard (Auth.js), **baris data email Anda belum ada di tabel `users`**.
+
+Oleh karena itu, perintah `UPDATE` di atas tidak akan membuahkan hasil. Anda harus **memasukkan (INSERT) akun Anda terlebih dahulu** ke dalam tabel `users` di D1 Remote, kemudian memastikan rolenya adalah `admin`:
+
+1. **Jalankan Perintah INSERT & UPDATE Gabungan (Ganti email dengan email Cloudflare Access Anda):**
+   ```bash
+   bunx wrangler d1 execute prod-porto-db --remote --command="INSERT OR IGNORE INTO users (id, name, email, role) VALUES ('cf_access_admin', 'Admin Cloudflare', 'email-anda@gmail.com', 'admin'); UPDATE users SET role = 'admin' WHERE email = 'email-anda@gmail.com';"
+   ```
+
+2. **Verifikasi Apakah Data Sudah Masuk dengan Benar:**
+   ```bash
+   bunx wrangler d1 execute prod-porto-db --remote --command="SELECT * FROM users;"
+   ```
+   *Pastikan email Anda sudah terdaftar dengan kolom `role` bernilai `admin`.*
