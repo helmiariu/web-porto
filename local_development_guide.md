@@ -40,19 +40,45 @@ D1 memiliki dua environment: **Lokal (Local Emulator)** dan **Remote (Production
 | :--- | :--- |
 | **Membuat Tabel Baru** | `bunx wrangler d1 execute prod-porto-db --remote --file=db/schema.sql` |
 | **Menghapus Seluruh Isi Data Tabel** | `bunx wrangler d1 execute prod-porto-db --remote --command="DELETE FROM sessions; DELETE FROM accounts; DELETE FROM users;"` |
-| **Menghapus/Drop Semua Tabel** | `bunx wrangler d1 execute prod-porto-db --remote --command="DROP TABLE IF EXISTS sessions; DROP TABLE IF EXISTS accounts; DROP TABLE IF EXISTS users; DROP TABLE IF EXISTS verification_tokens; DROP TABLE IF EXISTS web_analytics;"` |
+| **Menghapus/Drop Semua Tabel** | `bunx wrangler d1 execute prod-porto-db --remote --command="DROP TABLE IF EXISTS sessions; DROP TABLE IF EXISTS accounts; DROP TABLE IF EXISTS users; DROP TABLE IF EXISTS verification_tokens; DROP TABLE IF EXISTS web_analytics; DROP TABLE IF EXISTS ai_chat_messages;"` |
 | **Menjalankan Query SQL Kustom** | `bunx wrangler d1 execute prod-porto-db --remote --command="SELECT * FROM users;"` |
 
 ### B. Untuk Database LOKAL (Development Emulator)
 
-Saat Anda menjalankan `bun run preview`, database lokal disimpan di folder `.wrangler/`. Gunakan perintah di bawah ini **tanpa** flag `--remote`:
+Saat Anda menjalankan `bun run preview` atau menggunakan D1 lokal, databasenya disimpan secara lokal. Gunakan perintah di bawah ini **tanpa** flag `--remote`:
 
 | Aksi | Perintah Wrangler / Bunx |
 | :--- | :--- |
 | **Membuat Tabel Baru di Lokal** | `bunx wrangler d1 execute prod-porto-db --file=db/schema.sql` |
 | **Menghapus Isi Data Tabel Lokal** | `bunx wrangler d1 execute prod-porto-db --command="DELETE FROM sessions; DELETE FROM accounts; DELETE FROM users;"` |
-| **Menghapus/Drop Semua Tabel Lokal** | `bunx wrangler d1 execute prod-porto-db --command="DROP TABLE IF EXISTS sessions; DROP TABLE IF EXISTS accounts; DROP TABLE IF EXISTS users; DROP TABLE IF EXISTS verification_tokens; DROP TABLE IF EXISTS web_analytics;"` |
+| **Menghapus/Drop Semua Tabel Lokal** | `bunx wrangler d1 execute prod-porto-db --command="DROP TABLE IF EXISTS sessions; DROP TABLE IF EXISTS accounts; DROP TABLE IF EXISTS users; DROP TABLE IF EXISTS verification_tokens; DROP TABLE IF EXISTS web_analytics; DROP TABLE IF EXISTS ai_chat_messages;"` |
 | **Melihat Data User di Lokal** | `bunx wrangler d1 execute prod-porto-db --command="SELECT * FROM users;"` |
+
+### C. Alur Sinkronisasi Database Remote ke Lokal
+
+Jika Anda ingin menyamakan isi database lokal agar persis sama dengan database produksi (Remote), gunakan alur ekspor-impor berikut:
+
+1. **Ekspor Data dari Remote D1 ke File SQL:**
+   ```bash
+   bunx wrangler d1 export prod-porto-db --remote --output=db-remote-dump.sql
+   ```
+   *Perintah ini akan membuat file `db-remote-dump.sql` yang berisi skema dan data dari database cloud.*
+
+2. **Hapus Tabel Lama di Database Lokal (Opsional/Direkomendasikan):**
+   Untuk menghindari konflik data ganda (*primary key duplication*), bersihkan tabel di lokal terlebih dahulu:
+   ```bash
+   bunx wrangler d1 execute prod-porto-db --command="DROP TABLE IF EXISTS sessions; DROP TABLE IF EXISTS accounts; DROP TABLE IF EXISTS users; DROP TABLE IF EXISTS verification_tokens; DROP TABLE IF EXISTS web_analytics; DROP TABLE IF EXISTS ai_chat_messages;"
+   ```
+
+3. **Impor File SQL ke Database Lokal:**
+   ```bash
+   bunx wrangler d1 execute prod-porto-db --file=db-remote-dump.sql
+   ```
+
+4. **Hapus File Dump Sementara:**
+   Jangan lupa untuk menghapus file SQL hasil ekspor agar bersih:
+   * **PowerShell**: `Remove-Item db-remote-dump.sql`
+   * **Bash**: `rm db-remote-dump.sql`
 
 ---
 
