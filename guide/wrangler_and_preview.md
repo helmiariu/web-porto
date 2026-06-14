@@ -28,8 +28,28 @@ Jika ingin menguji alur autentikasi dan database secara lokal:
    ```
    *Perintah ini akan menjalankan emulator Wrangler yang membaca konfigurasi di `.wrangler` dan mengaktifkan D1 / KV lokal.*
 
-### Cara C: Menggunakan Wrangler Dev dengan Mode Remote Penuh (Mendukung D1 & KV Remote/Produksi Langsung)
-Jika Anda ingin kode program lokal Anda berjalan namun langsung terhubung dengan database D1 dan KV asli di cloud (produksi):
+### Perbandingan Mode Development (Wrangler v4)
+
+Berikut adalah ringkasan perbedaan mode development yang tersedia di Wrangler v4:
+
+| Mode | Kode Worker | Binding | Perintah |
+| :--- | :--- | :--- | :--- |
+| **Lokal default** | Lokal | Simulasi lokal (data kosong / lokal) | `wrangler dev` / `bun run preview` |
+| **Remote bindings** | Lokal | Terhubung ke Cloudflare (real data) | `wrangler dev` (dengan `remote = true` pada binding) |
+| **Remote penuh** | Cloudflare (upload) | Semua ke Cloudflare | `wrangler dev --remote` |
+
+---
+
+### Cara C: Menggunakan Remote Bindings (Mode yang Direkomendasikan)
+Jika Anda ingin menjalankan kode secara lokal dengan hot-reload cepat, tetapi ingin binding tertentu (misal KV) langsung membaca/menulis data asli di Cloudflare:
+1. Pastikan Anda sudah menambahkan `remote = true` pada binding yang diinginkan di `wrangler.toml`.
+2. Jalankan server lokal seperti biasa:
+   ```bash
+   bun run preview
+   ```
+
+### Cara D: Menggunakan Mode Remote Penuh (Legacy / Full Remote)
+Jika Anda ingin mengunggah kode lokal Anda langsung untuk dijalankan di Cloudflare Workers dev sandbox (semua resource terhubung ke Cloudflare):
 1. Lakukan build project terlebih dahulu:
    ```bash
    bun run build
@@ -41,7 +61,8 @@ Jika Anda ingin kode program lokal Anda berjalan namun langsung terhubung dengan
    *(Atau secara alternatif: `bunx wrangler dev --remote`)*
 
 > [!WARNING]  
-> Berhati-hatilah saat menggunakan mode `--remote` ini, karena semua operasi baca/tulis yang Anda lakukan dari browser lokal Anda akan langsung mengubah data asli yang aktif di server produksi Cloudflare (D1 & KV).
+> Berhati-hatilah saat menggunakan mode remote bindings maupun remote penuh, karena semua operasi baca/tulis yang Anda lakukan dari browser lokal Anda akan langsung mengubah data asli yang aktif di server produksi Cloudflare (D1 & KV).
+
 
 ---
 

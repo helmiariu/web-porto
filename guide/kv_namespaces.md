@@ -60,16 +60,39 @@ Gunakan flag `--remote` (atau hapus `--local` jika menggunakan versi wrangler te
 
 ---
 
-## 2. Cara Menghubungkan Lokal ke KV Remote Secara Langsung
+## 2. Cara Menghubungkan Lokal ke KV Remote Secara Langsung (Remote Bindings)
 
-Jika Anda malas menyinkronkan data secara manual, Anda bisa mengarahkan server local development Anda agar selalu membaca dan menulis data langsung ke Cloudflare KV Remote secara *real-time*.
+Remote bindings di Wrangler v4 memungkinkan Worker Anda berjalan secara lokal di mesin Anda (lebih cepat, hot-reload instan), tetapi binding KV Anda tetap terhubung ke resource asli di Cloudflare.
 
-Tambahkan properti `experimental_remote = true` di file `wrangler.toml` Anda pada binding KV terkait:
+### Kenapa `experimental_remote` Error?
+Field `experimental_remote` adalah konfigurasi lama dari versi beta remote bindings (Juni 2025). Saat ini, remote bindings sudah GA (General Availability, September 2025) dan field tersebut digantikan dengan **`remote = true`**.
+
+### Konfigurasi yang Benar untuk KV
+Tambahkan properti `remote = true` di file `wrangler.toml` Anda pada binding KV terkait:
 
 ```toml
 [[kv_namespaces]]
 binding = "prod-web-porto"
 id = "76bea9b089d24d238e818a3059b511ee"
-experimental_remote = true # 👈 Aktifkan ini
+remote = true # 👈 Aktifkan ini
 ```
-*Dengan cara ini, saat menjalankan `bun run preview`, aplikasi Anda akan langsung berinteraksi dengan KV Cloud/Remote dan mengabaikan data KV lokal.*
+
+Lalu jalankan server development seperti biasa:
+```bash
+bun run preview
+```
+*(atau `bunx wrangler dev` jika di luar Astro preview)*
+
+### Apa yang Terjadi di Balik Layar?
+* Kode Worker Anda dieksekusi secara lokal (menggunakan Miniflare).
+* Saat kode memanggil `env.prod-web-porto.get()`, request secara otomatis di-proxy ke namespace KV yang sesungguhnya di Cloudflare.
+* Data yang dibaca/ditulis adalah data riil dari Cloudflare, namun proses iterasi kode tetap sangat cepat karena tidak perlu melakukan proses upload kode ke Cloudflare.
+
+### Catatan Penting
+* **`preview_id` tidak diperlukan** saat menggunakan remote bindings. Dokumentasi menyebutkan `preview_id` hanya wajib jika menggunakan mode legacy `wrangler dev --remote`.
+* Jika ingin memaksa mode lokal murni (tanpa remote bindings) meskipun `remote = true` terpasang di config, jalankan dengan:
+  ```bash
+  bunx wrangler dev --local
+  ```
+* Jika Anda memiliki banyak binding (KV, R2, D1, dll.) dan hanya ingin KV yang remote, Anda cukup menyetel `remote = true` **hanya** pada binding KV tersebut. Binding lainnya (seperti D1) akan tetap menggunakan simulasi lokal.
+

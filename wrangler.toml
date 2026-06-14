@@ -8,7 +8,6 @@ compatibility_flags = [ "nodejs_compat_v2" ]
 [[kv_namespaces]]
 binding = "prod-web-porto"
 id = "76bea9b089d24d238e818a3059b511ee"
-experimental_remote = true
 
 [[d1_databases]]
 binding = "DB"
