@@ -20,7 +20,7 @@ export function getCfEnv() {
  */
 export function setCfEnv(env: any) {
     if (env) {
-        workerEnv = { ...workerEnv, ...env };
+        workerEnv = env;
     }
 }
 

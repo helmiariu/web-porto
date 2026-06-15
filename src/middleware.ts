@@ -3,7 +3,7 @@ import { setCfEnv } from "./lib/cloudflare";
 
 export const onRequest = defineMiddleware(async (context, next) => {
     // Sinkronkan environment dari context request ke modul cloudflare
-    if (context.locals.runtime?.env) {
+    if (context.locals?.runtime?.env) {
         setCfEnv(context.locals.runtime.env);
     }
 
@@ -20,7 +20,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     if (isHtmlPage && !isApi) {
         // 2. Ambil data analitik dari request Cloudflare
         const pagePath = url.pathname;
-        const db = context.locals.runtime?.env?.DB;
+        const db = context.locals?.runtime?.env?.DB;
 
         if (db) {
             // Cloudflare otomatis menyuntikkan data geolokasi di request.cf
@@ -30,7 +30,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
             // 3. OPTIMASI (Sangat Penting!): Jangan biarkan proses simpan database memperlambat loading web.
             // Kita gunakan runtime.waitUntil() agar query SQL berjalan di latar belakang (background process)
             // setelah halaman web sukses dikirim ke pengunjung.
-            const runtime = context.locals.runtime;
+            const runtime = context.locals?.runtime;
             if (runtime && typeof runtime.waitUntil === "function") {
                 runtime.waitUntil(
                     db.prepare(

@@ -8,7 +8,7 @@ import { aiChatMessages, users } from "../../db/schema";
 
 export const POST: APIRoute = async (context) => {
     // Sinkronkan environment Cloudflare dari context request
-    if (context.locals.runtime?.env) {
+    if (context.locals?.runtime?.env) {
         setCfEnv(context.locals.runtime.env);
     }
 
@@ -19,7 +19,7 @@ export const POST: APIRoute = async (context) => {
     });
 
     // Daftarkan Promise tersebut ke lifecycle runtime (waitUntil) agar thread worker tetap hidup
-    const runtime = context.locals.runtime;
+    const runtime = context.locals?.runtime;
     if (runtime?.ctx?.waitUntil) {
         runtime.ctx.waitUntil(dbSavePromise);
     } else if (runtime?.waitUntil) {
@@ -325,7 +325,7 @@ export const POST: APIRoute = async (context) => {
 
 export const GET: APIRoute = async (context) => {
     // Sinkronkan environment Cloudflare dari context request
-    if (context.locals.runtime?.env) {
+    if (context.locals?.runtime?.env) {
         setCfEnv(context.locals.runtime.env);
     }
     const request = context.request;
@@ -451,7 +451,7 @@ export const GET: APIRoute = async (context) => {
 
 export const DELETE: APIRoute = async (context) => {
     // Sinkronkan environment Cloudflare dari context request
-    if (context.locals.runtime?.env) {
+    if (context.locals?.runtime?.env) {
         setCfEnv(context.locals.runtime.env);
     }
     const request = context.request;
