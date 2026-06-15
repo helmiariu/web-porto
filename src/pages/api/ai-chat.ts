@@ -1,12 +1,31 @@
 // src/pages/api/ai-chat.ts
 import type { APIRoute } from "astro";
-import { getKV, getGeminiApiKey, getDB } from "@lib/cloudflare";
+import { getKV, getGeminiApiKey, getDB, setCfEnv } from "@lib/cloudflare";
 import { getSession } from "auth-astro/server";
 import { drizzle } from "drizzle-orm/d1";
 import { eq } from "drizzle-orm";
 import { aiChatMessages, users } from "../../db/schema";
 
 export const POST: APIRoute = async (context) => {
+    // Sinkronkan environment Cloudflare dari context request
+    if (context.locals.runtime?.env) {
+        setCfEnv(context.locals.runtime.env);
+    }
+
+    // Inisialisasi Deferred Promise untuk memantau proses simpan database latar belakang
+    let resolveDbSave: () => void = () => {};
+    const dbSavePromise = new Promise<void>((resolve) => {
+        resolveDbSave = resolve;
+    });
+
+    // Daftarkan Promise tersebut ke lifecycle runtime (waitUntil) agar thread worker tetap hidup
+    const runtime = context.locals.runtime;
+    if (runtime?.ctx?.waitUntil) {
+        runtime.ctx.waitUntil(dbSavePromise);
+    } else if (runtime?.waitUntil) {
+        runtime.waitUntil(dbSavePromise);
+    }
+
     const request = context.request;
     const kv = getKV();
 
@@ -274,6 +293,9 @@ export const POST: APIRoute = async (context) => {
                         }
                     } catch (dbError) {
                         console.error("⚠️ Gagal menyimpan riwayat chat streaming ke database:", dbError);
+                    } finally {
+                        // Selesaikan deferred promise agar runtime mengizinkan worker ditangguhkan/dimatikan dengan aman
+                        resolveDbSave();
                     }
                 }
             }
@@ -302,6 +324,10 @@ export const POST: APIRoute = async (context) => {
 };
 
 export const GET: APIRoute = async (context) => {
+    // Sinkronkan environment Cloudflare dari context request
+    if (context.locals.runtime?.env) {
+        setCfEnv(context.locals.runtime.env);
+    }
     const request = context.request;
     const url = new URL(request.url);
     const sessionId = url.searchParams.get("sessionId");
@@ -424,6 +450,10 @@ export const GET: APIRoute = async (context) => {
 };
 
 export const DELETE: APIRoute = async (context) => {
+    // Sinkronkan environment Cloudflare dari context request
+    if (context.locals.runtime?.env) {
+        setCfEnv(context.locals.runtime.env);
+    }
     const request = context.request;
     const url = new URL(request.url);
     const sessionId = url.searchParams.get("sessionId");

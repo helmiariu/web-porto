@@ -16,6 +16,15 @@ export function getCfEnv() {
 }
 
 /**
+ * Mengubah/memperbarui object env Cloudflare secara dinamis (berguna untuk sinkronisasi di dev mode).
+ */
+export function setCfEnv(env: any) {
+    if (env) {
+        workerEnv = { ...workerEnv, ...env };
+    }
+}
+
+/**
  * Fallback Mock KV Namespace untuk development lokal (Node.js)
  */
 const mockKV = {
