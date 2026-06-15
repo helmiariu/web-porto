@@ -273,6 +273,43 @@ app.get("/admin/albums", async (c) => {
 
   const cfEnv = getCfEnv();
   const bucket = cfEnv.GALLERY_BUCKET;
+
+  const isLocalhost = c.req.header("host")?.includes("localhost") || 
+                      c.req.header("host")?.includes("127.0.0.1") || 
+                      c.req.header("host")?.includes("8787");
+
+  if (!bucket && isLocalhost) {
+    return c.json({
+      albums: [
+        {
+          albumSlug: "helmet",
+          title: "Sci-Fi Helmet Design",
+          files: [
+            { key: "assets/3Dgallery/helmet/helmet.glb", name: "helmet.glb", size: 12500000 },
+            { key: "assets/3Dgallery/helmet/render1.webp", name: "render1.webp", size: 450000 },
+            { key: "assets/3Dgallery/helmet/render2.webp", name: "render2.webp", size: 550000 }
+          ],
+          softwareList: ["blender", "zbrush"]
+        },
+        {
+          albumSlug: "house",
+          title: "Cozy Wooden Cabin",
+          files: [
+            { key: "assets/3Dgallery/house/house.glb", name: "house.glb", size: 22000000 },
+            { key: "assets/3Dgallery/house/preview.jpg", name: "preview.jpg", size: 850000 }
+          ],
+          softwareList: ["blender", "maya"]
+        }
+      ],
+      softwareTools: [
+        { id: 1, name: "Blender", slug: "blender", iconType: "iconify", iconValue: "simple-icons:blender", color: "#E87D0D" },
+        { id: 2, name: "Maya", slug: "maya", iconType: "iconify", iconValue: "simple-icons:autodeskmaya", color: "#319FB5" },
+        { id: 3, name: "ZBrush", slug: "zbrush", iconType: "iconify", iconValue: "simple-icons:zbrush", color: "#4E4E4E" }
+      ],
+      bucketName: "mock-local-bucket"
+    });
+  }
+
   if (!bucket) return c.json({ error: "R2 bucket GALLERY_BUCKET not bound" }, 500);
 
   const rawDb = getDB();
@@ -486,6 +523,50 @@ app.get("/admin/analytics", async (c) => {
   const authorized = await isAdmin(c);
   if (!authorized) return c.json({ error: "Unauthorized" }, 401);
 
+  const isLocalhost = c.req.header("host")?.includes("localhost") || 
+                      c.req.header("host")?.includes("127.0.0.1") || 
+                      c.req.header("host")?.includes("8787");
+
+  if (isLocalhost) {
+    const datesList = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      return d.toISOString().split("T")[0];
+    });
+
+    const weeklyChartData = datesList.map((date, idx) => ({
+      date,
+      count: [120, 190, 80, 240, 150, 310, 270][idx] || 0
+    }));
+
+    return c.json({
+      totalPageviews: 1250,
+      uniqueVisitors: 450,
+      totalAiSessions: 84,
+      registeredUsers: 2,
+      topPages: [
+        { pagePath: "/", count: 650 },
+        { pagePath: "/projects", count: 320 },
+        { pagePath: "/3Dgallery", count: 180 },
+        { pagePath: "/blog", count: 80 },
+        { pagePath: "/admin", count: 20 }
+      ],
+      topCountries: [
+        { country: "ID", count: 850 },
+        { country: "SG", count: 200 },
+        { country: "US", count: 120 },
+        { country: "MY", count: 60 },
+        { country: "JP", count: 20 }
+      ],
+      weeklyPageviews: weeklyChartData,
+      recentActivities: [
+        { id: 1, type: "user_login", description: "Pengguna helmiarimbawa46@gmail.com masuk sistem", created_at: new Date().toISOString() },
+        { id: 2, type: "admin_create_album", description: "Admin membuat album baru: \"Sci-Fi Helmet\"", created_at: new Date(Date.now() - 3600000).toISOString() },
+        { id: 3, type: "admin_update_software", description: "Admin memperbarui software Blender", created_at: new Date(Date.now() - 7200000).toISOString() }
+      ]
+    });
+  }
+
   const rawDb = getDB();
   const db = drizzle(rawDb);
 
@@ -579,6 +660,18 @@ app.get("/admin/analytics", async (c) => {
 app.get("/admin/activities", async (c) => {
   const authorized = await isAdmin(c);
   if (!authorized) return c.json({ error: "Unauthorized" }, 401);
+
+  const isLocalhost = c.req.header("host")?.includes("localhost") || 
+                      c.req.header("host")?.includes("127.0.0.1") || 
+                      c.req.header("host")?.includes("8787");
+
+  if (isLocalhost) {
+    return c.json([
+      { id: 1, type: "user_login", description: "Pengguna helmiarimbawa46@gmail.com masuk sistem", createdAt: new Date().toISOString() },
+      { id: 2, type: "admin_create_album", description: "Admin membuat album baru: \"Sci-Fi Helmet\"", createdAt: new Date(Date.now() - 3600000).toISOString() },
+      { id: 3, type: "admin_update_software", description: "Admin memperbarui software Blender", createdAt: new Date(Date.now() - 7200000).toISOString() }
+    ]);
+  }
 
   const rawDb = getDB();
   const db = drizzle(rawDb);

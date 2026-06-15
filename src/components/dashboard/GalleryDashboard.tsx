@@ -589,7 +589,7 @@ export function GalleryDashboard() {
               Folder album dideteksi dari `assets/3Dgallery/` di R2 bucket `{bucketName}`.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+          <CardContent className="space-y-4 max-h-[500px] overflow-y-auto px-5">
             {showCreateAlbum && (
               <form onSubmit={handleCreateAlbum} className="p-4 border rounded-lg bg-muted/20 space-y-3 mb-4">
                 <h4 className="text-xs font-bold text-foreground">Buat Album Baru</h4>
@@ -1255,7 +1255,7 @@ export function GalleryDashboard() {
               Software Terdaftar
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+          <CardContent className="space-y-3 max-h-[300px] overflow-y-auto px-6">
             {softwareTools.length === 0 ? (
               <p className="text-xs text-muted-foreground text-center py-4">Belum ada software yang terdaftar di D1.</p>
             ) : (

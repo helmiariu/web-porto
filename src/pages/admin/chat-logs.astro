@@ -98,6 +98,58 @@ try {
   console.error("⚠️ Gagal memuat data log chat dari D1 database:", queryError);
 }
 
+if (isLocalhost && guestMessages.length === 0 && userMessages.length === 0) {
+  // Inject mock chat logs for local UI development
+  guestMessages = [
+    {
+      id: 1,
+      sessionId: "session_guest_1",
+      role: "user",
+      content: "Halo, bisakah Anda ceritakan tentang keahlian frontend web-porto ini?",
+      createdAt: new Date(Date.now() - 600000).toISOString()
+    },
+    {
+      id: 2,
+      sessionId: "session_guest_1",
+      role: "ai",
+      content: "Halo! Portofolio ini dibangun menggunakan Astro, React, Tailwind CSS, dan Cloudflare Workers. Pengembang memiliki keahlian mendalam di bidang optimasi performa web, interaksi UI premium, dan arsitektur serverless.",
+      createdAt: new Date(Date.now() - 550000).toISOString()
+    },
+    {
+      id: 3,
+      sessionId: "session_guest_1",
+      role: "user",
+      content: "Apakah proyek ini Open Source?",
+      createdAt: new Date(Date.now() - 500000).toISOString()
+    }
+  ];
+
+  userMessages = [
+    {
+      id: 4,
+      sessionId: "session_user_john",
+      role: "user",
+      content: "Saya sangat menyukai desain antarmuka 3D gallery-nya, sangat smooth!",
+      createdAt: new Date(Date.now() - 3600000).toISOString(),
+      userId: "user_john_id",
+      userName: "John Doe",
+      userEmail: "johndoe@example.com",
+      userImage: "https://avatars.githubusercontent.com/u/1?v=4"
+    },
+    {
+      id: 5,
+      sessionId: "session_user_john",
+      role: "ai",
+      content: "Terima kasih banyak, John! Galeri 3D tersebut dioptimalkan menggunakan rendering Cloudflare R2 secara serverless dengan metadata terintegrasi di Drizzle ORM.",
+      createdAt: new Date(Date.now() - 3500000).toISOString(),
+      userId: "user_john_id",
+      userName: "John Doe",
+      userEmail: "johndoe@example.com",
+      userImage: "https://avatars.githubusercontent.com/u/1?v=4"
+    }
+  ];
+}
+
 // Group guest sessions
 const guestSessionsMap: Record<string, any> = {};
 guestMessages.forEach((msg) => {
