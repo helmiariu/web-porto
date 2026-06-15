@@ -179,6 +179,9 @@ function ZoomPanImage({ src, alt, onZoomChange }: ZoomPanProps) {
     );
 }
 
+// Cache global untuk menyimpan Blob URL model 3D selama tab aktif
+const globalModelCache: Record<string, string> = {};
+
 // -------------------------------------------------------------
 // MAIN MODAL COMPONENT
 // -------------------------------------------------------------
@@ -234,25 +237,25 @@ export default function ModelViewerModal({
     }, [carouselApi, isZoomed]);
 
 
-    // Pembersihan Blob URL (Hanya dipanggil saat unmount atau saat url model berubah)
+    // Logika download & pembersihan internal useEffect dengan AbortController & Global Cache
     React.useEffect(() => {
-        return () => {
-            if (blobUrl) {
-                URL.revokeObjectURL(blobUrl);
-            }
-        };
-    }, [blobUrl]);
+        if (!isOpen || activeView !== "3d" || !modelUrl) return;
 
-    // Logika download & pembersihan internal useEffect
-    React.useEffect(() => {
-        if (!isOpen || activeView !== "3d" || !modelUrl || blobUrl) return;
+        // Jika model sudah di-cache secara global di tab ini, gunakan langsung
+        if (globalModelCache[modelUrl]) {
+            setBlobUrl(globalModelCache[modelUrl]);
+            setIsDownloading(false);
+            return;
+        }
 
+        const controller = new AbortController();
+        const { signal } = controller;
         let active = true;
 
         const downloadModel = async () => {
             setIsDownloading(true);
             try {
-                const response = await fetch(modelUrl);
+                const response = await fetch(modelUrl, { signal });
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
                 const contentLength = response.headers.get("content-length");
@@ -290,9 +293,16 @@ export default function ModelViewerModal({
 
                 const blob = new Blob(chunks);
                 const objectUrl = URL.createObjectURL(blob);
+                
+                // Simpan ke cache global agar tidak perlu download ulang selama tab aktif
+                globalModelCache[modelUrl] = objectUrl;
                 setBlobUrl(objectUrl);
-            } catch (error) {
-                console.error("Failed to download 3D model:", error);
+            } catch (error: any) {
+                if (error.name === "AbortError") {
+                    console.log("3D Model download aborted successfully.");
+                } else {
+                    console.error("Failed to download 3D model:", error);
+                }
             } finally {
                 if (active) {
                     setIsDownloading(false);
@@ -304,8 +314,9 @@ export default function ModelViewerModal({
 
         return () => {
             active = false;
+            controller.abort(); // Batalkan request HTTP network jika modal ditutup saat mendownload
         };
-    }, [activeView, modelUrl, blobUrl, isOpen]);
+    }, [activeView, modelUrl, isOpen]);
 
     React.useEffect(() => {
         if (carouselApi && typeof activeView === "number") {
