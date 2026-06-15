@@ -283,8 +283,9 @@ export const POST: APIRoute = async (context) => {
         return new Response(customStream, {
             headers: {
                 "Content-Type": "text/plain; charset=utf-8",
-                "Cache-Control": "no-cache",
+                "Cache-Control": "no-cache, no-transform",
                 "Connection": "keep-alive",
+                "X-Content-Type-Options": "nosniff",
             },
         });
 

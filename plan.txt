@@ -58,3 +58,12 @@ analisa kenapa sekarang saya tes dengan login maupun tidak semua jawaban hilang 
 tugas 2
 jelaskan alur sistem menampilkan dan menyimpan riwayat chat yang sekarang 
 jangan eksekusi sebelum saya approve
+
+
+pertahankan sistem penyimpanan diatas yang sudah di kerjakan
+anda adalah seorang fullstack engineer, bagaimana anda mengatasi masalah ini
+tugas 1
+analisa bagian mana yang mengatur true streaming dan kenapa masih terasa banyak kalimat muncul instan? bagaimana supaya muncul perkalimat dilayar, sehingga ux merasa kalau ini true streaming dan bagaimana web chat ai kebanyakan melakukannya
+tugas 2
+bagaimana supaya ketika output textnya keluar panjang tampilan dilayar tetap ada di paragraf atas, jadi ketika paragraf panjang tidak langsung kebawah, sehingga pengguna tidak harus scroll up lagi untuk melihat jawaban dari awal paragraf
+buatkan dulu plan lengkapnya dan hasil analisa anda

@@ -75,9 +75,59 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ isLoggedIn = false
     }
   }, [messages]);
 
-  // Auto-scroll to bottom
+  const scrollContainerRef = React.useRef<HTMLDivElement | null>(null);
+  const shouldAutoScrollRef = React.useRef(true);
+
+  // Auto-scroll to bottom or anchor to first sentence of the latest response
   const scrollToBottom = () => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    // Hanya lakukan scroll otomatis jika user berada di area bawah
+    if (!shouldAutoScrollRef.current) return;
+
+    const latestAiMessage = container.querySelector(".chat-message-ai:last-of-type") as HTMLElement;
+    const targetScrollTop = container.scrollHeight - container.clientHeight;
+
+    if (latestAiMessage) {
+      const messageTop = latestAiMessage.offsetTop;
+      
+      // Batasi agar scrollTop tidak melebihi messageTop - 16px (menjaga kalimat pertama AI tetap terlihat di layar)
+      const maxAllowedScrollTop = Math.max(0, messageTop - 16);
+
+      if (targetScrollTop > maxAllowedScrollTop) {
+        container.scrollTo({
+          top: maxAllowedScrollTop,
+          behavior: "smooth"
+        });
+        return;
+      }
+    }
+
+    container.scrollTo({
+      top: targetScrollTop,
+      behavior: "smooth"
+    });
+  };
+
+  const handleScroll = () => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const latestAiMessage = container.querySelector(".chat-message-ai:last-of-type") as HTMLElement;
+    
+    // User dianggap di area bawah jika scroll dekat dengan paling bawah (<= 100px)
+    const isAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight <= 100;
+
+    // Atau jika scroll sedang terkunci di bagian atas pesan AI terakhir
+    let isLockedAtAiMessageTop = false;
+    if (latestAiMessage) {
+      const messageTop = latestAiMessage.offsetTop;
+      const maxAllowedScrollTop = Math.max(0, messageTop - 16);
+      isLockedAtAiMessageTop = Math.abs(container.scrollTop - maxAllowedScrollTop) < 15;
+    }
+
+    shouldAutoScrollRef.current = isAtBottom || isLockedAtAiMessageTop;
   };
 
   React.useEffect(() => {
@@ -191,21 +241,48 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ isLoggedIn = false
       setMessages((prev) => [...prev, aiMessage]);
 
       const decoder = new TextDecoder("utf-8");
-      let streamContent = "";
+      
+      // Antrean karakter lokal untuk efek typewriter
+      const textQueueRef = { current: "" };
+      let streamFinished = false;
+      let displayedContent = "";
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+      // Typewriter loop (berjalan independen tiap 20ms untuk hasil super mulus)
+      const typewriterInterval = setInterval(() => {
+        if (textQueueRef.current.length > 0) {
+          // Kecepatan adaptif: jika antrean menumpuk, tampilkan gumpalan karakter lebih besar (maks 8 karakter)
+          const charChunkSize = Math.max(1, Math.min(8, Math.ceil(textQueueRef.current.length / 4)));
+          const nextChars = textQueueRef.current.substring(0, charChunkSize);
+          textQueueRef.current = textQueueRef.current.substring(charChunkSize);
+          displayedContent += nextChars;
 
-        const chunk = decoder.decode(value, { stream: true });
-        streamContent += chunk;
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === aiMessageId ? { ...msg, content: displayedContent } : msg
+            )
+          );
+        } else if (streamFinished) {
+          // Stream dari Gemini sudah selesai dan antrean terproses habis, matikan timer
+          clearInterval(typewriterInterval);
+        }
+      }, 20);
 
-        // Perbarui konten AI secara real-time
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === aiMessageId ? { ...msg, content: streamContent } : msg
-          )
-        );
+      // Membaca stream data di background
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) {
+            streamFinished = true;
+            break;
+          }
+
+          const chunk = decoder.decode(value, { stream: true });
+          textQueueRef.current += chunk;
+        }
+      } catch (err) {
+        streamFinished = true;
+        clearInterval(typewriterInterval);
+        throw err;
       }
 
     } catch (error: any) {
@@ -306,7 +383,13 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ isLoggedIn = false
           </div>
         ) : (
           <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 flex-1 flex flex-col mt-2 md:mt-4 min-h-0">
-            <ChatHistory messages={messages} bottomRef={bottomRef} isLoading={isLoading} />
+            <ChatHistory
+              messages={messages}
+              bottomRef={bottomRef}
+              scrollContainerRef={scrollContainerRef}
+              onScroll={handleScroll}
+              isLoading={isLoading}
+            />
           </div>
         )}
       </div>

@@ -17,18 +17,26 @@ const TypingIndicator = () => {
 interface ChatHistoryProps {
   messages: Message[];
   bottomRef: React.RefObject<HTMLDivElement | null>;
+  scrollContainerRef: React.RefObject<HTMLDivElement | null>;
+  onScroll: () => void;
   isLoading: boolean;
 }
 
 export const ChatHistory: React.FC<ChatHistoryProps> = ({
   messages,
   bottomRef,
+  scrollContainerRef,
+  onScroll,
   isLoading,
 }) => {
   // Hanya gunakan ScrollArea, tidak perlu if(empty) lagi di sini
   return (
-    // Ganti ScrollArea dengan div biasa + kelas overflow-y-auto
-    <div className="flex-1 w-full pr-1.5 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+    // Ganti ScrollArea dengan div biasa + kelas overflow-y-auto + sematkan ref & onScroll
+    <div
+      ref={scrollContainerRef}
+      onScroll={onScroll}
+      className="flex-1 w-full pr-1.5 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+    >
       <div className="flex flex-col gap-6 py-4 px-1 min-h-full">
         {messages.map((message) => (
           <ChatMessage key={message.id} message={message} />

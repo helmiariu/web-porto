@@ -107,8 +107,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
       className={cn(
-        "flex w-full py-3 sm:py-4 transition-all duration-300 group",
-        isAi ? "justify-start" : "justify-end"
+        "flex w-full py-3 sm:py-4 transition-all duration-300 group chat-message",
+        isAi ? "justify-start chat-message-ai" : "justify-end chat-message-user"
       )}
     >
       {/* Container Pembungkus Pesan */}
