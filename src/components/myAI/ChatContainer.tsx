@@ -24,21 +24,25 @@ const SESSION_KEY = "myai_chat_session_id";
 
 const getOrCreateSessionId = () => {
   if (typeof window === "undefined") return "";
-  let id = sessionStorage.getItem(SESSION_KEY);
+  let id = localStorage.getItem(SESSION_KEY);
   if (!id) {
     id = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
       ? crypto.randomUUID()
       : Math.random().toString(36).substring(2) + Date.now().toString(36);
-    sessionStorage.setItem(SESSION_KEY, id);
+    localStorage.setItem(SESSION_KEY, id);
   }
   return id;
 };
 
-export const ChatContainer: React.FC = () => {
+interface ChatContainerProps {
+  isLoggedIn?: boolean;
+}
+
+export const ChatContainer: React.FC<ChatContainerProps> = ({ isLoggedIn = false }) => {
   const [messages, setMessages] = React.useState<Message[]>(() => {
     if (typeof window !== "undefined") {
       try {
-        const saved = sessionStorage.getItem(STORAGE_KEY);
+        const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
           const parsed = JSON.parse(saved);
           return parsed.map((msg: any) => ({
@@ -47,7 +51,7 @@ export const ChatContainer: React.FC = () => {
           }));
         }
       } catch (error) {
-        console.error("Failed to load chat history from sessionStorage:", error);
+        console.error("Failed to load chat history from localStorage:", error);
       }
     }
     return [];
@@ -60,13 +64,13 @@ export const ChatContainer: React.FC = () => {
     setSessionId(getOrCreateSessionId());
   }, []);
 
-  // Auto-save messages to sessionStorage whenever they change
+  // Auto-save messages to localStorage whenever they change
   React.useEffect(() => {
     if (typeof window !== "undefined") {
       try {
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
       } catch (error) {
-        console.error("Failed to save chat history to sessionStorage:", error);
+        console.error("Failed to save chat history to localStorage:", error);
       }
     }
   }, [messages]);
@@ -80,9 +84,11 @@ export const ChatContainer: React.FC = () => {
     scrollToBottom();
   }, [messages, isLoading]);
 
-  // Sinkronisasi riwayat chat dengan database D1 (GET)
+  // Sinkronisasi riwayat chat dengan database D1 (GET) - Hanya untuk user login
   React.useEffect(() => {
     const fetchChatHistory = async () => {
+      if (!isLoggedIn) return; // Skip sinkronisasi jika anonim (cukup simpan di localStorage)
+
       const activeSessionId = sessionId || getOrCreateSessionId();
       if (!activeSessionId) return;
 
@@ -103,10 +109,10 @@ export const ChatContainer: React.FC = () => {
       }
     };
 
-    if (sessionId) {
+    if (sessionId && isLoggedIn) {
       fetchChatHistory();
     }
-  }, [sessionId]);
+  }, [sessionId, isLoggedIn]);
 
   // Fungsi handleSendMessage sekarang terhubung langsung ke Pages Functions lokal
   const handleSendMessage = async (content: string) => {
@@ -229,10 +235,10 @@ export const ChatContainer: React.FC = () => {
   const handleClearChat = async () => {
     const activeSessionId = sessionId || getOrCreateSessionId();
 
-    // Optimistic UI update: hapus di frontend & session storage terlebih dahulu
+    // Optimistic UI update: hapus di frontend & local storage terlebih dahulu
     setMessages([]);
     if (typeof window !== "undefined") {
-      sessionStorage.setItem(STORAGE_KEY, "[]");
+      localStorage.setItem(STORAGE_KEY, "[]");
     }
 
     try {
@@ -246,7 +252,7 @@ export const ChatContainer: React.FC = () => {
         const newId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
           ? crypto.randomUUID()
           : Math.random().toString(36).substring(2) + Date.now().toString(36);
-        sessionStorage.setItem(SESSION_KEY, newId);
+        localStorage.setItem(SESSION_KEY, newId);
         setSessionId(newId);
       }
     } catch (err) {

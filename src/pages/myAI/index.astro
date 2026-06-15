@@ -1,6 +1,10 @@
 ---
 import Layout from "@layouts/Layout.astro";
 import { ChatContainer } from "@components/myAI/ChatContainer";
+import { getSession } from "auth-astro/server";
+
+const session = await getSession(Astro.request);
+const isLoggedIn = !!session?.user;
 ---
 
 <Layout title="myAI Playground - Assistant" fullHeight={true}>
@@ -17,7 +21,7 @@ import { ChatContainer } from "@components/myAI/ChatContainer";
     <div class="relative z-10 mx-auto flex flex-col flex-1 w-full min-h-0">
       {/* Main Interactive Chat Panel Component */}
       <div class="w-full flex-1 min-h-0 flex flex-col md:mt-2 mt-0">
-        <ChatContainer client:only="react" />
+        <ChatContainer client:only="react" isLoggedIn={isLoggedIn} />
       </div>
     </div>
   </div>

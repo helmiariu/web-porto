@@ -44,9 +44,17 @@ analisa pada src/components/myAI apakah sudah menggunakan react-markdown remark-
 tugas 2
 apakah penerapan chat ai lebih baik menerapkan true streaming? sehingga pengguna tidak perlu menatap layar kosong selama 5-10 detik menunggu AI berpikir. Begitu kata pertama siap, langsung muncul di layar.
 berikan plan untuk masalah ini jangan kerjakan sebelum saya approve
+instruksi dari kv untuk ai key ai_system_instruction
 
 tugas 1
 analisa apakah percakapan oleh user yang sudah login sudah berelasi dengan d1? sehingga ketika user login lagi percakapan lama akan ditampilkan kembali, selama user tidak menekan tombol hapus di sebelah ujung kanan myAI Playground maka pesan akan terus ditampilkan, tapi ketika user menghapusnya hapus hanya disisi user saja, jangan hapus data percakapan di d1 sebagai data admin.
 tugas 2
 analisa juga seberapa banyak Conversation History yang ikut dikirim saat percakapan sudah panjang
 bagaimana penerapan terbaik menurut anda sebagai expert backend engineer untuk 2 tugas ini sehingga tetap efisien tapi percakapan masih mengalir dan manusiawi? berikan plan yang akan anda kerjakan untuk solusi ini sebelum eksekusi
+
+anda seorang expert fullstack developer,
+tugas 1
+analisa kenapa sekarang saya tes dengan login maupun tidak semua jawaban hilang setelah berpindah halaman, laporkan temuan anda dan bagaimana solusinya supaya chat tetap ada tersimpan di cache browser baik user yang login dan yang tidak
+tugas 2
+jelaskan alur sistem menampilkan dan menyimpan riwayat chat yang sekarang 
+jangan eksekusi sebelum saya approve
