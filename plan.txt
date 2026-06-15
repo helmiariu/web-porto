@@ -67,3 +67,9 @@ analisa bagian mana yang mengatur true streaming dan kenapa masih terasa banyak 
 tugas 2
 bagaimana supaya ketika output textnya keluar panjang tampilan dilayar tetap ada di paragraf atas, jadi ketika paragraf panjang tidak langsung kebawah, sehingga pengguna tidak harus scroll up lagi untuk melihat jawaban dari awal paragraf
 buatkan dulu plan lengkapnya dan hasil analisa anda
+
+
+Penguncian Kalimat Pertama: Saat auto-scroll berjalan, jika pesan AI mulai memanjang melebihi tinggi layar, scroll otomatis akan dikunci (clamped) tepat di posisi awal dimulainya pesan AI tersebut (offsetTop - 16px).
+Ini menjamin kalimat pertama jawaban AI yang sedang mengalir tetap stasioner dan terlihat jelas di layar tanpa pernah terseret ke atas keluar dari viewport, sementara sisa tulisan baru terus mengalir ke bawah. Pengguna tetap bebas membaca dengan tenang tanpa gangguan getaran scroll layar.
+
+analisa apakah sistem yang sekarang hanya scroll otomatis akan dikunci (clamped) ketika pecakapan pertama? dan tidak clamped ketika pertanyaan kedua dan seterusnya, jelaskan analisa anda dulu

@@ -78,56 +78,84 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ isLoggedIn = false
   const scrollContainerRef = React.useRef<HTMLDivElement | null>(null);
   const shouldAutoScrollRef = React.useRef(true);
 
-  // Auto-scroll to bottom or anchor to first sentence of the latest response
+  // Auto-scroll to bottom or anchor to the latest user message (their question)
   const scrollToBottom = () => {
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    // Hanya lakukan scroll otomatis jika user berada di area bawah
+    // Hanya lakukan scroll otomatis jika user berada di area bawah / terkunci di anchor
     if (!shouldAutoScrollRef.current) return;
 
-    const latestAiMessage = container.querySelector(".chat-message-ai:last-of-type") as HTMLElement;
+    // Cari pertanyaan pengguna terakhir (terlepas dari sibling lain di bawahnya)
+    const userMessages = container.querySelectorAll(".chat-message-user");
+    const latestUserMessage = userMessages[userMessages.length - 1] as HTMLElement;
+
+    let anchorOffsetTop = 0;
+    if (latestUserMessage) {
+      anchorOffsetTop = latestUserMessage.offsetTop;
+    } else {
+      // Fallback jika tidak ada pertanyaan user: cari pesan AI terakhir
+      const aiMessages = container.querySelectorAll(".chat-message-ai");
+      const latestAiMessage = aiMessages[aiMessages.length - 1] as HTMLElement;
+      if (latestAiMessage) {
+        anchorOffsetTop = latestAiMessage.offsetTop;
+      }
+    }
+
     const targetScrollTop = container.scrollHeight - container.clientHeight;
 
-    if (latestAiMessage) {
-      const messageTop = latestAiMessage.offsetTop;
-      
-      // Batasi agar scrollTop tidak melebihi messageTop - 16px (menjaga kalimat pertama AI tetap terlihat di layar)
-      const maxAllowedScrollTop = Math.max(0, messageTop - 16);
+    if (anchorOffsetTop > 0) {
+      // Batasi agar scrollTop tidak melebihi anchorOffsetTop (menjaga pertanyaan user tepat di bagian atas viewport)
+      const maxAllowedScrollTop = Math.max(0, anchorOffsetTop);
 
       if (targetScrollTop > maxAllowedScrollTop) {
-        container.scrollTo({
-          top: maxAllowedScrollTop,
-          behavior: "smooth"
-        });
+        // Gunakan scroll instan dengan menetapkan scrollTop secara sinkron
+        // demi menghindari bentrokan asinkronus smooth scroll dengan typewriter ticks (setiap 20ms)
+        container.scrollTop = maxAllowedScrollTop;
         return;
       }
     }
 
-    container.scrollTo({
-      top: targetScrollTop,
-      behavior: "smooth"
-    });
+    // Jika sedang streaming/loading, gunakan scroll instan untuk mencegah jitter
+    if (isLoading) {
+      container.scrollTop = targetScrollTop;
+    } else {
+      container.scrollTo({
+        top: targetScrollTop,
+        behavior: "smooth"
+      });
+    }
   };
 
   const handleScroll = () => {
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    const latestAiMessage = container.querySelector(".chat-message-ai:last-of-type") as HTMLElement;
+    const userMessages = container.querySelectorAll(".chat-message-user");
+    const latestUserMessage = userMessages[userMessages.length - 1] as HTMLElement;
+
+    let anchorOffsetTop = 0;
+    if (latestUserMessage) {
+      anchorOffsetTop = latestUserMessage.offsetTop;
+    } else {
+      const aiMessages = container.querySelectorAll(".chat-message-ai");
+      const latestAiMessage = aiMessages[aiMessages.length - 1] as HTMLElement;
+      if (latestAiMessage) {
+        anchorOffsetTop = latestAiMessage.offsetTop;
+      }
+    }
     
     // User dianggap di area bawah jika scroll dekat dengan paling bawah (<= 100px)
     const isAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight <= 100;
 
-    // Atau jika scroll sedang terkunci di bagian atas pesan AI terakhir
-    let isLockedAtAiMessageTop = false;
-    if (latestAiMessage) {
-      const messageTop = latestAiMessage.offsetTop;
-      const maxAllowedScrollTop = Math.max(0, messageTop - 16);
-      isLockedAtAiMessageTop = Math.abs(container.scrollTop - maxAllowedScrollTop) < 15;
+    // Atau jika scroll sedang terkunci di bagian atas anchor pertanyaan user / AI terakhir
+    let isLockedAtAnchorTop = false;
+    if (anchorOffsetTop > 0) {
+      const maxAllowedScrollTop = Math.max(0, anchorOffsetTop);
+      isLockedAtAnchorTop = Math.abs(container.scrollTop - maxAllowedScrollTop) < 5;
     }
 
-    shouldAutoScrollRef.current = isAtBottom || isLockedAtAiMessageTop;
+    shouldAutoScrollRef.current = isAtBottom || isLockedAtAnchorTop;
   };
 
   React.useEffect(() => {
