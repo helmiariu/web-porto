@@ -223,14 +223,38 @@ app.delete("/admin/software/:id", async (c) => {
   const db = drizzle(rawDb);
 
   let toolName = `ID ${id}`;
+  let toolSlug = "";
   try {
     const tool = await db.select().from(softwareTools).where(eq(softwareTools.id, id)).limit(1);
     if (tool.length > 0) {
       toolName = tool[0].name;
+      toolSlug = tool[0].slug;
     }
   } catch (e) {}
 
   await db.delete(softwareTools).where(eq(softwareTools.id, id));
+
+  // Bersihkan slug dari albumMetadata jika ada
+  if (toolSlug) {
+    try {
+      const allMeta = await db.select().from(albumMetadata);
+      for (const meta of allMeta) {
+        let swList: string[] = [];
+        try {
+          swList = JSON.parse(meta.softwareList || "[]");
+        } catch (e) {}
+        if (swList.includes(toolSlug)) {
+          const updatedList = swList.filter((s) => s !== toolSlug);
+          await db
+            .update(albumMetadata)
+            .set({ softwareList: JSON.stringify(updatedList) })
+            .where(eq(albumMetadata.albumSlug, meta.albumSlug));
+        }
+      }
+    } catch (err) {
+      console.error("Gagal membersihkan softwareList di albumMetadata:", err);
+    }
+  }
 
   try {
     const { logActivity } = await import("@/lib/activity");

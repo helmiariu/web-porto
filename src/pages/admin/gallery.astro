@@ -37,6 +37,11 @@ try {
     .limit(1);
 
   isAdmin = adminUser && adminUser.length > 0 && adminUser[0].role === "admin";
+  
+  if (!isAdmin && isLocalhost) {
+    console.warn(`⚠️ Menggunakan fallback admin karena berjalan di localhost untuk email: ${email}`);
+    isAdmin = true;
+  }
 } catch (dbError) {
   console.error("⚠️ Gagal mengecek role admin di database:", dbError);
   if (isLocalhost) {

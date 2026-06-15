@@ -33,6 +33,27 @@ interface UploadStatus {
   error?: string;
 }
 
+function getBrightness(hexColor: string | undefined | null): number {
+  if (!hexColor) return 128;
+  const cleanHex = hexColor.replace("#", "");
+  if (cleanHex.length !== 6) return 128;
+  const r = parseInt(cleanHex.substring(0, 2), 16);
+  const g = parseInt(cleanHex.substring(2, 4), 16);
+  const b = parseInt(cleanHex.substring(4, 6), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000;
+}
+
+function getBadgeClass(color: string | undefined | null): string {
+  const brightness = getBrightness(color);
+  if (color && brightness < 80) {
+    return "text-[9px] px-1.5 py-0.5 rounded-full border bg-muted/60 text-foreground border-border/50 dark:bg-white/95 dark:text-zinc-950 dark:border-zinc-200 font-semibold flex items-center gap-1 transition-colors";
+  }
+  if (color && brightness > 200) {
+    return "text-[9px] px-1.5 py-0.5 rounded-full border bg-zinc-950 text-white border-zinc-800 dark:bg-muted/60 dark:text-foreground dark:border-border/50 font-semibold flex items-center gap-1 transition-colors";
+  }
+  return "text-[9px] px-1.5 py-0.5 rounded-full border bg-muted/60 text-foreground border-border/50 font-semibold flex items-center gap-1 transition-colors";
+}
+
 export function GalleryDashboard() {
   // States untuk 3D Gallery
   const [albums, setAlbums] = React.useState<Album[]>([]);
@@ -40,22 +61,23 @@ export function GalleryDashboard() {
   const [loading, setLoading] = React.useState(true);
   const [selectedAlbum, setSelectedAlbum] = React.useState<Album | null>(null);
   const [bucketName, setBucketName] = React.useState('dev-web-porto-r2');
-  
+
   // States untuk membuat album baru
   const [showCreateAlbum, setShowCreateAlbum] = React.useState(false);
   const [newAlbumSlug, setNewAlbumSlug] = React.useState('');
   const [newAlbumTitle, setNewAlbumTitle] = React.useState('');
   const [createAlbumMsg, setCreateAlbumMsg] = React.useState('');
   const [creatingAlbum, setCreatingAlbum] = React.useState(false);
-  
+
   // States untuk form Software Tool
   const [softwareForm, setSoftwareForm] = React.useState<SoftwareTool>({
     name: '',
     slug: '',
     iconType: 'iconify',
     iconValue: '',
-    color: '#ffffff'
+    color: '' // Default kosong (warna asli)
   });
+  const [useOriginalColor, setUseOriginalColor] = React.useState(true);
   const [editingSoftwareId, setEditingSoftwareId] = React.useState<number | null>(null);
   const [softwareSvgFile, setSoftwareSvgFile] = React.useState<File | null>(null);
   const [softwareMsg, setSoftwareMsg] = React.useState('');
@@ -65,7 +87,7 @@ export function GalleryDashboard() {
   const [albumSoftware, setAlbumSoftware] = React.useState<string[]>([]);
   const [albumMsg, setAlbumMsg] = React.useState('');
   const [showSwDropdown, setShowSwDropdown] = React.useState(false);
-  
+
   // States untuk rename file
   const [renamingKey, setRenamingKey] = React.useState<string | null>(null);
   const [renamingName, setRenamingName] = React.useState('');
@@ -128,9 +150,9 @@ export function GalleryDashboard() {
       if (res.ok) {
         setAlbumMsg('Metadata album berhasil disimpan!');
         // Refresh local data
-        setAlbums(albums.map(a => 
-          a.albumSlug === selectedAlbum.albumSlug 
-            ? { ...a, title: albumTitle, softwareList: albumSoftware } 
+        setAlbums(albums.map(a =>
+          a.albumSlug === selectedAlbum.albumSlug
+            ? { ...a, title: albumTitle, softwareList: albumSoftware }
             : a
         ));
         // Update selected state
@@ -175,19 +197,19 @@ export function GalleryDashboard() {
 
       if (res.ok) {
         const data = await res.json();
-        const updatedFiles = selectedAlbum.files.map(f => 
+        const updatedFiles = selectedAlbum.files.map(f =>
           f.key === fileKey ? { ...f, key: data.newKey, name: renamingName } : f
         );
-        
-        setAlbums(albums.map(a => 
+
+        setAlbums(albums.map(a =>
           a.albumSlug === selectedAlbum.albumSlug ? { ...a, files: updatedFiles } : a
         ));
-        
+
         setSelectedAlbum({
           ...selectedAlbum,
           files: updatedFiles
         });
-        
+
         setRenamingKey(null);
         setRenamingName('');
         setAlbumMsg('Nama berkas berhasil diubah!');
@@ -331,7 +353,7 @@ export function GalleryDashboard() {
 
     try {
       setUploading(true);
-      
+
       const initialStatuses: Record<string, UploadStatus> = {};
       uploadFiles.forEach(f => {
         initialStatuses[f.name] = {
@@ -345,16 +367,16 @@ export function GalleryDashboard() {
       const uploadPromises = uploadFiles.map(file => uploadSingleFile(file));
       const results = await Promise.all(uploadPromises);
       const successfulUploads = results.filter((r): r is { key: string; name: string; size: number } => r !== null);
-      
+
       if (successfulUploads.length > 0) {
         const newFileKeys = new Set(successfulUploads.map(f => f.key));
         const remainingExisting = selectedAlbum.files.filter(f => !newFileKeys.has(f.key));
         const finalFiles = [...remainingExisting, ...successfulUploads];
-        
-        setAlbums(prevAlbums => prevAlbums.map(a => 
+
+        setAlbums(prevAlbums => prevAlbums.map(a =>
           a.albumSlug === selectedAlbum.albumSlug ? { ...a, files: finalFiles } : a
         ));
-        
+
         setSelectedAlbum(prevSelected => prevSelected ? {
           ...prevSelected,
           files: finalFiles
@@ -396,7 +418,7 @@ export function GalleryDashboard() {
 
       if (res.ok) {
         const newFiles = selectedAlbum.files.filter(f => f.key !== fileKey);
-        setAlbums(albums.map(a => 
+        setAlbums(albums.map(a =>
           a.albumSlug === selectedAlbum.albumSlug ? { ...a, files: newFiles } : a
         ));
         setSelectedAlbum({
@@ -452,7 +474,7 @@ export function GalleryDashboard() {
     try {
       const isEdit = editingSoftwareId !== null;
       let res;
-      
+
       if (isEdit) {
         // Update (PUT JSON)
         res = await fetch(`/api/admin/software/${editingSoftwareId}`, {
@@ -492,7 +514,8 @@ export function GalleryDashboard() {
 
       if (res.ok) {
         setSoftwareMsg(isEdit ? 'Software berhasil diperbarui!' : 'Software berhasil ditambahkan!');
-        setSoftwareForm({ name: '', slug: '', iconType: 'iconify', iconValue: '', color: '#ffffff' });
+        setSoftwareForm({ name: '', slug: '', iconType: 'iconify', iconValue: '', color: '' });
+        setUseOriginalColor(true);
         setEditingSoftwareId(null);
         setSoftwareSvgFile(null);
         fetchData(); // Reload list
@@ -508,6 +531,7 @@ export function GalleryDashboard() {
   // Edit software mode
   const handleEditSoftware = (tool: SoftwareTool) => {
     setSoftwareForm(tool);
+    setUseOriginalColor(!tool.color);
     setEditingSoftwareId(tool.id || null);
     setSoftwareMsg('');
   };
@@ -543,7 +567,7 @@ export function GalleryDashboard() {
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-7">
-      
+
       {/* 1. SEKTOR KIRI (col-span 3): DAFTAR ALBUM R2 BUCKET */}
       <div className="lg:col-span-3 space-y-6">
         <Card>
@@ -553,7 +577,7 @@ export function GalleryDashboard() {
                 <Folder className="h-5 w-5 text-yellow-500" />
                 <span>Daftar Album R2 Bucket</span>
               </CardTitle>
-              <button 
+              <button
                 onClick={() => setShowCreateAlbum(!showCreateAlbum)}
                 className="h-8 rounded bg-primary text-primary-foreground px-3 text-xs font-semibold hover:bg-primary/95 flex items-center gap-1 cursor-pointer"
               >
@@ -572,8 +596,8 @@ export function GalleryDashboard() {
                 <div className="grid grid-cols-1 gap-3">
                   <div className="grid gap-1">
                     <label className="text-[10px] font-semibold text-muted-foreground uppercase">Folder Slug (Contoh: helmet)</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={newAlbumSlug}
                       onChange={(e) => setNewAlbumSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                       className="h-8 w-full rounded border border-input bg-background px-3 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
@@ -583,8 +607,8 @@ export function GalleryDashboard() {
                   </div>
                   <div className="grid gap-1">
                     <label className="text-[10px] font-semibold text-muted-foreground uppercase">Judul Album</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={newAlbumTitle}
                       onChange={(e) => setNewAlbumTitle(e.target.value)}
                       className="h-8 w-full rounded border border-input bg-background px-3 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
@@ -594,14 +618,14 @@ export function GalleryDashboard() {
                   </div>
                 </div>
                 <div className="flex gap-2 justify-end">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => setShowCreateAlbum(false)}
                     className="h-8 px-3 rounded border border-border text-xs bg-card hover:bg-muted font-medium cursor-pointer"
                   >
                     Batal
                   </button>
-                  <button 
+                  <button
                     type="submit"
                     disabled={creatingAlbum}
                     className="h-8 px-3 rounded bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/95 flex items-center justify-center gap-1 cursor-pointer"
@@ -620,13 +644,12 @@ export function GalleryDashboard() {
               <p className="text-sm text-muted-foreground text-center py-6">Tidak ada folder album di R2.</p>
             ) : (
               albums.map((album) => (
-                <div 
+                <div
                   key={album.albumSlug}
-                  className={`flex items-center justify-between p-3.5 rounded-lg border transition-all cursor-pointer ${
-                    selectedAlbum?.albumSlug === album.albumSlug 
-                      ? 'bg-primary/5 border-primary/50 ring-2 ring-primary/20 shadow-sm' 
-                      : 'bg-card border-border hover:bg-muted/30'
-                  }`}
+                  className={`flex items-center justify-between p-3.5 rounded-lg border transition-all cursor-pointer ${selectedAlbum?.albumSlug === album.albumSlug
+                    ? 'bg-primary/5 border-primary/50 ring-2 ring-primary/20 shadow-sm'
+                    : 'bg-card border-border hover:bg-muted/30'
+                    }`}
                   onClick={() => handleSelectAlbum(album)}
                 >
                   <div className="space-y-1">
@@ -648,17 +671,37 @@ export function GalleryDashboard() {
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-1.5 flex-wrap max-w-[120px]">
                     {album.softwareList.map(sw => {
                       const tool = softwareTools.find(t => t.slug === sw);
                       return tool ? (
-                        <span 
+                        <span
                           key={sw}
-                          className="text-[9px] px-1.5 py-0.5 rounded-full border border-border/50 text-foreground font-semibold flex items-center gap-1"
-                          style={{ borderColor: tool.color ? `${tool.color}30` : undefined }}
+                          className={getBadgeClass(tool.color)}
+                          style={{ borderColor: tool.color && !(getBrightness(tool.color) < 80 || getBrightness(tool.color) > 200) ? `${tool.color}30` : undefined }}
                         >
-                          {tool.iconType === 'iconify' && <Icon icon={tool.iconValue} style={{ color: tool.color }} className="h-2.5 w-2.5 shrink-0" />}
+                          {tool.iconType === 'iconify' ? (
+                            <Icon icon={tool.iconValue} style={{ color: tool.color || undefined }} className="h-2.5 w-2.5 shrink-0" />
+                          ) : tool.color ? (
+                            <div
+                              className="h-2.5 w-2.5 shrink-0"
+                              style={{
+                                backgroundColor: tool.color,
+                                WebkitMaskImage: `url(/api/assets/${tool.iconValue})`,
+                                maskImage: `url(/api/assets/${tool.iconValue})`,
+                                WebkitMaskSize: 'contain',
+                                maskSize: 'contain',
+                                WebkitMaskRepeat: 'no-repeat',
+                              }}
+                            />
+                          ) : (
+                            <img
+                              src={`/api/assets/${tool.iconValue}`}
+                              alt={tool.name}
+                              className="h-2.5 w-2.5 shrink-0 object-contain"
+                            />
+                          )}
                           <span className="truncate max-w-[40px]">{tool.name}</span>
                         </span>
                       ) : null;
@@ -685,7 +728,7 @@ export function GalleryDashboard() {
                     Folder R2: assets/3Dgallery/{selectedAlbum.albumSlug}/
                   </CardDescription>
                 </div>
-                <button 
+                <button
                   onClick={() => setSelectedAlbum(null)}
                   className="text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-muted"
                 >
@@ -721,8 +764,8 @@ export function GalleryDashboard() {
                     <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Metadata Album (D1 Database)</h4>
                     <div className="grid gap-2">
                       <label className="text-xs font-semibold text-foreground">Judul Kustom Album</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         value={albumTitle}
                         onChange={(e) => setAlbumTitle(e.target.value)}
                         className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
@@ -741,14 +784,14 @@ export function GalleryDashboard() {
                           className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-left shadow-sm flex items-center justify-between cursor-pointer focus:outline-none"
                         >
                           <span className="truncate">
-                            {albumSoftware.length === 0 
-                              ? "Pilih software 3D..." 
+                            {albumSoftware.length === 0
+                              ? "Pilih software 3D..."
                               : `${albumSoftware.length} software terpilih`
                             }
                           </span>
                           <span className="text-muted-foreground text-xs">▼</span>
                         </button>
-                        
+
                         {showSwDropdown && (
                           <>
                             <div className="fixed inset-0 z-40" onClick={() => setShowSwDropdown(false)} />
@@ -764,25 +807,31 @@ export function GalleryDashboard() {
                                       onClick={() => handleToggleSoftwareForAlbum(tool.slug)}
                                       className="flex items-center gap-2.5 px-2.5 py-1.5 text-xs font-semibold rounded hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors"
                                     >
-                                      <input 
-                                        type="checkbox" 
+                                      <input
+                                        type="checkbox"
                                         checked={isChecked}
-                                        onChange={() => {}} // handled by parent div
+                                        onChange={() => { }} // handled by parent div
                                         className="rounded border-input text-primary focus:ring-primary h-3.5 w-3.5"
                                       />
                                       {tool.iconType === 'iconify' ? (
-                                        <Icon icon={tool.iconValue} style={{ color: tool.color }} className="h-3.5 w-3.5 shrink-0" />
-                                      ) : (
-                                        <div 
+                                        <Icon icon={tool.iconValue} style={{ color: tool.color || undefined }} className="h-3.5 w-3.5 shrink-0" />
+                                      ) : tool.color ? (
+                                        <div
                                           className="h-3.5 w-3.5 shrink-0"
                                           style={{
-                                            backgroundColor: tool.color || 'currentColor',
+                                            backgroundColor: tool.color,
                                             WebkitMaskImage: `url(/api/assets/${tool.iconValue})`,
                                             maskImage: `url(/api/assets/${tool.iconValue})`,
                                             WebkitMaskSize: 'contain',
                                             maskSize: 'contain',
                                             WebkitMaskRepeat: 'no-repeat',
                                           }}
+                                        />
+                                      ) : (
+                                        <img
+                                          src={`/api/assets/${tool.iconValue}`}
+                                          alt={tool.name}
+                                          className="h-3.5 w-3.5 shrink-0 object-contain"
                                         />
                                       )}
                                       <span className="truncate">{tool.name}</span>
@@ -796,7 +845,7 @@ export function GalleryDashboard() {
                       </div>
                     </div>
 
-                    <button 
+                    <button
                       type="submit"
                       className="h-9 rounded-md bg-primary text-primary-foreground px-4 text-xs font-semibold shadow hover:bg-primary/90 flex items-center justify-center gap-1.5 cursor-pointer"
                     >
@@ -808,7 +857,7 @@ export function GalleryDashboard() {
                   {/* Kelola Berkas R2 */}
                   <div className="space-y-4">
                     <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Kelola Berkas Album (Cloudflare R2)</h4>
-                    
+
                     {/* Daftar File R2 di Album ini */}
                     <div className="space-y-2 max-h-[200px] overflow-y-auto pr-1">
                       {selectedAlbum.files.length === 0 ? (
@@ -818,8 +867,8 @@ export function GalleryDashboard() {
                           const isRenaming = renamingKey === file.key;
                           return isRenaming ? (
                             <div key={file.key} className="flex items-center gap-2 p-2 rounded bg-muted/60 border text-xs">
-                              <input 
-                                type="text" 
+                              <input
+                                type="text"
                                 value={renamingName}
                                 onChange={(e) => setRenamingName(e.target.value)}
                                 className="h-7 flex-1 rounded border border-input bg-background px-2 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
@@ -884,7 +933,7 @@ export function GalleryDashboard() {
                         <Upload className="h-3.5 w-3.5 text-muted-foreground" />
                         <span>Pilih Berkas Upload (Mendukung Multi-select)</span>
                       </label>
-                      <input 
+                      <input
                         type="file"
                         multiple
                         ref={fileInputRef}
@@ -913,7 +962,7 @@ export function GalleryDashboard() {
                                       {(file.size / (1024 * 1024)).toFixed(2)} MB
                                     </span>
                                   </div>
-                                  
+
                                   {/* Status Progres Per Berkas */}
                                   {status && (
                                     <div className="space-y-1 pt-0.5">
@@ -938,14 +987,13 @@ export function GalleryDashboard() {
                                       </div>
                                       {/* Progress Bar */}
                                       <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                                        <div 
-                                          className={`h-full transition-all duration-300 ${
-                                            status.status === 'completed' 
-                                              ? 'bg-emerald-500' 
-                                              : status.status === 'failed' 
-                                              ? 'bg-red-500' 
+                                        <div
+                                          className={`h-full transition-all duration-300 ${status.status === 'completed'
+                                            ? 'bg-emerald-500'
+                                            : status.status === 'failed'
+                                              ? 'bg-red-500'
                                               : 'bg-primary'
-                                          }`}
+                                            }`}
                                           style={{ width: `${status.progress}%` }}
                                         ></div>
                                       </div>
@@ -1002,10 +1050,10 @@ export function GalleryDashboard() {
                         .filter(f => /\.(jpg|jpeg|png|webp|avif|gif|svg)$/i.test(f.name))
                         .map((file) => (
                           <div key={file.key} className="relative group aspect-square rounded-lg border overflow-hidden bg-muted/30">
-                            <img 
-                              src={`/api/assets/${file.key}`} 
-                              alt={file.name} 
-                              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+                            <img
+                              src={`/api/assets/${file.key}`}
+                              alt={file.name}
+                              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                             />
                             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col justify-end p-2 transition-opacity duration-200">
                               <span className="text-[10px] text-white font-semibold truncate leading-tight mb-1" title={file.name}>
@@ -1062,8 +1110,8 @@ export function GalleryDashboard() {
 
               <div className="grid gap-1">
                 <label className="text-xs font-semibold">Nama Software</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={softwareForm.name}
                   onChange={(e) => setSoftwareForm({ ...softwareForm, name: e.target.value })}
                   className="h-9 w-full rounded border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
@@ -1074,8 +1122,8 @@ export function GalleryDashboard() {
 
               <div className="grid gap-1">
                 <label className="text-xs font-semibold">Slug (Unique ID)</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={softwareForm.slug}
                   onChange={(e) => setSoftwareForm({ ...softwareForm, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
                   className="h-9 w-full rounded border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
@@ -1085,24 +1133,48 @@ export function GalleryDashboard() {
                 />
               </div>
 
-              <div className="grid gap-1">
-                <label className="text-xs font-semibold">Warna Brand Icon (Color Picker)</label>
+              <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <input 
-                    type="color" 
-                    value={softwareForm.color || '#ffffff'}
-                    onChange={(e) => setSoftwareForm({ ...softwareForm, color: e.target.value })}
-                    className="h-9 w-12 rounded border cursor-pointer bg-background"
+                  <input
+                    type="checkbox"
+                    id="useCustomColor"
+                    checked={!useOriginalColor}
+                    onChange={(e) => {
+                      const check = e.target.checked;
+                      setUseOriginalColor(!check);
+                      setSoftwareForm({
+                        ...softwareForm,
+                        color: check ? '#ffffff' : ''
+                      });
+                    }}
+                    className="rounded border-input text-primary focus:ring-primary h-4 w-4 cursor-pointer"
                   />
-                  <input 
-                    type="text"
-                    value={softwareForm.color || '#ffffff'}
-                    onChange={(e) => setSoftwareForm({ ...softwareForm, color: e.target.value })}
-                    className="h-9 w-full rounded border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                    placeholder="#ffffff"
-                    maxLength={7}
-                  />
+                  <label htmlFor="useCustomColor" className="text-xs font-semibold cursor-pointer">
+                    Kustomisasi Warna Brand Ikon (Gunakan Masking)
+                  </label>
                 </div>
+
+                {!useOriginalColor && (
+                  <div className="grid gap-1 pl-6">
+                    <label className="text-[10px] font-semibold text-muted-foreground uppercase">Pilih Warna Brand</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={softwareForm.color || '#ffffff'}
+                        onChange={(e) => setSoftwareForm({ ...softwareForm, color: e.target.value })}
+                        className="h-9 w-12 rounded border cursor-pointer bg-background"
+                      />
+                      <input
+                        type="text"
+                        value={softwareForm.color ?? ''}
+                        onChange={(e) => setSoftwareForm({ ...softwareForm, color: e.target.value })}
+                        className="h-9 w-full rounded border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                        placeholder="#ffffff"
+                        maxLength={7}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="grid gap-1">
@@ -1120,8 +1192,8 @@ export function GalleryDashboard() {
               {softwareForm.iconType === 'iconify' ? (
                 <div className="grid gap-1">
                   <label className="text-xs font-semibold">Iconify Icon Key</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={softwareForm.iconValue}
                     onChange={(e) => setSoftwareForm({ ...softwareForm, iconValue: e.target.value })}
                     className="h-9 w-full rounded border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
@@ -1135,8 +1207,8 @@ export function GalleryDashboard() {
               ) : (
                 <div className="grid gap-1">
                   <label className="text-xs font-semibold">Upload File SVG Ikon</label>
-                  <input 
-                    type="file" 
+                  <input
+                    type="file"
                     accept=".svg"
                     onChange={(e) => setSoftwareSvgFile(e.target.files?.[0] || null)}
                     className="text-xs w-full file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-muted"
@@ -1163,7 +1235,8 @@ export function GalleryDashboard() {
                     type="button"
                     onClick={() => {
                       setEditingSoftwareId(null);
-                      setSoftwareForm({ name: '', slug: '', iconType: 'iconify', iconValue: '', color: '#ffffff' });
+                      setSoftwareForm({ name: '', slug: '', iconType: 'iconify', iconValue: '', color: '' });
+                      setUseOriginalColor(true);
                     }}
                     className="h-9 px-3 rounded border border-border bg-card text-foreground text-xs font-semibold hover:bg-muted cursor-pointer"
                   >
@@ -1190,18 +1263,24 @@ export function GalleryDashboard() {
                 <div key={tool.id} className="flex items-center justify-between p-2 rounded bg-muted/30 border text-xs">
                   <div className="flex items-center gap-2">
                     {tool.iconType === 'iconify' ? (
-                      <Icon icon={tool.iconValue} className="h-4 w-4" style={{ color: tool.color }} />
-                    ) : (
-                      <div 
+                      <Icon icon={tool.iconValue} className="h-4 w-4" style={{ color: tool.color || undefined }} />
+                    ) : tool.color ? (
+                      <div
                         className="h-4 w-4"
                         style={{
-                          backgroundColor: tool.color || 'currentColor',
+                          backgroundColor: tool.color,
                           WebkitMaskImage: `url(/api/assets/${tool.iconValue})`,
                           maskImage: `url(/api/assets/${tool.iconValue})`,
                           WebkitMaskSize: 'contain',
                           maskSize: 'contain',
                           WebkitMaskRepeat: 'no-repeat',
                         }}
+                      />
+                    ) : (
+                      <img
+                        src={`/api/assets/${tool.iconValue}`}
+                        alt={tool.name}
+                        className="h-4 w-4 object-contain"
                       />
                     )}
                     <span className="font-semibold">{tool.name}</span>

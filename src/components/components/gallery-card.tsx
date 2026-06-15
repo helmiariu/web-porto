@@ -32,6 +32,28 @@ interface CarouselProps {
     }>;
 }
 
+function getBrightness(hexColor: string | undefined | null): number {
+  if (!hexColor) return 128;
+  const cleanHex = hexColor.replace("#", "");
+  if (cleanHex.length !== 6) return 128;
+  const r = parseInt(cleanHex.substring(0, 2), 16);
+  const g = parseInt(cleanHex.substring(2, 4), 16);
+  const b = parseInt(cleanHex.substring(4, 6), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000;
+}
+
+function getBadgeClass(color: string | undefined | null): string {
+  const brightness = getBrightness(color);
+  const base = "flex items-center gap-1.5 px-2.5 py-0.5 md:py-1 rounded-full text-[11px] md:text-xs font-semibold border transition-all duration-200 select-none shrink-0";
+  if (color && brightness < 80) {
+    return `${base} bg-muted/65 text-foreground border-border/40 dark:bg-white/95 dark:text-zinc-950 dark:border-zinc-200`;
+  }
+  if (color && brightness > 200) {
+    return `${base} bg-zinc-950 text-white border-zinc-800 dark:bg-muted/65 dark:text-foreground dark:border-border/40`;
+  }
+  return `${base} bg-muted/65 text-foreground border-border/40 hover:bg-muted/80`;
+}
+
 export default function CarouselWithProgress({ 
     images, 
     albumName, 
@@ -64,24 +86,24 @@ export default function CarouselWithProgress({
                             {softwareTools.length > 0 ? (
                                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                                     {softwareTools.map((tool) => {
-                                        const iconColor = tool.color || "currentColor";
                                         return (
                                             <div 
                                                 key={tool.slug}
-                                                className="flex items-center gap-1 bg-muted/65 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border border-border/40 text-foreground"
+                                                className={getBadgeClass(tool.color)}
+                                                style={{ borderColor: tool.color && !(getBrightness(tool.color) < 80 || getBrightness(tool.color) > 200) ? `${tool.color}30` : undefined }}
                                                 title={tool.name}
                                             >
                                                 {tool.iconType === "iconify" ? (
                                                     <Icon 
                                                         icon={tool.iconValue} 
-                                                        className="h-3.5 w-3.5" 
-                                                        style={{ color: iconColor }}
+                                                        className="h-3.5 w-3.5 shrink-0" 
+                                                        style={{ color: tool.color || undefined }}
                                                     />
-                                                ) : (
+                                                ) : tool.color ? (
                                                     <div 
-                                                        className="h-3.5 w-3.5"
+                                                        className="h-3.5 w-3.5 shrink-0"
                                                         style={{
-                                                            backgroundColor: iconColor,
+                                                            backgroundColor: tool.color,
                                                             WebkitMaskImage: `url(${tool.iconValue.startsWith("/") ? tool.iconValue : `/api/assets/${tool.iconValue}`})`,
                                                             maskImage: `url(${tool.iconValue.startsWith("/") ? tool.iconValue : `/api/assets/${tool.iconValue}`})`,
                                                             WebkitMaskSize: "contain",
@@ -91,6 +113,12 @@ export default function CarouselWithProgress({
                                                             WebkitMaskPosition: "center",
                                                             maskPosition: "center",
                                                         }}
+                                                    />
+                                                ) : (
+                                                    <img 
+                                                        src={tool.iconValue.startsWith("/") ? tool.iconValue : `/api/assets/${tool.iconValue}`}
+                                                        alt={tool.name}
+                                                        className="h-3.5 w-3.5 shrink-0 object-contain"
                                                     />
                                                 )}
                                                 <span>{tool.name}</span>
