@@ -35,9 +35,9 @@ export const ChatHistory: React.FC<ChatHistoryProps> = ({
     <div
       ref={scrollContainerRef}
       onScroll={onScroll}
-      className="flex-1 w-full pr-1.5 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+      className="flex-1 w-full min-h-0 overflow-y-auto scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent hover:scrollbar-thumb-muted-foreground/30 transition-colors"
     >
-      <div className="flex flex-col gap-6 py-4 px-1 min-h-full">
+      <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 flex flex-col gap-6 py-4 min-h-full">
         {messages.map((message) => (
           <ChatMessage key={message.id} message={message} />
         ))}
