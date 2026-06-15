@@ -105,8 +105,21 @@ export const POST: APIRoute = async (context) => {
             });
         }
 
+        // Filter pesan bertanda error/loading agar tidak menodai konteks AI
+        const filteredMessages = messages.filter((msg) => {
+            const trimmed = msg.content.trim();
+            return !(
+                trimmed.startsWith("⚠️") || 
+                trimmed.startsWith("⏳") || 
+                trimmed.startsWith("🛠️")
+            );
+        });
+
+        // Terapkan sliding window: Ambil maksimal 12 pesan terakhir (6 turn)
+        const contextWindow = filteredMessages.slice(-12);
+
         // 3. Format payload ke format Gemini API
-        const contents = messages.map((msg) => ({
+        const contents = contextWindow.map((msg) => ({
             role: msg.role === "ai" ? "model" : "user",
             parts: [{ text: msg.content }],
         }));
@@ -277,6 +290,195 @@ export const POST: APIRoute = async (context) => {
 
     } catch (error: any) {
         console.error("🔥 FATAL ERROR DI FUNCTIONS:", error.message);
+        return new Response(
+            JSON.stringify({ error: "Internal Server Error", details: error.message }),
+            {
+                status: 500,
+                headers: { "Content-Type": "application/json" },
+            }
+        );
+    }
+};
+
+export const GET: APIRoute = async (context) => {
+    const request = context.request;
+    const url = new URL(request.url);
+    const sessionId = url.searchParams.get("sessionId");
+    
+    if (!sessionId) {
+        return new Response(JSON.stringify({ error: "sessionId diperlukan." }), {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+        });
+    }
+
+    try {
+        const session = await getSession(request);
+        const isLoggedIn = !!session?.user;
+        const user = session?.user;
+        const kv = getKV();
+
+        let dbUserId: string | null = null;
+        let chatClearedAt: string | null = null;
+
+        // 1. Dapatkan userId jika login
+        if (isLoggedIn && user?.email) {
+            try {
+                const rawDb = getDB();
+                const db = drizzle(rawDb);
+                const results = await db
+                    .select({ id: users.id })
+                    .from(users)
+                    .where(eq(users.email, user.email))
+                    .limit(1);
+                
+                if (results && results.length > 0) {
+                    dbUserId = results[0].id;
+                }
+            } catch (dbUserError) {
+                console.error("⚠️ Gagal mencari ID user di database:", dbUserError);
+            }
+        }
+
+        // 2. Ambil batas waktu penghapusan chat (chat_cleared_at) dari KV
+        if (dbUserId) {
+            chatClearedAt = await kv.get(`user:chat_cleared_at:${dbUserId}`);
+        } else {
+            chatClearedAt = await kv.get(`session:chat_cleared_at:${sessionId}`);
+        }
+
+        // 3. Query chat dari D1
+        const rawDb = getDB();
+        const db = drizzle(rawDb);
+        let query;
+
+        const { gt, and, eq } = await import("drizzle-orm");
+
+        if (dbUserId) {
+            // Pengguna login: ambil pesan miliknya (berdasarkan userId)
+            if (chatClearedAt) {
+                query = db
+                    .select()
+                    .from(aiChatMessages)
+                    .where(
+                        and(
+                            eq(aiChatMessages.userId, dbUserId),
+                            gt(aiChatMessages.createdAt, chatClearedAt)
+                        )
+                    );
+            } else {
+                query = db
+                    .select()
+                    .from(aiChatMessages)
+                    .where(eq(aiChatMessages.userId, dbUserId));
+            }
+        } else {
+            // Pengguna anonim: ambil pesan berdasarkan sessionId
+            if (chatClearedAt) {
+                query = db
+                    .select()
+                    .from(aiChatMessages)
+                    .where(
+                        and(
+                            eq(aiChatMessages.sessionId, sessionId),
+                            gt(aiChatMessages.createdAt, chatClearedAt)
+                        )
+                    );
+            } else {
+                query = db
+                    .select()
+                    .from(aiChatMessages)
+                    .where(eq(aiChatMessages.sessionId, sessionId));
+            }
+        }
+
+        const messages = await query.orderBy(aiChatMessages.createdAt);
+
+        // 4. Format data untuk frontend
+        const formattedMessages = messages.map((msg) => ({
+            id: msg.id.toString(),
+            role: msg.role,
+            content: msg.content,
+            timestamp: msg.createdAt ? new Date(msg.createdAt + " UTC") : new Date(),
+        }));
+
+        return new Response(JSON.stringify({ messages: formattedMessages }), {
+            status: 200,
+            headers: {
+                "Content-Type": "application/json",
+                "Cache-Control": "no-cache",
+            },
+        });
+
+    } catch (error: any) {
+        console.error("🔥 Gagal mengambil riwayat chat:", error.message);
+        return new Response(
+            JSON.stringify({ error: "Internal Server Error", details: error.message }),
+            {
+                status: 500,
+                headers: { "Content-Type": "application/json" },
+            }
+        );
+    }
+};
+
+export const DELETE: APIRoute = async (context) => {
+    const request = context.request;
+    const url = new URL(request.url);
+    const sessionId = url.searchParams.get("sessionId");
+
+    if (!sessionId) {
+        return new Response(JSON.stringify({ error: "sessionId diperlukan." }), {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+        });
+    }
+
+    try {
+        const session = await getSession(request);
+        const isLoggedIn = !!session?.user;
+        const user = session?.user;
+        const kv = getKV();
+
+        let dbUserId: string | null = null;
+
+        // Dapatkan userId jika login
+        if (isLoggedIn && user?.email) {
+            try {
+                const rawDb = getDB();
+                const db = drizzle(rawDb);
+                const results = await db
+                    .select({ id: users.id })
+                    .from(users)
+                    .where(eq(users.email, user.email))
+                    .limit(1);
+                
+                if (results && results.length > 0) {
+                    dbUserId = results[0].id;
+                }
+            } catch (dbUserError) {
+                console.error("⚠️ Gagal mencari ID user di database:", dbUserError);
+            }
+        }
+
+        // Catat waktu saat ini dalam format SQLite UTC timestamp: YYYY-MM-DD HH:MM:SS
+        const currentTimestampStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
+
+        if (dbUserId) {
+            // Simpan waktu penghapusan untuk pengguna terdaftar
+            await kv.put(`user:chat_cleared_at:${dbUserId}`, currentTimestampStr);
+        } else {
+            // Simpan waktu penghapusan untuk session anonim
+            await kv.put(`session:chat_cleared_at:${sessionId}`, currentTimestampStr);
+        }
+
+        return new Response(JSON.stringify({ success: true }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+        });
+
+    } catch (error: any) {
+        console.error("🔥 Gagal melakukan soft clear chat:", error.message);
         return new Response(
             JSON.stringify({ error: "Internal Server Error", details: error.message }),
             {

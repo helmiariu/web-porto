@@ -80,6 +80,34 @@ export const ChatContainer: React.FC = () => {
     scrollToBottom();
   }, [messages, isLoading]);
 
+  // Sinkronisasi riwayat chat dengan database D1 (GET)
+  React.useEffect(() => {
+    const fetchChatHistory = async () => {
+      const activeSessionId = sessionId || getOrCreateSessionId();
+      if (!activeSessionId) return;
+
+      try {
+        const res = await fetch(`${AI_CHAT_API_URL}?sessionId=${activeSessionId}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.messages && Array.isArray(data.messages)) {
+            const formatted = data.messages.map((msg: any) => ({
+              ...msg,
+              timestamp: new Date(msg.timestamp),
+            }));
+            setMessages(formatted);
+          }
+        }
+      } catch (err) {
+        console.error("Gagal sinkronisasi riwayat chat dengan D1:", err);
+      }
+    };
+
+    if (sessionId) {
+      fetchChatHistory();
+    }
+  }, [sessionId]);
+
   // Fungsi handleSendMessage sekarang terhubung langsung ke Pages Functions lokal
   const handleSendMessage = async (content: string) => {
     // 1. Buat pesan user baru
@@ -198,14 +226,31 @@ export const ChatContainer: React.FC = () => {
     }
   };
 
-  const handleClearChat = () => {
+  const handleClearChat = async () => {
+    const activeSessionId = sessionId || getOrCreateSessionId();
+
+    // Optimistic UI update: hapus di frontend & session storage terlebih dahulu
     setMessages([]);
     if (typeof window !== "undefined") {
-      const newId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-        ? crypto.randomUUID()
-        : Math.random().toString(36).substring(2) + Date.now().toString(36);
-      sessionStorage.setItem(SESSION_KEY, newId);
-      setSessionId(newId);
+      sessionStorage.setItem(STORAGE_KEY, "[]");
+    }
+
+    try {
+      // Panggil DELETE API ke backend untuk mencatat timestamp clear (soft clear) di KV
+      await fetch(`${AI_CHAT_API_URL}?sessionId=${activeSessionId}`, {
+        method: "DELETE",
+      });
+
+      // Generate sessionId baru untuk memisahkan ke thread percakapan baru
+      if (typeof window !== "undefined") {
+        const newId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+          ? crypto.randomUUID()
+          : Math.random().toString(36).substring(2) + Date.now().toString(36);
+        sessionStorage.setItem(SESSION_KEY, newId);
+        setSessionId(newId);
+      }
+    } catch (err) {
+      console.error("Gagal melakukan soft-clear percakapan pada backend:", err);
     }
   };
 
