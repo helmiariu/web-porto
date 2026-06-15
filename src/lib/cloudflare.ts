@@ -16,18 +16,10 @@ export function getCfEnv() {
 }
 
 /**
- * Mengubah/memperbarui object env Cloudflare secara dinamis (berguna untuk sinkronisasi di dev mode).
- */
-export function setCfEnv(env: any) {
-    if (env) {
-        workerEnv = env;
-    }
-}
-
-/**
  * Fallback Mock KV Namespace untuk development lokal (Node.js)
  */
 const mockKV = {
+    isMock: true,
     get: async (key: string, type?: string) => {
         console.warn(`[Local Mock KV] Reading key: "${key}"`);
         return null;
@@ -44,6 +36,7 @@ const mockKV = {
  * Fallback Mock D1 Database untuk development lokal (Node.js)
  */
 const mockDB = {
+    isMock: true,
     prepare: (sql: string) => {
         console.warn(`[Local Mock DB] Preparing statement: "${sql}"`);
         const executor = () => ({

@@ -1,12 +1,7 @@
 import { defineMiddleware } from "astro:middleware";
-import { setCfEnv } from "./lib/cloudflare";
+import { getDB } from "./lib/cloudflare";
 
 export const onRequest = defineMiddleware(async (context, next) => {
-    // Sinkronkan environment dari context request ke modul cloudflare
-    if (context.locals?.runtime?.env) {
-        setCfEnv(context.locals.runtime.env);
-    }
-
     const request = context.request;
     const url = new URL(request.url);
 
@@ -18,11 +13,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const isApi = url.pathname.startsWith("/api/");
 
     if (isHtmlPage && !isApi) {
-        // 2. Ambil data analitik dari request Cloudflare
+        // 2. Ambil data analitik dari D1 Database
         const pagePath = url.pathname;
-        const db = context.locals?.runtime?.env?.DB;
+        const db = getDB();
 
-        if (db) {
+        if (db && !(db as any).isMock) {
             // Cloudflare otomatis menyuntikkan data geolokasi di request.cf
             const country = (request as any).cf?.country || "Unknown";
             const userAgent = request.headers.get("user-agent") || "Unknown";
