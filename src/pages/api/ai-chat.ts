@@ -10,6 +10,12 @@ export const POST: APIRoute = async (context) => {
     const request = context.request;
     const kv = getKV();
 
+    // Start fetching system instruction early in parallel
+    const systemInstructionPromise = kv.get("ai_system_instruction").catch((err) => {
+        console.error("⚠️ Gagal mengambil instruksi sistem dari KV:", err);
+        return null;
+    });
+
     try {
         // 1. Deteksi Login & Batasan Rate Limit
         const session = await getSession(request);
@@ -105,15 +111,21 @@ export const POST: APIRoute = async (context) => {
             parts: [{ text: msg.content }],
         }));
 
-        // 4. Hubungi Gemini API (Menggunakan model gemini-3.1-flash-lite)
-        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${getGeminiApiKey()}`;
+        // Await dynamic system instruction (telah diproses paralel sejak awal request)
+        let systemInstruction = await systemInstructionPromise;
+        if (!systemInstruction) {
+            systemInstruction = "Anda adalah asisten AI virtual untuk website portofolio milik Helmi, seorang profesional IT dan Web Developer. Tugas utama Anda adalah menjawab pertanyaan pengunjung tentang pengalaman, keahlian (seperti frontend, modern DevOps, dan engineering tools), serta karya-karyanya. Selalu gunakan Bahasa Indonesia yang ramah, profesional, dan relevan dengan dunia teknologi, meskipun pengunjung menggunakan bahasa lain atau salah ketik.";
+        }
+
+        // 4. Hubungi Gemini API (Menggunakan model gemini-3.1-flash-lite dengan streamGenerateContent)
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:streamGenerateContent?alt=sse&key=${getGeminiApiKey()}`;
         const geminiResponse = await fetch(geminiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 systemInstruction: {
                     parts: [{
-                        text: "Anda adalah asisten AI virtual untuk website portofolio milik Helmi, seorang profesional IT dan Web Developer. Tugas utama Anda adalah menjawab pertanyaan pengunjung tentang pengalaman, keahlian (seperti frontend, modern DevOps, dan engineering tools), serta karya-karyanya. Selalu gunakan Bahasa Indonesia yang ramah, profesional, dan relevan dengan dunia teknologi, meskipun pengunjung menggunakan bahasa lain atau salah ketik."
+                        text: systemInstruction
                     }]
                 },
                 contents: contents
@@ -129,8 +141,18 @@ export const POST: APIRoute = async (context) => {
             });
         }
 
-        const geminiData = await geminiResponse.json() as any;
-        const replyText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || "Maaf, saya tidak menerima respon valid.";
+        const reader = geminiResponse.body?.getReader();
+        if (!reader) {
+            return new Response(JSON.stringify({ error: "Gagal membaca body respon Gemini." }), {
+                status: 500,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+
+        const encoder = new TextEncoder();
+        const decoder = new TextDecoder("utf-8");
+
+        let accumulatedReply = "";
 
         // 5. Cari ID user di database jika login
         let dbUserId: string | null = null;
@@ -152,46 +174,105 @@ export const POST: APIRoute = async (context) => {
             }
         }
 
-        // 6. Simpan percakapan ke database (pertanyaan user & jawaban AI)
-        try {
-            const rawDb = getDB();
-            const db = drizzle(rawDb);
-            const latestUserMessage = messages[messages.length - 1];
-
-            if (latestUserMessage && latestUserMessage.role === "user") {
-                // Simpan pertanyaan user
-                await db.insert(aiChatMessages).values({
-                    sessionId: sessionId,
-                    userId: dbUserId,
-                    role: "user",
-                    content: latestUserMessage.content,
-                });
-
-                // Simpan jawaban AI
-                await db.insert(aiChatMessages).values({
-                    sessionId: sessionId,
-                    userId: dbUserId,
-                    role: "ai",
-                    content: replyText,
-                });
-
-                // Catat aktivitas AI Chat
+        // 6. Buat readable stream untuk mengirim data ke client secara real-time
+        const customStream = new ReadableStream({
+            async start(controller) {
+                let buffer = "";
                 try {
-                    const { logActivity } = await import("../../lib/activity");
-                    const identity = user?.name || user?.email || "Pengunjung umum";
-                    await logActivity("ai_chat", `${identity} berinteraksi dengan AI Assistant`);
-                } catch (actErr) {
-                    console.error("Gagal mencatat log aktivitas AI chat:", actErr);
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        buffer += decoder.decode(value, { stream: true });
+
+                        let lineEnd = buffer.indexOf("\n");
+                        while (lineEnd !== -1) {
+                            const line = buffer.substring(0, lineEnd).trim();
+                            buffer = buffer.substring(lineEnd + 1);
+
+                            if (line.startsWith("data: ")) {
+                                const jsonStr = line.substring(6).trim();
+                                if (jsonStr) {
+                                    try {
+                                        const parsed = JSON.parse(jsonStr);
+                                        const textChunk = parsed.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                                        if (textChunk) {
+                                            accumulatedReply += textChunk;
+                                            controller.enqueue(encoder.encode(textChunk));
+                                        }
+                                    } catch (e) {
+                                        // Abaikan error parsing jika chunk JSON belum selesai
+                                    }
+                                }
+                            }
+                            lineEnd = buffer.indexOf("\n");
+                        }
+                    }
+
+                    // Flush sisa buffer terakhir jika ada
+                    if (buffer.trim().startsWith("data: ")) {
+                        const jsonStr = buffer.trim().substring(6).trim();
+                        try {
+                            const parsed = JSON.parse(jsonStr);
+                            const textChunk = parsed.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                            if (textChunk) {
+                                accumulatedReply += textChunk;
+                                controller.enqueue(encoder.encode(textChunk));
+                            }
+                        } catch (e) {}
+                    }
+                } catch (err) {
+                    console.error("Error membaca stream Gemini:", err);
+                    controller.error(err);
+                } finally {
+                    controller.close();
+
+                    // 7. Simpan percakapan ke database setelah stream selesai secara asinkron
+                    try {
+                        const rawDb = getDB();
+                        const db = drizzle(rawDb);
+                        const latestUserMessage = messages[messages.length - 1];
+
+                        if (latestUserMessage && latestUserMessage.role === "user" && accumulatedReply.trim()) {
+                            // Simpan pertanyaan user
+                            await db.insert(aiChatMessages).values({
+                                sessionId: sessionId,
+                                userId: dbUserId,
+                                role: "user",
+                                content: latestUserMessage.content,
+                            });
+
+                            // Simpan jawaban AI
+                            await db.insert(aiChatMessages).values({
+                                sessionId: sessionId,
+                                userId: dbUserId,
+                                role: "ai",
+                                content: accumulatedReply,
+                            });
+
+                            // Catat aktivitas AI Chat
+                            try {
+                                const { logActivity } = await import("../../lib/activity");
+                                const identity = user?.name || user?.email || "Pengunjung umum";
+                                await logActivity("ai_chat", `${identity} berinteraksi dengan AI Assistant (streaming)`);
+                            } catch (actErr) {
+                                console.error("Gagal mencatat log aktivitas AI chat:", actErr);
+                            }
+                        }
+                    } catch (dbError) {
+                        console.error("⚠️ Gagal menyimpan riwayat chat streaming ke database:", dbError);
+                    }
                 }
             }
-        } catch (dbError) {
-            console.error("⚠️ Gagal menyimpan riwayat chat ke database:", dbError);
-        }
+        });
 
-        // 7. Kembalikan respon ke Frontend Astro
-        return new Response(JSON.stringify({ content: replyText }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
+        // 8. Kembalikan respon stream ke Frontend Astro
+        return new Response(customStream, {
+            headers: {
+                "Content-Type": "text/plain; charset=utf-8",
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+            },
         });
 
     } catch (error: any) {

@@ -34,7 +34,7 @@ export const ChatHistory: React.FC<ChatHistoryProps> = ({
           <ChatMessage key={message.id} message={message} />
         ))}
 
-        {isLoading && (
+        {isLoading && messages[messages.length - 1]?.role !== "ai" && (
           <div className="flex gap-4 p-4 animate-in fade-in slide-in-from-bottom-2 duration-300 ease-out">
             <div className="size-9 rounded-full bg-muted/50 flex items-center justify-center border border-border/40 select-none shrink-0">
               <Cpu className="size-5 text-muted-foreground/50" />

@@ -96,7 +96,7 @@ export const ChatContainer: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // 2. Kirim riwayat pesan ke endpoint internal /api/chat
+      // 2. Kirim riwayat pesan ke endpoint internal
       const response = await fetch(AI_CHAT_API_URL, {
         method: "POST",
         headers: {
@@ -111,23 +111,68 @@ export const ChatContainer: React.FC = () => {
         }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        // Sematkan status code ke dalam object Error agar bisa dibaca di blok catch
-        const error = new Error(data.error || "Gagal mendapatkan respon dari AI.");
+        let errorMsg = "Gagal mendapatkan respon dari AI.";
+        try {
+          const data = await response.json();
+          errorMsg = data.error || errorMsg;
+        } catch (e) {
+          // Abaikan jika bukan JSON
+        }
+        const error = new Error(errorMsg);
         (error as any).status = response.status;
         throw error;
       }
 
-      // 3. Tambahkan pesan AI ke chat history
+      // Check jika server mengembalikan JSON (misal rate limit/error fallback)
+      const contentType = response.headers.get("Content-Type") || "";
+      if (contentType.includes("application/json")) {
+        const data = await response.json();
+        const aiMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: "ai",
+          content: data.content || "",
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, aiMessage]);
+        return;
+      }
+
+      // Membaca stream text
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error("Gagal membaca body respon stream dari server.");
+      }
+
+      // 3. Buat template pesan AI kosong terlebih dahulu
+      const aiMessageId = (Date.now() + 1).toString();
       const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: aiMessageId,
         role: "ai",
-        content: data.content,
+        content: "",
         timestamp: new Date(),
       };
+
+      // Tambahkan pesan kosong ke chat history
       setMessages((prev) => [...prev, aiMessage]);
+
+      const decoder = new TextDecoder("utf-8");
+      let streamContent = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        streamContent += chunk;
+
+        // Perbarui konten AI secara real-time
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === aiMessageId ? { ...msg, content: streamContent } : msg
+          )
+        );
+      }
 
     } catch (error: any) {
       // 4. Handle error UX feedback berdasarkan status code
@@ -226,7 +271,7 @@ export const ChatContainer: React.FC = () => {
           <ChatInput onSendMessage={handleSendMessage} disabled={isLoading} />
           <div className="flex items-center justify-center gap-1.5 mt-2.5 text-[11px] text-muted-foreground/90 transition-opacity duration-500">
             <Shield className="size-3" />
-            <span>Privacy first: Your messages are not stored.</span>
+            <span>Messages are securely encrypted and stored.</span>
           </div>
         </div>
       </div>
